@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="../Themes/ComicStyledTheme.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+  <!-- Comic button style -->
+  <Style x:Key="ButtonComic" TargetType="Button">
+    <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="FontFamily" Value="{StaticResource DisplayFont}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="bd" Background="{TemplateBinding Background}"
+                  CornerRadius="10"
+                  Padding="{TemplateBinding Padding}"
+                  BorderBrush="{StaticResource PrimaryBrushDark}"
+                  BorderThickness="2"
+                  SnapsToDevicePixels="True"
+                  RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+              <ScaleTransform ScaleX="1" ScaleY="1" />
+            </Border.RenderTransform>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Ellipse Width="14" Height="14" Fill="{StaticResource IconAccentBrush}" Margin="0,0,8,0" />
+              <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </StackPanel>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="bd" Property="RenderTransform">
+                <Setter.Value>
+                  <ScaleTransform ScaleX="1.02" ScaleY="1.02" />
+                </Setter.Value>
+              </Setter>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="bd" Property="RenderTransform">
+                <Setter.Value>
+                  <ScaleTransform ScaleX="0.97" ScaleY="0.97" />
+                </Setter.Value>
+              </Setter>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Comic toggle (CheckBox look) -->
+  <Style x:Key="ToggleComic" TargetType="ToggleButton">
+    <Setter Property="Width" Value="44" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource SecondaryBrush}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ToggleButton">
+          <Grid>
+            <Border x:Name="track" CornerRadius="12" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"/>
+            <Ellipse x:Name="thumb" Width="18" Height="18" Fill="{StaticResource PrimaryBrush}" Margin="3">
+              <Ellipse.RenderTransform>
+                <TranslateTransform X="0" />
+              </Ellipse.RenderTransform>
+            </Ellipse>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="thumb" Property="RenderTransform">
+                <Setter.Value>
+                  <TranslateTransform X="20" />
+                </Setter.Value>
+              </Setter>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="track" Property="Opacity" Value="0.95" />
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Comic slider basic style -->
+  <Style x:Key="SliderComic" TargetType="Slider">
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Slider">
+          <Grid>
+            <Track x:Name="PART_Track">
+              <Track.Thumb>
+                <Thumb Width="16" Height="16" Background="{StaticResource PrimaryBrush}"/>
+              </Track.Thumb>
+              <Track.DecreaseRepeatButton>
+                <RepeatButton Background="{StaticResource SecondaryBrush}" Opacity="0.7"/>
+              </Track.DecreaseRepeatButton>
+              <Track.IncreaseRepeatButton>
+                <RepeatButton Background="{StaticResource CardBackgroundBrush}" Opacity="0.4"/>
+              </Track.IncreaseRepeatButton>
+            </Track>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Settings card used in hub -->
+  <Style x:Key="SettingsCard" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource CardBackgroundBrush}" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Padding" Value="12" />
+    <Setter Property="Effect" Value="{StaticResource CardShadow}" />
+  </Style>
+
+  <!-- Minimal toolbar button style expected by older codepaths -->
+  <Style x:Key="ToolbarButtonStyle" TargetType="Button">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="6" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+  </Style>
+
+</ResourceDictionary>

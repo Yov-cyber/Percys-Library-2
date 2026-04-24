@@ -1,0 +1,24 @@
+
+Color     AgainstWhite AgainstBlack Files
+-----     ------------ ------------ -----
+#17A560           3.19         6.59 ComicRedesignTheme.xaml
+#FFFF4D           1.07        19.66 pow_drawing.xaml, pow_drawing.xaml
+#5E4CFF           5.31         3.95 ComicTheme.xaml
+#FFCC00           1.51        13.89 ComicTheme.xaml, SettingsHQ.xaml
+#0A0A0A          19.80         1.06 ComicTheme.xaml
+#08131A          18.78         1.12 ComicRedesignTheme.xaml
+#FFFFFF           1.00        21.00 pow_drawing.xaml
+#FF2B2B           3.73         5.63 ComicRedesignTheme.xaml
+#8E8E8E           3.28         6.41 ComicRedesignTheme.xaml
+#FFAA00           1.91        11.00 Controls.xaml
+#FFD34D           1.43        14.68 ComicRedesignTheme.xaml
+#FF5A00           3.13         6.71 ComicTheme.xaml
+#0B0B0B          19.68         1.07 ComicRedesignTheme.xaml
+#000000          21.00         1.00 ComicTheme.xaml, pow_drawing.xaml
+#0F000000        20.58         1.02 Textures.xaml, ben_day_tile_drawing.xaml
+#FFFDF2           1.02        20.58 ComicTheme.xaml
+#88FFAA00         1.24        16.93 Controls.xaml
+#BDBDBD           1.88        11.18 ComicRedesignTheme.xaml
+#16C784           2.20         9.54 ComicTheme.xaml
+#F0E6D0           1.24        16.93 ComicRedesignTheme.xaml
+

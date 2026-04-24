@@ -1,0 +1,41 @@
+<UserControl x:Class="ComicReader.Views.CoverGridView"
+			 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 mc:Ignorable="d"
+			 d:DesignHeight="400" d:DesignWidth="600"
+			 Background="{DynamicResource PanelBackgroundBrush}">
+
+	<UserControl.Resources>
+		<BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+	</UserControl.Resources>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<Border Grid.Row="0" Background="{DynamicResource HeaderBackgroundBrush}" Padding="10" CornerRadius="8">
+			<TextBlock Text="Portadas" Foreground="{DynamicResource TextBrush}" FontSize="16" FontWeight="Bold"/>
+		</Border>
+
+		<!-- Lista simple de portadas; se espera que el DataContext provea una colección 'Covers' -->
+		<ListView Grid.Row="1" ItemsSource="{Binding Covers}" Background="Transparent" BorderThickness="0" Padding="10">
+			<ListView.ItemsPanel>
+				<ItemsPanelTemplate>
+					<WrapPanel Orientation="Horizontal"/>
+				</ItemsPanelTemplate>
+			</ListView.ItemsPanel>
+
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<Border Width="140" Height="200" Margin="6" CornerRadius="6" Background="{DynamicResource ItemBackgroundBrush}">
+						<Image Source="{Binding CoverImage}" Stretch="UniformToFill"/>
+					</Border>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+	</Grid>
+</UserControl>

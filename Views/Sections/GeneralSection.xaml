@@ -1,0 +1,17 @@
+<UserControl x:Class="ComicReader.Views.Sections.GeneralSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="Auto" Width="Auto">
+  <Border Style="{StaticResource SettingsCard}">
+    <StackPanel>
+      <TextBlock Text="General" FontWeight="Bold" FontSize="16" />
+      <StackPanel Margin="0,8,0,0">
+        <CheckBox Content="Habilitar scroll continuo" IsChecked="{Binding AppSettings.EnableContinuousScroll, Mode=TwoWay}" />
+        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+          <TextBlock Text="Prefetch window:" VerticalAlignment="Center" Margin="0,0,8,0" />
+          <Slider Minimum="1" Maximum="50" Width="220" Value="{Binding AppSettings.PrefetchWindow, Mode=TwoWay}" />
+        </StackPanel>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

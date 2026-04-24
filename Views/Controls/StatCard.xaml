@@ -1,0 +1,31 @@
+<UserControl x:Class="ComicReader.Views.Controls.StatCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ComicReader.Views.Controls"
+             Height="84" Width="Auto">
+    <Border Style="{StaticResource RS_StatCardStyle}" x:Name="RootBorder" ToolTip="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" AutomationProperties.Name="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" AutomationProperties.HelpText="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}">
+        <Grid>
+            <Grid.RenderTransform>
+                <ScaleTransform x:Name="CardScale" ScaleX="1" ScaleY="1"/>
+            </Grid.RenderTransform>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Center title and icon vertically stacked to keep both title and value centered -->
+            <StackPanel Grid.Row="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4,2,4,0">
+                <StackPanel.RenderTransform>
+                    <!-- Empuja ligeramente el título hacia arriba sin afectar al valor centrado debajo -->
+                    <TranslateTransform Y="-6" />
+                </StackPanel.RenderTransform>
+                <Image Width="18" Height="18" Source="{Binding Icon, RelativeSource={RelativeSource AncestorType=UserControl}}" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Label, RelativeSource={RelativeSource AncestorType=UserControl}}" Foreground="{StaticResource RS_TextOnDarkBrush}" FontSize="{StaticResource RS_StatLabelSize}" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+            </StackPanel>
+
+            <TextBlock Grid.Row="1" Text="{Binding Value, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                       FontSize="{StaticResource RS_StatValueSize}" FontWeight="SemiBold" Foreground="{StaticResource RS_AccentBrush}" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center" TextAlignment="Center" TextTrimming="CharacterEllipsis" />
+        </Grid>
+    </Border>
+</UserControl>

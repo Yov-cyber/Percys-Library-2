@@ -1,0 +1,12 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="FistThumbDrawing">
+    <DrawingImage.Drawing>
+      <GeometryDrawing Brush="#E53935" Pen="{x:Null}">
+        <GeometryDrawing.Geometry>
+          <PathGeometry Figures="M10 36c0-6 4-10 10-10h6c2 0 4-2 4-4v-2c0-3 2-6 5-6s5 3 5 6v6h2c6 0 10 4 10 10v4c0 6-4 10-10 10H20c-6 0-10-4-10-10v-4z"/>
+        </GeometryDrawing.Geometry>
+      </GeometryDrawing>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

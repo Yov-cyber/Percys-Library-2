@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Settings_Title" xml:space="preserve"><value>Preferences — Percy's Library</value></data>
+  <data name="Settings_Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Settings_Preview" xml:space="preserve"><value>Preview</value></data>
+</root>

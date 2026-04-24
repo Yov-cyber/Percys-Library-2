@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, 'comic-redesign-20251023-1419' ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore "${{ github.workspace }}\ComicReader.sln"
+
+      - name: Build
+        run: dotnet build "${{ github.workspace }}\ComicReader.sln" -c Release --no-restore
+
+      - name: Run tests
+        run: dotnet test "${{ github.workspace }}" -c Release --no-build --verbosity minimal
+
+      - name: Pack artifacts (optional)
+        if: success()
+        run: |
+          dotnet publish "${{ github.workspace }}\ComicReader.sln" -c Release -o ${{ github.workspace }}\artifacts --no-build
+          echo "Artifacts published to ./artifacts"

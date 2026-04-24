@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="PinTackDrawing">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing Brush="#FFD54F" Pen="#000000">
+          <GeometryDrawing.Geometry>
+            <EllipseGeometry Center="18,18" RadiusX="8" RadiusY="8"/>
+          </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing Brush="#BDBDBD" Pen="#000000">
+          <GeometryDrawing.Geometry>
+            <RectangleGeometry Rect="20,26,4,20"/>
+          </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

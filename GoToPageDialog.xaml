@@ -1,0 +1,82 @@
+<Window x:Class="ComicReader.GoToPageDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ir a Página" 
+        Height="200" 
+        Width="350"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="ToolWindow"
+        Background="{DynamicResource BackgroundBrush}">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- Título -->
+        <TextBlock Grid.Row="0" 
+                   Text="📄 Ir a Página" 
+                   FontSize="18" 
+                   FontWeight="Bold" 
+                   HorizontalAlignment="Center"
+                   Foreground="{DynamicResource PrimaryBrush}"
+                   Margin="0,0,0,15"/>
+        
+        <!-- Instrucción -->
+        <TextBlock Grid.Row="1" 
+                   Text="Ingresa el número de página:" 
+                   FontSize="14"
+                   Foreground="{DynamicResource TextBrush}"
+                   Margin="0,0,0,10"/>
+        
+        <!-- Campo de entrada -->
+        <TextBox x:Name="PageNumberTextBox" 
+                 Grid.Row="2"
+                 FontSize="16"
+                 Padding="10,8"
+                 HorizontalContentAlignment="Center"
+                 Style="{DynamicResource ModernTextBoxStyle}"
+                 KeyDown="PageNumberTextBox_KeyDown"
+                 PreviewTextInput="PageNumberTextBox_PreviewTextInput"
+                 Margin="0,0,0,8"/>
+        
+        <!-- Rango de páginas -->
+        <Label x:Name="PageRangeLabel" 
+               Grid.Row="3"
+               Content="(1 - 100)"
+               FontSize="12"
+               Foreground="{DynamicResource SecondaryTextBrush}"
+               HorizontalAlignment="Center"
+               Margin="0,0,0,15"/>
+        
+        <!-- Botones -->
+        <StackPanel Grid.Row="5" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center"
+                    Margin="0,15,0,0">
+            
+            <Button x:Name="OkButton" 
+                    Content="✓ Ir" 
+                    Width="80" 
+                    Height="35"
+                    Style="{DynamicResource PrimaryButtonStyle}"
+                    Click="OkButton_Click"
+                    IsDefault="True"
+                    Margin="0,0,10,0"/>
+            
+            <Button x:Name="CancelButton" 
+                    Content="✕ Cancelar" 
+                    Width="80" 
+                    Height="35"
+                    Style="{DynamicResource SecondaryButtonStyle}"
+                    Click="CancelButton_Click"
+                    IsCancel="True"/>
+        </StackPanel>
+    </Grid>
+</Window>

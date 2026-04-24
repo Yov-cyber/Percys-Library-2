@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Style x:Key="SettingsCard" TargetType="Border">
+    <Setter Property="Background" Value="{StaticResource CardBgBrush}" />
+    <Setter Property="CornerRadius" Value="18" />
+    <Setter Property="Padding" Value="12" />
+    <Setter Property="Margin" Value="6" />
+  </Style>
+
+  <Style x:Key="ButtonComic" TargetType="Button">
+    <Setter Property="Background" Value="{StaticResource Accent1Brush}" />
+    <Setter Property="Foreground" Value="Black" />
+    <Setter Property="Padding" Value="8,6" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="BorderBrush" Value="{StaticResource Accent2Brush}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="2" CornerRadius="12" Padding="{TemplateBinding Padding}">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Focus visual style for keyboard accessibility -->
+  <Style x:Key="FocusOutlineStyle" TargetType="Control">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Control">
+          <Border BorderBrush="#88FFAA00" BorderThickness="2" CornerRadius="12" Background="Transparent" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Fallback brush used by PreviewPanel if dynamic resource missing -->
+  <SolidColorBrush x:Key="PreviewAccentBrush" Color="#FFAA00" />
+
+</ResourceDictionary>

@@ -1,0 +1,54 @@
+<Window x:Class="ComicReader.Views.ComicSearchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Búsqueda de Cómics" Height="520" Width="800" WindowStartupLocation="CenterOwner">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,12">
+            <TextBox x:Name="SearchBox" Width="420" Height="32" VerticalContentAlignment="Center" Margin="0,0,8,0"/>
+            <Button x:Name="SearchButton" Content="Buscar" Width="80" Click="SearchButton_Click"/>
+            <Button x:Name="ClearButton" Content="Limpiar" Width="80" Margin="8,0,0,0" Click="ClearButton_Click"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Filtros" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <CheckBox x:Name="FilterOngoing" Content="En progreso" IsChecked="True" Margin="0,0,0,6"/>
+                <CheckBox x:Name="FilterCompleted" Content="Completados" IsChecked="True" Margin="0,0,0,6"/>
+                <TextBlock Text="Carpeta:" Margin="0,12,0,4"/>
+                <TextBox x:Name="FolderFilter" Width="200"/>
+            </StackPanel>
+
+            <ListView Grid.Column="1" x:Name="ResultsList" SelectionMode="Single" MouseDoubleClick="ResultsList_MouseDoubleClick" KeyDown="ResultsList_KeyDown">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Nombre" Width="300" DisplayMemberBinding="{Binding DisplayName}"/>
+                        <GridViewColumn Header="Ubicación" Width="350" DisplayMemberBinding="{Binding FilePath}"/>
+                        <GridViewColumn Header="Estado" Width="80">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding IsCompleted}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Abrir" Width="80" Click="OpenSelected_Click"/>
+            <Button Content="Cerrar" Width="80" Margin="8,0,0,0" Click="Close_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,24 @@
+<UserControl x:Class="ComicReader.Views.Sections.AdvancedSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Height="Auto" Width="Auto">
+  <Border Style="{StaticResource SettingsCard}">
+    <StackPanel>
+      <TextBlock Text="Avanzado" FontWeight="Bold" FontSize="16" />
+      <StackPanel Margin="0,8,0,0">
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <TextBlock Text="Concurrent tasks:" VerticalAlignment="Center" Margin="0,0,8,0" />
+          <TextBox Width="60" Text="{Binding AppSettings.ConcurrencyCap, Mode=TwoWay}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8,0,0">
+          <TextBlock Text="Caché miniaturas (MB):" VerticalAlignment="Center" Margin="0,0,8,0" />
+          <TextBox Width="80" Text="{Binding AppSettings.ThumbCacheMaxMB, Mode=TwoWay}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,8,0,0">
+          <TextBlock Text="Máx. archivos miniaturas:" VerticalAlignment="Center" Margin="0,0,8,0" />
+          <TextBox Width="80" Text="{Binding AppSettings.ThumbCacheMaxFiles, Mode=TwoWay}" />
+        </StackPanel>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

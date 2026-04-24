@@ -1,0 +1,29 @@
+<Window x:Class="ComicReader.Views.RatingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Valorar" Height="220" Width="360" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Valora este contenido" FontWeight="SemiBold" FontSize="16"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,8">
+            <TextBlock Text="Puntuación:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="StarCombo" Width="120">
+                <ComboBoxItem Content="1 estrella"/>
+                <ComboBoxItem Content="2 estrellas"/>
+                <ComboBoxItem Content="3 estrellas"/>
+                <ComboBoxItem Content="4 estrellas"/>
+                <ComboBoxItem Content="5 estrellas" IsSelected="True"/>
+            </ComboBox>
+        </StackPanel>
+    <TextBox Grid.Row="2" x:Name="CommentBox" AcceptsReturn="True" Height="64" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto">Deja un comentario (opcional)</TextBox>
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+            <Button Width="80" Margin="6,0" Click="Cancel_Click">Cancelar</Button>
+            <Button Width="100" Margin="6,0" Click="Save_Click" Style="{StaticResource RecentsButton}" Background="#3B82F6" BorderBrush="#2563EB" Foreground="White">Guardar</Button>
+        </StackPanel>
+    </Grid>
+</Window>

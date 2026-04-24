@@ -1,0 +1,10 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Tokens for Collections feature -->
+    <Color x:Key="CS_BackgroundColor">#F6FAFF</Color>
+    <SolidColorBrush x:Key="CS_Background" Color="{StaticResource CS_BackgroundColor}" />
+    <SolidColorBrush x:Key="CS_CardBackground" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="CS_TextPrimary" Color="#0B1B2B" />
+    <SolidColorBrush x:Key="CS_TextSecondary" Color="#566573" />
+    <SolidColorBrush x:Key="CS_ActionAccent" Color="#28C76F" />
+</ResourceDictionary>

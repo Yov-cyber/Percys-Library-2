@@ -1,0 +1,93 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- 🎨 PALETA ESTILO CÓMIC: Usa tema global con acentos vibrantes para estilo cómic -->
+    <!-- Colores base del tema global -->
+    <SolidColorBrush x:Key="RS_AppBackgroundBrush" Color="{DynamicResource WindowBackgroundColor}"/>
+    <SolidColorBrush x:Key="RS_SurfaceBrush" Color="{DynamicResource PanelBackgroundColor}"/>
+    <SolidColorBrush x:Key="RS_SurfaceElevatedBrush" Color="{DynamicResource HeaderBackgroundColor}"/>
+    <SolidColorBrush x:Key="RS_TextOnDarkBrush" Color="{DynamicResource TextColor}"/>
+    <SolidColorBrush x:Key="RS_TextMutedBrush" Color="{DynamicResource SecondaryTextColor}"/>
+    <SolidColorBrush x:Key="RS_AccentBrush" Color="{DynamicResource AccentColor}"/>
+    
+    <!-- Colores específicos de cómic (mantienen estilo vibrante) -->
+    <Color x:Key="RS_ComicYellow">#FFD700</Color>
+    <Color x:Key="RS_ComicRed">#E94560</Color>
+    <Color x:Key="RS_ComicBlue">#00D9FF</Color>
+    <Color x:Key="RS_ComicPurple">#9D4EDD</Color>
+    <Color x:Key="RS_ComicGreen">#06FFA5</Color>
+    
+    <SolidColorBrush x:Key="RS_SuccessBrush" Color="{StaticResource RS_ComicGreen}"/>
+    <SolidColorBrush x:Key="RS_WarningBrush" Color="{StaticResource RS_ComicYellow}"/>
+    <SolidColorBrush x:Key="RS_DangerBrush" Color="{StaticResource RS_ComicRed}"/>
+
+    <!-- Gradiente vibrante tipo página de cómic - usa colores del tema -->
+    <LinearGradientBrush x:Key="RS_ComicPanelGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{DynamicResource PanelBackgroundColor}" Offset="0"/>
+        <GradientStop Color="{DynamicResource HeaderBackgroundColor}" Offset="0.5"/>
+        <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- Tokens tipográficos estilo cómic -->
+    <sys:Double x:Key="RS_StatValueSize">24</sys:Double>
+    <sys:Double x:Key="RS_StatLabelSize">13</sys:Double>
+    <CornerRadius x:Key="RS_CardCorner">8</CornerRadius>
+
+    <!-- 💥 ESTILO TARJETA ESTILO VIÑETA: Bordes gruesos, sombras pronunciadas -->
+    <Style x:Key="RS_StatCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource RS_ComicPanelGradient}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource RS_CardCorner}"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <!-- Borde grueso tipo viñeta de cómic -->
+        <Setter Property="BorderBrush" Value="#00D9FF"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="#000000" BlurRadius="12" Opacity="0.6" ShadowDepth="4" Direction="315"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="RS_ElevatedCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource RS_SurfaceElevatedBrush}"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="18"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="BorderBrush" Value="#9D4EDD"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="#000000" BlurRadius="16" Opacity="0.7" ShadowDepth="5" Direction="315"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ProgressBar estilo POW! tipo cómic -->
+    <Style x:Key="RS_ProgressBarStyle" TargetType="ProgressBar">
+        <Setter Property="Height" Value="10"/>
+        <Setter Property="Background" Value="#0F3460"/>
+        <Setter Property="Foreground" Value="{StaticResource RS_AccentBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Border Background="{TemplateBinding Background}" CornerRadius="5" BorderBrush="#00D9FF" BorderThickness="1">
+                        <Grid>
+                            <Rectangle x:Name="PART_Indicator" Fill="{TemplateBinding Foreground}" RadiusX="4" RadiusY="4" HorizontalAlignment="Left"/>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsIndeterminate" Value="True">
+                            <Setter TargetName="PART_Indicator" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="Value" Value="0">
+                            <Setter TargetName="PART_Indicator" Property="Width" Value="0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

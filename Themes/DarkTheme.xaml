@@ -1,0 +1,27 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Colores principales para modo oscuro -->
+    <Color x:Key="BackgroundColor">#222831</Color>
+    <Color x:Key="HeaderTextColor">#FFD369</Color>
+    <Color x:Key="PrimaryColor">#FFD369</Color>
+    <Color x:Key="SecondaryColor">#393E46</Color>
+    <Color x:Key="TextColor">#EEEEEE</Color>
+    <Color x:Key="FooterBackground">#393E46</Color>
+    <Color x:Key="HeaderBackground">#393E46</Color>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+    <SolidColorBrush x:Key="HeaderTextColorBrush" Color="{StaticResource HeaderTextColor}"/>
+    <SolidColorBrush x:Key="PrimaryColorBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryColorBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="TextColorBrush" Color="{StaticResource TextColor}"/>
+    <SolidColorBrush x:Key="FooterBackgroundBrush" Color="{StaticResource FooterBackground}"/>
+    <SolidColorBrush x:Key="HeaderBackgroundBrush" Color="{StaticResource HeaderBackground}"/>
+    <SolidColorBrush x:Key="PlaceholderImageBrush" Color="#444"/>
+
+    <!-- Alias para claves usadas en XAML -->
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+    <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
+    <SolidColorBrush x:Key="SecondaryTextBrush" Color="#B0B3B8"/>
+    <SolidColorBrush x:Key="AccentColorBrush" Color="#F7D917"/>
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+</ResourceDictionary>

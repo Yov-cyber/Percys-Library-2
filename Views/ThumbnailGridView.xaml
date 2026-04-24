@@ -1,0 +1,289 @@
+<UserControl x:Class="ComicReader.Views.ThumbnailGridView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800"
+             Background="{DynamicResource PanelBackgroundBrush}">
+
+    <UserControl.Resources>
+        <Style x:Key="ThumbnailItemStyle" TargetType="ListViewItem">
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Background" Value="{DynamicResource ItemBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <EventSetter Event="Loaded" Handler="OnThumbnailItemLoaded"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                Opacity="1">
+                            <Border.RenderTransform>
+                                <TranslateTransform Y="0" />
+                            </Border.RenderTransform>
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource ItemHoverBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource ItemSelectedBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="BorderThickness" Value="3"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsCurrentPage}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource CurrentPageBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="BorderThickness" Value="4"/>
+                            </DataTrigger>
+                            <!-- Animación de entrada al cargar el item -->
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ToolbarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="6" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentPressedBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="{DynamicResource DisabledBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource DisabledTextBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Convertidor para mostrar/ocultar elementos de carga -->
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Barra de herramientas superior -->
+        <Border Grid.Row="0" Background="{DynamicResource HeaderBackgroundBrush}" 
+                CornerRadius="10,10,0,0" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Controles de tamaño -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Button Content="🔍+" Style="{StaticResource ToolbarButtonStyle}"
+                            Command="{Binding IncreaseThumbSizeCommand}"
+                            ToolTip="Aumentar tamaño de miniaturas"/>
+                    
+                    <Button Content="🔍-" Style="{StaticResource ToolbarButtonStyle}"
+                            Command="{Binding DecreaseThumbSizeCommand}"
+                            ToolTip="Reducir tamaño de miniaturas"/>
+                    
+                    <TextBlock Text="{Binding ThumbnailSize, StringFormat='{}{0}px'}" 
+                               Foreground="{DynamicResource TextBrush}"
+                               VerticalAlignment="Center" Margin="10,0"/>
+                </StackPanel>
+
+                <!-- Título/Estado -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" 
+                           HorizontalAlignment="Center">
+                    <TextBlock Text="Miniaturas" 
+                               Foreground="{DynamicResource TextBrush}"
+                               FontSize="16" FontWeight="Bold"
+                               VerticalAlignment="Center"/>
+                    
+                    <TextBlock Text="{Binding Thumbnails.Count, StringFormat=' ({0} páginas)'}" 
+                               Foreground="{DynamicResource SecondaryTextBrush}"
+                               VerticalAlignment="Center" Margin="5,0"/>
+                </StackPanel>
+
+                <!-- Opciones -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <CheckBox Content="Números" 
+                              IsChecked="{Binding ShowPageNumbers}"
+                              Foreground="{DynamicResource TextBrush}"
+                              VerticalAlignment="Center" Margin="0,0,15,0"/>
+                    
+                    <CheckBox Content="Marcadores" 
+                              IsChecked="{Binding ShowBookmarks}"
+                              Foreground="{DynamicResource TextBrush}"
+                              VerticalAlignment="Center" Margin="0,0,15,0"/>
+                    
+                    <Button Content="🔄" Style="{StaticResource ToolbarButtonStyle}"
+                            Command="{Binding RefreshCommand}"
+                            ToolTip="Actualizar miniaturas"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Panel de carga -->
+        <Grid Grid.Row="1" Background="{DynamicResource PanelBackgroundBrush}"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="8" 
+                           Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,20"/>
+                <TextBlock Text="Cargando miniaturas..." 
+                          Foreground="{DynamicResource TextBrush}"
+                          FontSize="14" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Grid de miniaturas -->
+    <ListView Grid.Row="1" ItemsSource="{Binding Thumbnails}"
+                  ItemContainerStyle="{StaticResource ThumbnailItemStyle}"
+          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+          ScrollViewer.VerticalScrollBarVisibility="Auto"
+          VirtualizingPanel.IsVirtualizing="True"
+          VirtualizingPanel.VirtualizationMode="Recycling"
+          ScrollViewer.CanContentScroll="False"
+                  Background="Transparent" BorderThickness="0"
+                  Padding="10"
+                  Visibility="{Binding IsNotLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            
+            <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Width="{Binding DataContext.ThumbnailSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          Height="{Binding DataContext.ThumbnailSize, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          Cursor="Hand">
+                        
+                        <!-- Imagen de la página -->
+                        <Border CornerRadius="4" ClipToBounds="True">
+                            <Image Source="{Binding Thumbnail}" 
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                        </Border>
+
+                        <!-- Indicador de carga -->
+                        <Grid Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                              Background="{DynamicResource ItemBackgroundBrush}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <ProgressBar IsIndeterminate="True" Width="60" Height="4" 
+                                           Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,10"/>
+                                <TextBlock Text="Cargando..." 
+                                          Foreground="{DynamicResource SecondaryTextBrush}"
+                                          FontSize="10" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Número de página -->
+                        <Border HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                                Background="{DynamicResource OverlayBackgroundBrush}"
+                                CornerRadius="0,4,0,0" Padding="8,4"
+                                Visibility="{Binding DataContext.ShowPageNumbers, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="{Binding PageNumber}" 
+                                      Foreground="{DynamicResource TextBrush}"
+                                      FontSize="12" FontWeight="Bold"/>
+                        </Border>
+
+                        <!-- Indicador de marcador -->
+                        <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                                Background="{DynamicResource BookmarkBrush}"
+                                CornerRadius="4,0,0,4" Padding="6,4"
+                                Visibility="{Binding ShowBookmarkIndicator, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📖" FontSize="12" 
+                                          Foreground="White" VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding BookmarkCount}" 
+                                          Foreground="White" FontSize="10" 
+                                          FontWeight="Bold" Margin="2,0,0,0"
+                                          VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Indicador de página actual -->
+                        <Border BorderBrush="{DynamicResource CurrentPageBorderBrush}"
+                                BorderThickness="4" CornerRadius="4"
+                                Visibility="{Binding IsCurrentPage, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        <!-- Eventos de interacción -->
+                        <Grid.InputBindings>
+                            <MouseBinding Gesture="LeftClick" 
+                                        Command="{Binding DataContext.ThumbnailClickCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                            <MouseBinding Gesture="LeftDoubleClick" 
+                                        Command="{Binding DataContext.ThumbnailDoubleClickCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                        </Grid.InputBindings>
+
+                        <!-- Tooltip con información -->
+                        <Grid.ToolTip>
+                            <StackPanel>
+                                <TextBlock Text="{Binding PageNumber, StringFormat='Página {0}'}" 
+                                          FontWeight="Bold" Margin="0,0,0,5"/>
+                                <TextBlock Text="{Binding BookmarkNotes}" 
+                                          Visibility="{Binding HasBookmarks, Converter={StaticResource BoolToVisibilityConverter}}"
+                                          TextWrapping="Wrap" MaxWidth="200"/>
+                            </StackPanel>
+                        </Grid.ToolTip>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Barra de estado inferior -->
+        <Border Grid.Row="2" Background="{DynamicResource HeaderBackgroundBrush}" 
+                CornerRadius="0,0,10,10" Padding="15">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                          Text="{Binding CurrentPageIndex, StringFormat='Página actual: {0}'}" 
+                          Foreground="{DynamicResource SecondaryTextBrush}"
+                          VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="Agregar Marcador" 
+                            Style="{StaticResource ToolbarButtonStyle}"
+                            Command="{Binding AddBookmarkCommand}"
+                            Visibility="{Binding IsNotLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,39 @@
+{
+  "name": "comic-styled-tokens",
+  "fonts": {
+    "fontHeading": "Bangers, Comic Neue, Arial",
+    "fontUi": "Poppins, Segoe UI, Arial",
+    "fontMono": "Roboto Mono, Consolas, monospace"
+  },
+  "sizes": {
+    "h1": 32,
+    "h2": 22,
+    "label": 14,
+    "body": 13,
+    "micro": 11
+  },
+  "colors": {
+    "bgMain": "#0B0E18",
+    "panelLeft": "#0F1722",
+    "cardBg": "#151A28",
+    "cardAccent": "#1E2633",
+    "textPrimary": "#EDEDED",
+    "textMuted": "#AEB6C0",
+    "accent1": "#FFAA00",
+    "accent2": "#0056FF",
+    "accent3": "#FF1E1E",
+    "success": "#00D084",
+    "danger": "#FF3355",
+    "shadowInk": "rgba(0,0,0,0.65)",
+    "outlineInk": "#0D0D0D"
+  },
+  "radii": {
+    "card": 18,
+    "button": 12
+  },
+  "durations": {
+    "micro": 120,
+    "medium": 240,
+    "long": 600
+  }
+}

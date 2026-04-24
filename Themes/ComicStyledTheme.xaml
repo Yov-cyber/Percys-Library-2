@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+  <!-- Comic-styled theme tokens -->
+  <!-- Palette tuned to dark comic sidebar + orange accent (matches screenshot guidance) -->
+  <Color x:Key="PrimaryColor">#FFEA6A00</Color>     <!-- vivid orange -->
+  <Color x:Key="PrimaryColorDark">#FFB24A00</Color>
+  <Color x:Key="SecondaryColor">#FF1E90FF</Color>
+  <Color x:Key="BgColor">#FF081A1C</Color>            <!-- deep teal/dark background -->
+  <Color x:Key="CardBgColor">#FF0F2326</Color>        <!-- slightly lighter card bg -->
+  <Color x:Key="TextColor">#FFEFF6F7</Color>          <!-- light text -->
+  <Color x:Key="MutedTextColor">#FF5D6A6C</Color>
+  <Color x:Key="IconAccentColor">#FF2B2B2B</Color>     <!-- dark circle indicator -->
+
+  <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}" />
+  <SolidColorBrush x:Key="PrimaryBrushDark" Color="{StaticResource PrimaryColorDark}" />
+  <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}" />
+  <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{StaticResource BgColor}" />
+  <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource CardBgColor}" />
+  <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}" />
+  <SolidColorBrush x:Key="MutedTextBrush" Color="{StaticResource MutedTextColor}" />
+  <SolidColorBrush x:Key="IconAccentBrush" Color="{StaticResource IconAccentColor}" />
+
+  <!-- Typography -->
+  <sys:Double x:Key="BaseFontSize">14</sys:Double>
+  <sys:Double x:Key="HeadingFontSize">18</sys:Double>
+
+  <!-- Comic-esque fonts: prefer Bangers or fallbacks -->
+  <FontFamily x:Key="DisplayFont">/#Bangers, Comic Sans MS, Arial</FontFamily>
+  <FontFamily x:Key="BodyFont">Segoe UI, Arial</FontFamily>
+
+  <!-- Shadows and borders -->
+  <DropShadowEffect x:Key="CardShadow" Color="#66000000" BlurRadius="8" Opacity="0.45" />
+
+</ResourceDictionary>

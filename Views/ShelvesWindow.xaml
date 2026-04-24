@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+				xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Placeholder ResourceDictionary to avoid MSBuild XAML "Root element is missing" errors.
+	    The real ShelvesWindow UI is implemented elsewhere; keeping an empty resource dictionary
+	    here prevents build failures when the file exists but has no content. -->
+
+</ResourceDictionary>

@@ -1,0 +1,147 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+  <TargetFramework>net8.0-windows10.0.19041</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <RootNamespace>ComicReader</RootNamespace>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- Evitar duplicados generados por WPF/wpftmp: no generar automáticamente el TargetFrameworkAttribute -->
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <!-- Mantener GenerateAssemblyInfo por compatibilidad si hay AssemblyInfo.cs manual -->
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ApplicationIcon>icono.ico</ApplicationIcon>
+    <DefineConstants>$(DefineConstants);SUPPORT_PDF</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="MainWindow.ZoomCompat.g.cs" />
+    <Compile Remove="Services/ComicPageLoader.cs" />
+    <Compile Remove="Percy Library 2.0/ComicPageLoader.cs" />
+    <Compile Remove="Percy Library 2.0/Services/ComicPageLoader.cs" />
+    <Compile Remove="Percy Library 2.0/MainWindow.cs" />
+    <Compile Remove="Percy Library 2.0/MainWindow.xaml" />
+    <Compile Remove="Percy Library 2.0/MainWindow.ZoomCompat.g.cs" />
+    <Compile Remove="Percy Library 2.0/Views/MainWindow.xaml.cs" />
+    <!-- Excluir archivos de pruebas para que no se compilen con el proyecto principal -->
+    <Compile Remove="tests\**\*.cs" />
+  </ItemGroup>
+  <!-- Prevent MSBuild from attempting to compile the obsolete-settings-backup folder by excluding it from the project. -->
+  <ItemGroup>
+    <None Remove="obsolete-settings-backup\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="obsolete-settings-backup\Views.SettingsView.xaml" />
+    <None Remove="obsolete-settings-backup\Views.SettingsView.xaml.cs" />
+    <None Remove="obsolete-settings-backup\Views.SettingsSidebar.xaml" />
+    <None Remove="obsolete-settings-backup\Views.SettingsDialog.xaml" />
+    <None Remove="obsolete-settings-backup\Views.SettingsDialog.xaml.cs" />
+    <!-- Extra safety: remove any XAML files in that folder from being considered as Page/Compile/Resource -->
+    <Page Remove="obsolete-settings-backup\**\*.xaml" />
+    <Compile Remove="obsolete-settings-backup\**\*.cs" />
+    <Resource Remove="obsolete-settings-backup\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icono.ico" />
+  </ItemGroup>
+  
+  <!-- Copiar el icono de portada de archivos al directorio de salida para usarlo como DefaultIcon y placeholder -->
+  <ItemGroup>
+    <Content Include="logo de archivo.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Themes\**\*.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Styles\**\*.xaml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="design\tokens\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Settings\**\*.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  
+  
+  
+  <ItemGroup>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- DEPENDENCIAS ACTUALIZADAS Y OPTIMIZADAS (Nov 2025)                 -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    
+    <!-- UI & Gráficos - Esenciales solamente -->
+    <PackageReference Include="GongSolutions.WPF.DragDrop" Version="1.0.0.1" />
+  <PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc3.3" />
+    
+    <!-- Compresión y Archivos - Última versión estable -->
+    <PackageReference Include="SharpCompress" Version="0.38.0" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.3.8" />
+    
+    <!-- Procesamiento de Imágenes PREMIUM - Actualizado con correcciones de seguridad -->
+  <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+  <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
+  <!-- IMPORTANTE: LiveChartsCore 2.x depende de SkiaSharp 2.88.8+; usar 3.x causa fallos en el constructor del CartesianChart -->
+  <PackageReference Include="SkiaSharp" Version="2.88.8" />
+  <PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
+  <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.8" />
+    
+    <!-- Lectura de Formatos - Versiones estables disponibles -->
+    <PackageReference Include="VersOne.Epub" Version="3.3.4" />
+    <PackageReference Include="Docnet.Core" Version="2.6.0" />
+    
+    <!-- Cache y Performance - .NET 9 -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+    
+    <!-- Logging Moderno - NUEVO sistema de logs con Serilog -->
+    <PackageReference Include="Serilog" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    
+    <!-- Seguridad y Validación - NUEVO -->
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
+    
+    <!-- Análisis de Código - NUEVO para detección temprana de errores -->
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    
+    <!-- Inyección de Dependencias - NUEVO para mejor arquitectura -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
+    
+    <!-- JSON y Serialización -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- PERSISTENCIA ROBUSTA - NUEVOS PAQUETES OFICIALES                   -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    
+    <!-- Configuración y Persistencia Robusta -->
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+    
+    <!-- Sistema de Archivos Robusto -->
+    <PackageReference Include="System.IO.Abstractions" Version="21.1.3" />
+    
+    <!-- Validación de Datos -->
+    <PackageReference Include="FluentValidation" Version="11.10.0" />
+    
+    <!-- Async/Await Helpers -->
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
+  </ItemGroup>
+
+  <!-- Evitar generar el .exe (apphost) en Debug para que no se bloquee por procesos externos -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <UseAppHost>false</UseAppHost>
+  </PropertyGroup>
+</Project>
+

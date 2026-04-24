@@ -1,0 +1,21 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <DrawingImage x:Key="PowDrawing">
+    <DrawingImage.Drawing>
+      <DrawingGroup>
+        <!-- Simple star/explosion geometry -->
+        <GeometryDrawing Brush="#FFCC00" Pen="{x:Null}">
+          <GeometryDrawing.Geometry>
+            <PathGeometry Figures="M60,10 L72,40 L105,44 L78,66 L86,98 L60,80 L34,98 L42,66 L15,44 L48,40 Z"/>
+          </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <!-- Black outline -->
+        <GeometryDrawing Brush="{x:Null}" Pen="{StaticResource {x:Static SystemColors.WindowTextBrushKey}}">
+          <GeometryDrawing.Geometry>
+            <PathGeometry Figures="M60,10 L72,40 L105,44 L78,66 L86,98 L60,80 L34,98 L42,66 L15,44 L48,40 Z"/>
+          </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingImage.Drawing>
+  </DrawingImage>
+</ResourceDictionary>

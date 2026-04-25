@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:ComicReader.Views"
              xmlns:conv="clr-namespace:ComicReader.Converters"
+             xmlns:controls="clr-namespace:ComicReader.Controls"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
              Background="{DynamicResource Surface.Base.Brush}">
@@ -24,6 +25,29 @@
                 <Setter Property="Background" Value="#66000000"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="VerticalAlignment" Value="Bottom"/>
+            </Style>
+
+            <!-- ListBoxItem transparente para que el ListBox quede como contenedor
+                 puro de virtualizacion. Toda la interaccion (click, hover, contexto)
+                 vive dentro de cada DataTemplate (la propia card del cover).
+                 Sin esto, ListBox impone padding/background/seleccion azul que
+                 contradicen el sistema visual. -->
+            <Style x:Key="HomeCardListItem" TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="0"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <ContentPresenter/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
             </Style>
 
             <!-- Cover card: portada protagonista, progreso integrado en la portada,
@@ -61,8 +85,13 @@
                                 Background="{DynamicResource Surface.Overlay.Brush}"
                                 CornerRadius="8,8,0,0" ClipToBounds="True">
                             <Grid>
-                                <Image Stretch="UniformToFill" SnapsToDevicePixels="True"
-                                       RenderOptions.BitmapScalingMode="HighQuality">
+                                <!-- Stretch=Uniform: respeta proporcion original sin recortar.
+                                     El comic tiene ratio ~2:3 = 0.667; el contenedor 184x266 ratio 0.692,
+                                     diferencia minima => bandas casi imperceptibles.
+                                     HighQuality + Aliased reducen el blur en el escalado. -->
+                                <Image Stretch="Uniform" SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
+                                       RenderOptions.EdgeMode="Aliased">
                                     <Image.Source>
                                         <MultiBinding Converter="{StaticResource CoverPathOrThumbnailConverter}">
                                             <Binding Path="CoverPath"/>
@@ -118,7 +147,10 @@
                                 Background="{DynamicResource Surface.Overlay.Brush}"
                                 CornerRadius="8,8,0,0" ClipToBounds="True">
                             <Grid>
-                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                <Image Source="{Binding Thumbnail}" Stretch="Uniform"
+                                       SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
+                                       RenderOptions.EdgeMode="Aliased"
                                        Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                                 <TextBlock Text="📁" FontSize="56"
                                            Foreground="{DynamicResource Text.Secondary.Brush}"
@@ -247,11 +279,15 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- Biblioteca (cuando hay items y NO hay carpeta navegada) -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                          PanningMode="VerticalOnly" Padding="32,0,32,32">
-                <ScrollViewer.Style>
-                    <Style TargetType="ScrollViewer">
+            <!-- Biblioteca (cuando hay items y NO hay carpeta navegada).
+
+                 Sin ScrollViewer externo: las ListBox internas ya tienen su
+                 propio ScrollViewer y necesitan viewport finito para que la
+                 virtualizacion funcione. Un ScrollViewer externo forzaria
+                 altura infinita y destruiria la virtualizacion. -->
+            <Grid Margin="32,0,32,32">
+                <Grid.Style>
+                    <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <MultiDataTrigger>
@@ -263,63 +299,103 @@
                             </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
-                </ScrollViewer.Style>
+                </Grid.Style>
                 <Grid>
-                    <!-- Continuar leyendo -->
-                    <ItemsControl ItemsSource="{Binding RecentComics}"
-                                  ItemTemplate="{StaticResource ComicCoverCardTemplate}"
-                                  Visibility="{Binding ElementName=TabContinue, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl.ItemsPanel>
+                    <!-- Continuar leyendo.
+
+                         Se usa ListBox (no ItemsControl) a proposito: un ListBox
+                         instancia internamente un ScrollViewer y bridgeaa
+                         CanContentScroll=True hacia el panel virtualizante, de
+                         modo que VirtualizingWrapPanel.MeasureOverride recibe el
+                         viewport real en lugar de Infinity (lo cual crasheaba
+                         cuando VirtualizingWrapPanel quedaba dentro de un
+                         ScrollViewer externo, como ocurria con ItemsControl).
+                         El ItemContainerStyle neutraliza el chrome de ListBox
+                         para que la card de cada cover sea el unico elemento
+                         visible. -->
+                    <ListBox ItemsSource="{Binding RecentComics}"
+                             ItemTemplate="{StaticResource ComicCoverCardTemplate}"
+                             ItemContainerStyle="{StaticResource HomeCardListItem}"
+                             Visibility="{Binding ElementName=TabContinue, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"
+                             Background="Transparent" BorderThickness="0"
+                             Padding="0" Margin="0"
+                             SelectionMode="Single"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.CanContentScroll="True"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             VirtualizingPanel.ScrollUnit="Pixel">
+                        <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                                <!-- ItemWidth/Height incluyen el Margin de la card (184+16, ~340 alto). -->
+                                <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
                             </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
 
                     <!-- Completados -->
-                    <ItemsControl ItemsSource="{Binding CompletedComics}"
-                                  ItemTemplate="{StaticResource ComicCoverCardTemplate}"
-                                  Visibility="{Binding ElementName=TabCompleted, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl.ItemsPanel>
+                    <ListBox ItemsSource="{Binding CompletedComics}"
+                             ItemTemplate="{StaticResource ComicCoverCardTemplate}"
+                             ItemContainerStyle="{StaticResource HomeCardListItem}"
+                             Visibility="{Binding ElementName=TabCompleted, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"
+                             Background="Transparent" BorderThickness="0"
+                             Padding="0" Margin="0"
+                             SelectionMode="Single"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.CanContentScroll="True"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             VirtualizingPanel.ScrollUnit="Pixel">
+                        <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                                <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
                             </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                    </ItemsControl>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
                 </Grid>
-            </ScrollViewer>
+            </Grid>
 
-            <!-- Explorador de carpeta -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                          PanningMode="VerticalOnly" Padding="32,0,32,32"
-                          Visibility="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}">
-                <ItemsControl ItemsSource="{Binding FolderContents}"
-                              ItemTemplate="{StaticResource FolderItemCardTemplate}">
-                    <ItemsControl.ItemsPanel>
+            <!-- Explorador de carpeta. Mismo patron ListBox para virtualizar
+                 bien. Placeholder "carpeta vacia" via DataTrigger sobre el
+                 Template del ListBox. -->
+            <Grid Margin="32,0,32,32"
+                  Visibility="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}">
+                <ListBox ItemsSource="{Binding FolderContents}"
+                         ItemTemplate="{StaticResource FolderItemCardTemplate}"
+                         ItemContainerStyle="{StaticResource HomeCardListItem}"
+                         Background="Transparent" BorderThickness="0"
+                         Padding="0" Margin="0"
+                         SelectionMode="Single"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.CanContentScroll="True"
+                         VirtualizingPanel.IsVirtualizing="True"
+                         VirtualizingPanel.VirtualizationMode="Recycling"
+                         VirtualizingPanel.ScrollUnit="Pixel">
+                    <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                            <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
                         </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.Style>
-                        <Style TargetType="ItemsControl">
+                    </ListBox.ItemsPanel>
+                </ListBox>
+                <TextBlock Text="Esta carpeta está vacía."
+                           Foreground="{DynamicResource Text.Secondary.Brush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Margin="0,80,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding FolderContents.Count}" Value="0">
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="ItemsControl">
-                                                <TextBlock Text="Esta carpeta está vacía."
-                                                           Foreground="{DynamicResource Text.Secondary.Brush}"
-                                                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                           Margin="0,80,0,0"/>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
+                                    <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </ItemsControl.Style>
-                </ItemsControl>
-            </ScrollViewer>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

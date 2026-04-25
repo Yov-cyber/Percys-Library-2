@@ -93,6 +93,7 @@
                                 <Image Source="{Binding Image}"
                                        Stretch="Uniform"
                                        RenderOptions.BitmapScalingMode="HighQuality"
+                                       RenderOptions.EdgeMode="Aliased"
                                        Visibility="{Binding IsLoaded, Converter={StaticResource BoolToVisibilityConverter}}">
                                     
                                     <!-- Animación de fade in cuando carga -->

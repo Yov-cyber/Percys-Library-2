@@ -36,7 +36,10 @@
 									<!-- Thumbnail blur placeholder (se muestra primero si existe)
 									     y la imagen principal (full) aparece encima y hace fade-in -->
 									<Grid>
-										<Image x:Name="ThumbImage" Stretch="Uniform" Opacity="1" HorizontalAlignment="Center" IsHitTestVisible="False">
+										<Image x:Name="ThumbImage" Stretch="Uniform" Opacity="1" HorizontalAlignment="Center" IsHitTestVisible="False"
+											   SnapsToDevicePixels="True"
+											   RenderOptions.BitmapScalingMode="HighQuality"
+											   RenderOptions.EdgeMode="Aliased">
 											<Image.Source>
 												<Binding Path="Thumbnail" />
 											</Image.Source>
@@ -51,7 +54,10 @@
 											</Image.Width>
 										</Image>
 
-										<Image x:Name="PageImage" Stretch="Uniform" Loaded="Image_Loaded" Opacity="0" HorizontalAlignment="Center">
+										<Image x:Name="PageImage" Stretch="Uniform" Loaded="Image_Loaded" Opacity="0" HorizontalAlignment="Center"
+											   SnapsToDevicePixels="True"
+											   RenderOptions.BitmapScalingMode="HighQuality"
+											   RenderOptions.EdgeMode="Aliased">
 											<Image.Source>
 												<Binding Path="Image" NotifyOnTargetUpdated="True"/>
 											</Image.Source>

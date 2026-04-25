@@ -31,8 +31,11 @@
 
 			<ListView.ItemTemplate>
 				<DataTemplate>
-					<Border Width="140" Height="200" Margin="6" CornerRadius="6" Background="{DynamicResource ItemBackgroundBrush}">
-						<Image Source="{Binding CoverImage}" Stretch="UniformToFill"/>
+					<Border Width="140" Height="200" Margin="6" CornerRadius="6" Background="{DynamicResource ItemBackgroundBrush}" ClipToBounds="True">
+						<Image Source="{Binding CoverImage}" Stretch="Uniform"
+						       SnapsToDevicePixels="True"
+						       RenderOptions.BitmapScalingMode="HighQuality"
+						       RenderOptions.EdgeMode="Aliased"/>
 					</Border>
 				</DataTemplate>
 			</ListView.ItemTemplate>

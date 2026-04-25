@@ -8,7 +8,10 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <Border Grid.Column="0" BorderBrush="#2E3B4E" BorderThickness="1" CornerRadius="6" Background="#0F1B2B">
-            <Image x:Name="CoverImage" Stretch="UniformToFill" Margin="6" />
+            <Image x:Name="CoverImage" Stretch="Uniform" Margin="6"
+                   SnapsToDevicePixels="True"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   RenderOptions.EdgeMode="Aliased" />
         </Border>
 
         <StackPanel Grid.Column="1" Margin="12,0,0,0">

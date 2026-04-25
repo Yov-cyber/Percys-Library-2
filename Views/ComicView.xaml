@@ -27,9 +27,12 @@
                         VerticalAlignment="Center"
                         MaxWidth="800" MaxHeight="1200">
                     
-                    <Image x:Name="imageViewer" 
-                           Stretch="Uniform" 
-                           StretchDirection="Both"/>
+                    <Image x:Name="imageViewer"
+                           Stretch="Uniform"
+                           StretchDirection="Both"
+                           SnapsToDevicePixels="True"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased"/>
                     
                 </Border>
             </Grid>

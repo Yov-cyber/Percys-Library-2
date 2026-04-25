@@ -262,8 +262,14 @@
                     <ItemsPanelTemplate>
                         <!-- VirtualizingWrapPanel del repo: extiende VirtualizingPanel + IScrollInfo,
                              asi VirtualizingPanel.IsVirtualizing y ScrollViewer.CanContentScroll
-                             surten efecto. ItemWidth/Height incluyen Margin (160+12, 220+44+16+10). -->
-                        <controls:VirtualizingWrapPanel ItemWidth="172" ItemHeight="290"/>
+                             surten efecto. ItemHeight aritmetica:
+                               220 (cover row, fixed) +
+                                48 (title row: Margin top 8 + MaxHeight 40, TextWrapping=Wrap) +
+                                18 (author row: Margin top 2 + ~16 line height a FontSize.Caption) +
+                                16 (Grid Margin 6,8 → 8 top + 8 bottom) = 302
+                             Antes ponia 290 (mal calculado), produciendo 12px de overlap entre
+                             filas cuando el titulo se envolvia a 2 lineas. -->
+                        <controls:VirtualizingWrapPanel ItemWidth="172" ItemHeight="302"/>
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemContainerStyle>

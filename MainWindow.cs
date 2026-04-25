@@ -1551,8 +1551,17 @@ namespace ComicReader
                                         UpdatePageIndicator();
                                         ApplyZoomToImage();
                                         ApplyReadingModeEffects();
-                                        // Registrar página vista (1-based) en estadísticas
+                                        // Registrar pagina vista (1-based) en estadisticas.
+                                        // En doble pagina, registrar tambien la derecha si fue cargada.
                                         _stats?.RecordPageViewed(_currentPageIndex + 1);
+                                        try
+                                        {
+                                            bool dblStat = SettingsManager.Settings?.DoublePageEnabled == true
+                                                           && SettingsManager.Settings?.EnableContinuousScroll != true;
+                                            if (dblStat && bmpRight != null && _currentPageIndex + 1 < _comicLoader.Pages.Count)
+                                                _stats?.RecordPageViewed(_currentPageIndex + 2);
+                                        }
+                                        catch { }
                                         // Guardar progreso
                                         SettingsManager.Settings.LastOpenedFilePath = _comicLoader.FilePath;
                                         SettingsManager.Settings.LastOpenedPage = _currentPageIndex;
@@ -2216,8 +2225,9 @@ namespace ComicReader
                     }
                     catch { }
                 }
-                // Actualizar progreso en servicio
-                try { if (_isComicOpen) ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, _currentPageIndex + 1, _comicLoader.PageCount); } catch { }
+                // Actualizar progreso en servicio. En doble pagina,
+                // EffectiveProgressOneBased reporta la segunda del par cuando hay dos visibles.
+                try { if (_isComicOpen) ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, EffectiveProgressOneBased(), _comicLoader.PageCount); } catch { }
             }
         }
 
@@ -2254,12 +2264,16 @@ namespace ComicReader
                     if (n4 < _comicLoader.Pages.Count) TrackBackgroundTask(_comicLoader.GetPageImageAsync(n4, 1200));
                 }
                 catch { }
-                // Actualizar progreso
+                // Actualizar progreso. En doble pagina, si hay pagina derecha
+                // visible (_currentPageIndex + 1 dentro del rango), el progreso
+                // efectivo es la segunda pagina del par; sin esto, comics con
+                // total par nunca dispararian la regla de finalizacion (oneBased
+                // < PageCount al llegar al ultimo par).
                 try
                 {
                     if (_isComicOpen)
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {
@@ -2269,6 +2283,22 @@ namespace ComicReader
                 }
                 catch { }
             }
+        }
+
+        // En doble pagina, cuando hay par visible, el progreso reportado debe
+        // contar las dos paginas. En cualquier otro caso es _currentPageIndex + 1.
+        private int EffectiveProgressOneBased()
+        {
+            try
+            {
+                bool dbl = SettingsManager.Settings?.DoublePageEnabled == true
+                           && SettingsManager.Settings?.EnableContinuousScroll != true;
+                int total = _comicLoader?.Pages?.Count ?? 0;
+                if (dbl && total > 0 && _currentPageIndex + 1 < total)
+                    return _currentPageIndex + 2;
+                return _currentPageIndex + 1;
+            }
+            catch { return _currentPageIndex + 1; }
         }
 
         public void GoToPage_Click(object sender, RoutedEventArgs e)
@@ -2294,10 +2324,10 @@ namespace ComicReader
                         LoadCurrentPage();
                     }
                     UpdatePageIndicator();
-                    // Actualizar progreso y manejar finalización
+                    // Actualizar progreso y manejar finalizacion
                     try
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {
@@ -2413,12 +2443,12 @@ namespace ComicReader
                 }
                 _isSliderChanging = true;
                 try { UpdatePageIndicator(); } finally { _isSliderChanging = false; }
-                // Actualizar progreso en servicio y manejar finalización
+                // Actualizar progreso en servicio y manejar finalizacion
                 try
                 {
                     if (_isComicOpen)
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {
@@ -2870,10 +2900,10 @@ namespace ComicReader
                         LoadCurrentPage();
                     }
                     UpdatePageIndicator();
-                    // Guardar progreso y eliminar si es última página
+                    // Guardar progreso y eliminar si es ultima pagina
                     try
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {

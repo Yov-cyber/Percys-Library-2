@@ -275,6 +275,13 @@ namespace ComicReader.Services
         private bool _verticalPagedMode = false;
         public bool VerticalPagedMode { get => _verticalPagedMode; set => SetProperty(ref _verticalPagedMode, value); }
 
+        // Auto-recorte de bordes blancos en cada pagina cargada. OFF por defecto:
+        // muchos comics y mangas usan el borde blanco como parte del diseño y
+        // recortarlo cambia la composicion. Quien lo quiera lo activa
+        // explicitamente desde Settings -> Lectura.
+        private bool _autoCropWhiteBorders = false;
+        public bool AutoCropWhiteBorders { get => _autoCropWhiteBorders; set => SetProperty(ref _autoCropWhiteBorders, value); }
+
         // Additional properties for Settings UI compatibility
         private string _readingMode = "PageByPage";
         public string ReadingMode { get => _readingMode; set => SetProperty(ref _readingMode, value); }

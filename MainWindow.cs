@@ -1418,6 +1418,33 @@ namespace ComicReader
                             // Asegurar valor no nulo
                             if (bmp == null) bmp = GetFrozen1x1Placeholder();
 
+                            // Auto-recorte de bordes blancos opcional. Se hace
+                            // en el background thread (sigue Frozen). El
+                            // resultado de WhiteBorderCropper es un BitmapSource
+                            // ya frozen y compatible con Image.Source. Si la
+                            // setting esta off o la heuristica decide no
+                            // recortar, devuelve la imagen original.
+                            BitmapSource displayBmp = bmp;
+                            try
+                            {
+                                if (SettingsManager.Settings?.AutoCropWhiteBorders == true)
+                                {
+                                    var cropped = ComicReader.Services.WhiteBorderCropper.Crop(bmp);
+                                    if (cropped != null) displayBmp = cropped;
+                                }
+                            }
+                            catch { }
+                            BitmapSource displayBmpRight = bmpRight;
+                            try
+                            {
+                                if (bmpRight != null && SettingsManager.Settings?.AutoCropWhiteBorders == true)
+                                {
+                                    var croppedR = ComicReader.Services.WhiteBorderCropper.Crop(bmpRight);
+                                    if (croppedR != null) displayBmpRight = croppedR as BitmapSource ?? bmpRight;
+                                }
+                            }
+                            catch { }
+
                             // Ejecutar cambios en UI
                             try
                             {
@@ -1426,38 +1453,41 @@ namespace ComicReader
                                     try
                                     {
                                         var page = _comicLoader.Pages[_currentPageIndex];
-                                        // Aplicar brillo/contraste si procede
+                                        // Aplicar brillo/contraste si procede.
+                                        // page.Image (cache) guarda siempre la version SIN auto-crop
+                                        // para que el modo continuo y los thumbnails reciban la
+                                        // imagen completa; el auto-crop solo afecta lo que se
+                                        // muestra ahora (displayBmp).
                                         var s = SettingsManager.Settings;
-                                        // Imagen final que se mostrara: en doble pagina, es la composicion.
                                         System.Windows.Media.ImageSource finalSource = null;
                                         if (s != null && (Math.Abs(s.Brightness - 1.0) > 0.001 || Math.Abs(s.Contrast - 1.0) > 0.001))
                                         {
                                             try
                                             {
-                                                var adjusted = ImageAdjuster.ApplyBrightnessContrast(bmp, s.Brightness, s.Contrast);
-                                                page.Image = adjusted as BitmapImage ?? bmp;
+                                                page.Image = bmp;
+                                                var adjusted = ImageAdjuster.ApplyBrightnessContrast(displayBmp, s.Brightness, s.Contrast);
                                                 finalSource = adjusted;
                                             }
-                                            catch { page.Image = bmp; finalSource = bmp; }
+                                            catch { page.Image = bmp; finalSource = displayBmp; }
                                         }
                                         else
                                         {
                                             page.Image = bmp;
-                                            finalSource = page.Image ?? bmp;
+                                            finalSource = displayBmp;
                                         }
                                         // Si esta activo doble pagina y se logro cargar la pareja, componer.
-                                        if (wantDouble && bmpRight != null && finalSource is System.Windows.Media.Imaging.BitmapSource leftBs)
+                                        if (wantDouble && displayBmpRight != null && finalSource is System.Windows.Media.Imaging.BitmapSource leftBs)
                                         {
                                             try
                                             {
                                                 // Aplicar el mismo brillo/contraste a la pagina derecha para que ambas
                                                 // se vean uniformes. ImageAdjuster puede devolver cualquier ImageSource.
-                                                System.Windows.Media.Imaging.BitmapSource rightAdjusted = bmpRight;
+                                                System.Windows.Media.Imaging.BitmapSource rightAdjusted = displayBmpRight;
                                                 if (s != null && (Math.Abs(s.Brightness - 1.0) > 0.001 || Math.Abs(s.Contrast - 1.0) > 0.001))
                                                 {
                                                     try
                                                     {
-                                                        var adjR = ImageAdjuster.ApplyBrightnessContrast(bmpRight, s.Brightness, s.Contrast);
+                                                        var adjR = ImageAdjuster.ApplyBrightnessContrast(displayBmpRight, s.Brightness, s.Contrast);
                                                         if (adjR is System.Windows.Media.Imaging.BitmapSource adjRBs) rightAdjusted = adjRBs;
                                                     }
                                                     catch { }

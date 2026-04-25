@@ -137,6 +137,13 @@
                                 <TextBlock Text="Mostrar número de página" Style="{StaticResource SettingsRowLabel}"/>
                                 <CheckBox IsChecked="{Binding AppSettings.ShowPageNumbers, Mode=TwoWay}" VerticalAlignment="Center"/>
                             </StackPanel>
+
+                            <StackPanel Style="{StaticResource SettingsRow}">
+                                <TextBlock Text="Auto-recortar bordes blancos" Style="{StaticResource SettingsRowLabel}"/>
+                                <CheckBox IsChecked="{Binding AppSettings.AutoCropWhiteBorders, Mode=TwoWay}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="Recorta automaticamente el borde blanco de cada pagina para que la imagen ocupe mas pantalla. Si una pagina no tiene borde blanco evidente no se toca. Off por defecto."
+                                       Style="{StaticResource SettingsRowCaption}" Margin="0,0,0,8"/>
                         </StackPanel>
                     </Border>
 

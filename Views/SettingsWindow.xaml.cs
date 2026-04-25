@@ -142,7 +142,7 @@ namespace ComicReader.Views
         {
             try
             {
-                var vm = this.DataContext as SettingsViewModel;
+                var vm = _vm;
 
                 if (vm?.SelectedThemeInfo != null)
                 {
@@ -234,7 +234,7 @@ namespace ComicReader.Views
         {
             try
             {
-                var vm = this.DataContext as SettingsViewModel;
+                var vm = _vm;
                 var dlg = new Microsoft.Win32.SaveFileDialog { Filter = "JSON settings|*.json", FileName = "percys-settings.json", Title = "Exportar ajustes" };
                 if (dlg.ShowDialog(this) == true)
                 {
@@ -252,7 +252,7 @@ namespace ComicReader.Views
         {
             try
             {
-                var vm = this.DataContext as SettingsViewModel;
+                var vm = _vm;
                 var dlg = new Microsoft.Win32.OpenFileDialog { Filter = "JSON settings|*.json", Title = "Importar ajustes" };
                 if (dlg.ShowDialog(this) == true)
                 {

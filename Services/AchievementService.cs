@@ -93,6 +93,10 @@ namespace ComicReader.Services
                 {
                     a.Unlocked = true;
                     a.UnlockedAt = unlockedAt;
+                    // Algunas metricas (Streak, LongestSessionMinutes) pueden decrecer
+                    // tras estar desbloqueadas. Clampeamos CurrentValue al umbral para
+                    // que el card desbloqueado no muestre una progress bar al 33%.
+                    if (a.CurrentValue < a.Threshold) a.CurrentValue = a.Threshold;
                 }
 
                 if (!a.Unlocked && a.CurrentValue >= a.Threshold && a.Threshold > 0)

@@ -137,6 +137,13 @@
                                 <TextBlock Text="Mostrar número de página" Style="{StaticResource SettingsRowLabel}"/>
                                 <CheckBox IsChecked="{Binding AppSettings.ShowPageNumbers, Mode=TwoWay}" VerticalAlignment="Center"/>
                             </StackPanel>
+
+                            <StackPanel Style="{StaticResource SettingsRow}">
+                                <TextBlock Text="Auto-recortar bordes blancos" Style="{StaticResource SettingsRowLabel}"/>
+                                <CheckBox IsChecked="{Binding AppSettings.AutoCropWhiteBorders, Mode=TwoWay}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="Recorta automaticamente el borde blanco de cada pagina para que la imagen ocupe mas pantalla. Si una pagina no tiene borde blanco evidente no se toca. Off por defecto."
+                                       Style="{StaticResource SettingsRowCaption}" Margin="0,0,0,8"/>
                         </StackPanel>
                     </Border>
 
@@ -207,6 +214,21 @@
                                        Style="{StaticResource SettingsRowCaption}"/>
                         </StackPanel>
                     </Border>
+
+                    <Border Style="{StaticResource SettingsCard}">
+                        <StackPanel>
+                            <TextBlock Text="Personalización" Style="{StaticResource SettingsSectionTitle}"/>
+
+                            <StackPanel Style="{StaticResource SettingsRow}">
+                                <TextBlock Text="Tu nombre" Style="{StaticResource SettingsRowLabel}"/>
+                                <TextBox Text="{Binding AppSettings.UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="240"
+                                         Style="{DynamicResource Input.Text}"/>
+                            </StackPanel>
+                            <TextBlock Text="Si lo configurás, Percy te saluda en el inicio según la hora del día. Vacío = sin saludo."
+                                       Style="{StaticResource SettingsRowCaption}"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
                 <!-- ====== BIBLIOTECA ====== -->
@@ -257,6 +279,26 @@
                                 <Button Content="Limpiar caché" Style="{DynamicResource Button.Secondary}" Command="{Binding ClearCacheCommand}"/>
                                 <Button Content="Optimizar ahora" Style="{DynamicResource Button.Secondary}" Command="{Binding OptimizeCommand}" Margin="8,0,0,0"/>
                             </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsCard}">
+                        <StackPanel>
+                            <TextBlock Text="ComicVine (opcional)" Style="{StaticResource SettingsSectionTitle}"/>
+
+                            <StackPanel Style="{StaticResource SettingsRow}">
+                                <TextBlock Text="Habilitar enriquecimiento de metadatos" Style="{StaticResource SettingsRowLabel}"/>
+                                <CheckBox IsChecked="{Binding AppSettings.EnableComicVineEnrichment, Mode=TwoWay}" VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Style="{StaticResource SettingsRow}">
+                                <TextBlock Text="API key" Style="{StaticResource SettingsRowLabel}"/>
+                                <TextBox Text="{Binding AppSettings.ComicVineApiKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="320"
+                                         Style="{DynamicResource Input.Text}"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsRowCaption}"
+                                       Text="Obtené tu key gratis en comicvine.gamespot.com/api/. Si la dejás vacía, la app funciona 100% offline."/>
                         </StackPanel>
                     </Border>
 

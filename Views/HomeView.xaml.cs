@@ -71,6 +71,9 @@ namespace ComicReader.Views
             {
                 _currentFolderPath = value;
                 OnPropertyChanged(nameof(CurrentFolderPath));
+                // El saludo ("Buenos dias, X") solo es relevante en la vista
+                // raiz de la biblioteca; al entrar a una carpeta se oculta.
+                try { UpdateGreeting(); } catch { }
             }
         }
 
@@ -290,6 +293,50 @@ namespace ComicReader.Views
         private void HomeView_Loaded(object sender, RoutedEventArgs e)
         {
             SubscribeHistory();
+            UpdateGreeting();
+            try
+            {
+                if (SettingsManager.Settings is INotifyPropertyChanged inpc)
+                {
+                    inpc.PropertyChanged -= Settings_PropertyChanged_Greeting;
+                    inpc.PropertyChanged += Settings_PropertyChanged_Greeting;
+                }
+            }
+            catch { }
+        }
+
+        private void Settings_PropertyChanged_Greeting(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppSettings.UserName))
+            {
+                try { Dispatcher.BeginInvoke(new Action(UpdateGreeting)); } catch { }
+            }
+        }
+
+        private void UpdateGreeting()
+        {
+            try
+            {
+                var tb = this.FindName("GreetingText") as TextBlock;
+                if (tb == null) return;
+                // El saludo solo aplica en la vista raiz; al navegar una
+                // carpeta el header pasa a mostrar el path/breadcrumb.
+                bool inFolder = !string.IsNullOrWhiteSpace(CurrentFolderPath);
+                var name = SettingsManager.Settings?.UserName?.Trim();
+                if (inFolder || string.IsNullOrEmpty(name))
+                {
+                    tb.Visibility = Visibility.Collapsed;
+                    tb.Text = string.Empty;
+                    return;
+                }
+                int h = DateTime.Now.Hour;
+                string saludo = h >= 5 && h < 12 ? "Buenos días"
+                              : h >= 12 && h < 20 ? "Buenas tardes"
+                              : "Buenas noches";
+                tb.Text = $"{saludo}, {name}";
+                tb.Visibility = Visibility.Visible;
+            }
+            catch { }
         }
 
         private void HomeView_Unloaded(object sender, RoutedEventArgs e)
@@ -301,6 +348,15 @@ namespace ComicReader.Views
                 Task[] arr;
                 lock (_bgLock) { arr = _bgTasks.ToArray(); }
                 if (arr != null && arr.Length > 0) Task.WaitAll(arr, 1200);
+            }
+            catch { }
+            // Des-suscribir el handler del saludo: SettingsManager.Settings
+            // es un singleton estatico, asi que dejarlo enganchado mantendria
+            // viva esta instancia de HomeView aunque la ventana se cerrara.
+            try
+            {
+                if (SettingsManager.Settings is INotifyPropertyChanged inpc)
+                    inpc.PropertyChanged -= Settings_PropertyChanged_Greeting;
             }
             catch { }
             // Opcional: dejar suscrito para actualizaciones en background

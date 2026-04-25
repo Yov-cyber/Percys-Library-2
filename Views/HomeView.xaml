@@ -191,11 +191,23 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- ============== SALUDO PERSONALIZADO ==============
+             Solo visible cuando hay UserName configurado y NO se está navegando
+             una carpeta. Sin nombre, queda colapsado y el header de tabs sube.
+             El texto se calcula en HomeView.xaml.cs a partir de DateTime.Now. -->
+        <TextBlock x:Name="GreetingText" Grid.Row="0"
+                   Margin="32,28,32,0"
+                   FontSize="{DynamicResource FontSize.Display}"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource Text.Primary.Brush}"
+                   Visibility="Collapsed"/>
+
         <!-- ============== HEADER (pestañas + acciones secundarias) ============== -->
-        <Grid Grid.Row="0" Margin="32,24,32,12">
+        <Grid Grid.Row="1" Margin="32,24,32,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -245,7 +257,7 @@
         </Grid>
 
         <!-- ============== CONTENIDO PRINCIPAL ============== -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="2">
 
             <!-- Estado vacío (sólo cuando NO hay items y NO hay carpeta navegada) -->
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"

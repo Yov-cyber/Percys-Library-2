@@ -107,21 +107,29 @@ namespace ComicReader.Controls
 
             int itemsPerRow = Math.Max(1, (int)Math.Floor(finalSize.Width / ItemWidth));
 
-            int firstVisibleRow = (int)Math.Floor(_offset.Y / ItemHeight);
-            int childIndex = 0;
             for (int i = 0; i < InternalChildren.Count; i++)
             {
                 var child = InternalChildren[i];
-                // Compute the item index for this child
-                var genPos = _generator.GeneratorPositionFromIndex(childIndex);
-                int itemIndex = _generator.IndexFromGeneratorPosition(genPos);
+                // Mapeo correcto: el hijo realizado en la posicion i del
+                // panel corresponde al item de datos resuelto via
+                // GeneratorPosition(i, 0). Antes el codigo hacia
+                // GeneratorPositionFromIndex(childIndex) tratando childIndex
+                // (0,1,2,...) como item index, y al hacer round-trip via
+                // IndexFromGeneratorPosition obtenia siempre itemIndex==i.
+                // Cuando el usuario hacia scroll, InternalChildren[0] ya no
+                // era el item 0 sino el item N (segun startIndex computado
+                // en MeasureOverride), pero el arrange los posicionaba como
+                // si fueran 0..N-1 — quedando arriba del viewport y dejando
+                // un area vacia visible. Mismo patron que la limpieza al
+                // final de MeasureOverride.
+                int itemIndex = _generator.IndexFromGeneratorPosition(new GeneratorPosition(i, 0));
+                if (itemIndex < 0) itemIndex = i;
 
                 int row = itemIndex / itemsPerRow;
                 int col = itemIndex % itemsPerRow;
                 double x = col * ItemWidth - _offset.X;
                 double y = row * ItemHeight - _offset.Y;
                 child.Arrange(new Rect(new Point(x, y), new Size(ItemWidth, ItemHeight)));
-                childIndex++;
             }
 
             return finalSize;

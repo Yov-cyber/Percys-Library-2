@@ -15,31 +15,10 @@
     <DefineConstants>$(DefineConstants);SUPPORT_PDF</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="MainWindow.ZoomCompat.g.cs" />
+    <!-- Hay un ComicPageLoader legacy en Services/; el oficial vive en la raiz. -->
     <Compile Remove="Services/ComicPageLoader.cs" />
-    <Compile Remove="Percy Library 2.0/ComicPageLoader.cs" />
-    <Compile Remove="Percy Library 2.0/Services/ComicPageLoader.cs" />
-    <Compile Remove="Percy Library 2.0/MainWindow.cs" />
-    <Compile Remove="Percy Library 2.0/MainWindow.xaml" />
-    <Compile Remove="Percy Library 2.0/MainWindow.ZoomCompat.g.cs" />
-    <Compile Remove="Percy Library 2.0/Views/MainWindow.xaml.cs" />
     <!-- Excluir archivos de pruebas para que no se compilen con el proyecto principal -->
     <Compile Remove="tests\**\*.cs" />
-  </ItemGroup>
-  <!-- Prevent MSBuild from attempting to compile the obsolete-settings-backup folder by excluding it from the project. -->
-  <ItemGroup>
-    <None Remove="obsolete-settings-backup\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="obsolete-settings-backup\Views.SettingsView.xaml" />
-    <None Remove="obsolete-settings-backup\Views.SettingsView.xaml.cs" />
-    <None Remove="obsolete-settings-backup\Views.SettingsSidebar.xaml" />
-    <None Remove="obsolete-settings-backup\Views.SettingsDialog.xaml" />
-    <None Remove="obsolete-settings-backup\Views.SettingsDialog.xaml.cs" />
-    <!-- Extra safety: remove any XAML files in that folder from being considered as Page/Compile/Resource -->
-    <Page Remove="obsolete-settings-backup\**\*.xaml" />
-    <Compile Remove="obsolete-settings-backup\**\*.cs" />
-    <Resource Remove="obsolete-settings-backup\**\*.*" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="icono.ico" />

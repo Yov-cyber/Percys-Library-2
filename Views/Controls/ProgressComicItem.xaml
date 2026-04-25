@@ -14,7 +14,10 @@
 
             <Border Grid.Column="0" Width="52" Height="64" Background="#0F000000" CornerRadius="4" VerticalAlignment="Center">
                 <Grid>
-                    <Image x:Name="ThumbnailImage" Stretch="UniformToFill" Opacity="0" />
+                    <Image x:Name="ThumbnailImage" Stretch="Uniform" Opacity="0"
+                           SnapsToDevicePixels="True"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased" />
                     <!-- simple picture icon as placeholder -->
                     <Viewbox x:Name="PlaceholderIcon" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.65">
                         <Canvas Width="24" Height="24">

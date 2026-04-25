@@ -4,22 +4,13 @@
              Height="400" Width="600">
     
     <UserControl.Resources>
-        <LinearGradientBrush x:Key="DocumentBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#FFE8E8E8" Offset="0"/>
-            <GradientStop Color="#FFD6D6D6" Offset="0.5"/>
-            <GradientStop Color="#FFC8C8C8" Offset="1"/>
-        </LinearGradientBrush>
-        
         <Style x:Key="ComicPageStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="BorderBrush" Value="#FFB0B0B0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
         </Style>
     </UserControl.Resources>
 
-    <Grid>
-        <Rectangle Fill="{StaticResource DocumentBackgroundBrush}"/>
+    <Grid Background="{DynamicResource Surface.Base.Brush}">
         
         <ScrollViewer x:Name="ComicScrollViewer" 
                       Margin="0,35,0,50" 
@@ -36,17 +27,20 @@
                         VerticalAlignment="Center"
                         MaxWidth="800" MaxHeight="1200">
                     
-                    <Image x:Name="imageViewer" 
-                           Stretch="Uniform" 
-                           StretchDirection="Both"/>
+                    <Image x:Name="imageViewer"
+                           Stretch="Uniform"
+                           StretchDirection="Both"
+                           SnapsToDevicePixels="True"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased"/>
                     
                 </Border>
             </Grid>
         </ScrollViewer>
 
         <Grid x:Name="LoadingPanel" Background="#80000000" Visibility="Collapsed">
-            <Border Background="White" CornerRadius="8" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="Cargando..." FontSize="14" HorizontalAlignment="Center"/>
+            <Border Background="{DynamicResource Surface.Overlay.Brush}" CornerRadius="6" Padding="24,16" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="Cargando…" FontSize="14" Foreground="{DynamicResource Text.Primary.Brush}" HorizontalAlignment="Center"/>
             </Border>
         </Grid>
 

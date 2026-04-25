@@ -81,18 +81,10 @@ namespace ComicReader.ViewModels
 
         public SettingsViewModel()
         {
-            // Try to populate ThemeInfo list from ThemeManager if available
-            try
-            {
-                var avail = ThemeManager.GetAvailableThemes();
-                foreach (var t in avail)
-                {
-                    if (!ThemeInfos.Any(x => x.Mode == t.Mode)) ThemeInfos.Add(t);
-                }
-            }
-            catch { }
-
             // Build commands (prefer existing RelayCommand if present)
+            // Nota: la inicializacion + filtrado de ThemeInfos ocurre mas abajo
+            // (ver "// ThemeInfos collection"), no aqui — la propiedad aun es
+            // null en este punto del constructor.
             Func<Action, ICommand> mk = (act) =>
             {
                 try
@@ -269,21 +261,23 @@ namespace ComicReader.ViewModels
                 catch { }
             });
 
-            // ThemeInfos collection (if ThemeManager available)
+            // ThemeInfos collection (filtrado a Oscuro/Claro)
             ThemeInfos = new ObservableCollection<ThemeInfo>();
             try
             {
                 var themes = ThemeManager.GetAvailableThemes();
-                foreach (var t in themes) ThemeInfos.Add(t);
+                var allowed = new[] { ThemeMode.Dark, ThemeMode.Light };
+                foreach (var t in themes.Where(x => allowed.Contains(x.Mode))) ThemeInfos.Add(t);
                 // Set initial SelectedThemeInfo based on persisted setting
                 try
                 {
                     var cur = SettingsManager.Settings.Theme;
+                    ThemeInfo match = null;
                     if (!string.IsNullOrWhiteSpace(cur) && Enum.TryParse<ThemeMode>(cur, out var curMode))
-                    {
-                        var match = ThemeInfos.FirstOrDefault(x => x.Mode == curMode);
-                        if (match != null) _selectedThemeInfo = match; // set backing field to avoid double-save
-                    }
+                        match = ThemeInfos.FirstOrDefault(x => x.Mode == curMode);
+                    // Fallback: cualquier tema legacy no expuesto cae a Oscuro.
+                    if (match == null) match = ThemeInfos.FirstOrDefault(x => x.Mode == ThemeMode.Dark) ?? ThemeInfos.FirstOrDefault();
+                    if (match != null) _selectedThemeInfo = match; // set backing field to avoid double-save
                 }
                 catch { }
                 // HomeView-specific theme option removed — no per-screen default selection

@@ -225,8 +225,18 @@ namespace ComicReader.Services
         private double _hideOverlayDelaySeconds = 3.0;
         public double HideOverlayDelaySeconds { get => _hideOverlayDelaySeconds; set => SetProperty(ref _hideOverlayDelaySeconds, value); }
 
-        private bool _hideOverlayOnlyInImmersive = true;
+        // Default false: la barra del lector se auto-oculta tambien en modo
+        // ventana (no solo en pantalla completa inmersiva). Es la experiencia
+        // "UI invisible" que esperamos por defecto.
+        private bool _hideOverlayOnlyInImmersive = false;
         public bool HideOverlayOnlyInImmersive { get => _hideOverlayOnlyInImmersive; set => SetProperty(ref _hideOverlayOnlyInImmersive, value); }
+
+        // Phase 3: flag de migracion. Cuando es false, SettingsManager.LoadSettings()
+        // resetea HideOverlayOnlyInImmersive a false una vez para usuarios que
+        // venian del layout viejo donde la barra tenia su propia fila. Despues
+        // de migrar se setea a true y nunca mas se toca.
+        private bool _overlayLayoutMigrationApplied = false;
+        public bool OverlayLayoutMigrationApplied { get => _overlayLayoutMigrationApplied; set => SetProperty(ref _overlayLayoutMigrationApplied, value); }
 
         private double _hideCursorDelaySeconds = 3.0;
         public double HideCursorDelaySeconds { get => _hideCursorDelaySeconds; set => SetProperty(ref _hideCursorDelaySeconds, value); }
@@ -252,12 +262,49 @@ namespace ComicReader.Services
         private ReadingDirection _currentReadingDirection = ReadingDirection.LeftToRight;
         public ReadingDirection CurrentReadingDirection { get => _currentReadingDirection; set => SetProperty(ref _currentReadingDirection, value); }
 
+        // Doble pagina: cuando true y EnableContinuousScroll=false, el lector
+        // muestra dos paginas consecutivas lado a lado. La pareja se construye
+        // por composicion (RenderTargetBitmap), respetando manga RTL.
+        private bool _doublePageEnabled = false;
+        public bool DoublePageEnabled { get => _doublePageEnabled; set => SetProperty(ref _doublePageEnabled, value); }
+
+        // Paginado vertical estricto: cuando true y EnableContinuousScroll=false,
+        // las flechas Arriba/Abajo cambian de pagina (en lugar de hacer scroll
+        // dentro de la pagina). Es la experiencia "single-page vertical" sin
+        // scroll continuo.
+        private bool _verticalPagedMode = false;
+        public bool VerticalPagedMode { get => _verticalPagedMode; set => SetProperty(ref _verticalPagedMode, value); }
+
+        // Auto-recorte de bordes blancos en cada pagina cargada. OFF por defecto:
+        // muchos comics y mangas usan el borde blanco como parte del diseño y
+        // recortarlo cambia la composicion. Quien lo quiera lo activa
+        // explicitamente desde Settings -> Lectura.
+        private bool _autoCropWhiteBorders = false;
+        public bool AutoCropWhiteBorders { get => _autoCropWhiteBorders; set => SetProperty(ref _autoCropWhiteBorders, value); }
+
         // Additional properties for Settings UI compatibility
         private string _readingMode = "PageByPage";
         public string ReadingMode { get => _readingMode; set => SetProperty(ref _readingMode, value); }
 
         private string _pageTurnAnimation = "Fade";
         public string PageTurnAnimation { get => _pageTurnAnimation; set => SetProperty(ref _pageTurnAnimation, value); }
+
+        // Toque humano: nombre del usuario, opcional. Se usa para personalizar
+        // el saludo en el header de Home segun la hora del dia. Si esta vacio,
+        // el header muestra simplemente "Biblioteca".
+        private string _userName = string.Empty;
+        public string UserName { get => _userName; set => SetProperty(ref _userName, value ?? string.Empty); }
+
+        // ComicVine API: integracion opt-in para enriquecer metadatos de los
+        // comics (titulo, numero, fecha, sinopsis, creditos). Requiere registro
+        // gratuito en https://comicvine.gamespot.com/api/ y respeta su rate
+        // limit (~200 req/hora). Si la key esta vacia o el flag esta apagado,
+        // la app funciona 100% offline como hasta ahora.
+        private string _comicVineApiKey = string.Empty;
+        public string ComicVineApiKey { get => _comicVineApiKey; set => SetProperty(ref _comicVineApiKey, value ?? string.Empty); }
+
+        private bool _enableComicVineEnrichment = false;
+        public bool EnableComicVineEnrichment { get => _enableComicVineEnrichment; set => SetProperty(ref _enableComicVineEnrichment, value); }
 
         // Add more stubs here as needed by other parts of the app.
     }

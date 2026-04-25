@@ -37,7 +37,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="0"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -65,8 +65,9 @@
 
         <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
                 shell:WindowChrome.IsHitTestVisibleInChrome="True">
-            <Button Content="★" ToolTip="Favoritos" Click="ToggleFavorites_Click" Style="{StaticResource WindowControlButton}"
-                shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,6,0"/>
+            <!-- Favoritos / Estadisticas / Logros se invocan ahora desde AppSidebar.
+                 Aqui solo quedan acciones globales (modo lectura, configuracion) y
+                 los controles de ventana. -->
             <Button Content="📖" ToolTip="Entrar al modo lectura" Click="EnterReadingMode_Click" Style="{StaticResource WindowControlButton}"
                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
             <Button Content="⚙" ToolTip="Configuración" Click="OpenSettingsDialog_Click" Style="{StaticResource WindowControlButton}"
@@ -99,9 +100,14 @@
         </Border>
 
         <!-- Área de Contenido Principal -->
-    <!-- Barra superior de controles del lector -->
-    <Border Grid.Row="1" x:Name="ReaderTopBar"
+    <!-- Barra superior de controles del lector.
+         Auto-hide: la lógica de fade está en MainWindow.cs (EnsureOverlayBehavior).
+         Aparece al mover el mouse cerca del borde superior; desaparece tras
+         HideOverlayDelaySeconds de inactividad. -->
+    <Border Grid.Row="2" x:Name="ReaderTopBar"
         Panel.ZIndex="1000"
+        VerticalAlignment="Top"
+        HorizontalAlignment="Stretch"
         IsEnabled="{Binding IsReaderViewActive, RelativeSource={RelativeSource AncestorType=Window}}">
         <Border.Style>
             <Style TargetType="Border" BasedOn="{StaticResource ReaderTopBarStyle}">
@@ -119,12 +125,10 @@
                 </Style.Triggers>
             </Style>
         </Border.Style>
-        
-        <Grid>
-            <Rectangle Fill="{StaticResource ComicHalftoneBrush}" Opacity="0.35"/>
-            <DockPanel>
+
+        <DockPanel LastChildFill="True">
             <!-- Izquierda: navegación -->
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                 <Button ToolTip="Inicio" Click="HomeButton_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
                     <Path Style="{StaticResource NavIconStyle}" Data="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" Fill="{DynamicResource TextBrush}"/>
                 </Button>
@@ -132,51 +136,107 @@
                     <Path Style="{StaticResource NavIconStyle}" Data="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z" Fill="{DynamicResource TextBrush}"/>
                 </Button>
                 <Button x:Name="PrevButton" ToolTip="Anterior" Click="PrevPage_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
-                    <!-- Contenido por defecto: flecha izquierda -->
                     <Path Style="{StaticResource NavIconStyle}" Data="M12,3 L4,12 L12,21" Stroke="{DynamicResource TextBrush}" StrokeThickness="2" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
                 </Button>
                 <Button x:Name="NextButton" ToolTip="Siguiente" Click="NextPage_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
                     <Path Style="{StaticResource NavIconStyle}" Data="M4,3 L12,12 L4,21" Stroke="{DynamicResource TextBrush}" StrokeThickness="2" StrokeEndLineCap="Round" StrokeStartLineCap="Round" StrokeLineJoin="Round"/>
                 </Button>
             </StackPanel>
-            <!-- Centro: indicador + slider -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="Pág" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                <TextBlock x:Name="PageIndicator" Text="— / —" Foreground="{DynamicResource TextBrush}" FontWeight="Bold" VerticalAlignment="Center"/>
-                <!-- Barra de progreso del lector (colocada junto al indicador de página) -->
-                <ProgressBar x:Name="ReaderProgressBar" Width="260" Height="12" Minimum="0" Maximum="100" Value="0" Margin="8,0,0,0" VerticalAlignment="Center" Style="{DynamicResource ReaderProgressBarStyle}" Visibility="Visible"/>
-                <Slider x:Name="PageSlider" Width="220" Minimum="1" Maximum="1" Value="1" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="PageSlider_ValueChanged" Margin="12,0,0,0" Style="{DynamicResource ReaderSliderStyle}"/>
-            </StackPanel>
-            <!-- Derecha: zoom y utilidades -->
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+            <!-- Derecha: zoom y modos. Se declara antes que el centro porque
+                 LastChildFill=True hace que el panel central llene el espacio. -->
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
                 <Button Content="－" ToolTip="Zoom Out" Click="ZoomOut_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0"/>
-                <Button Content="100%" ToolTip="Restablecer" Click="Zoom100_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0"/>
+                <Button Content="100%" ToolTip="Restablecer zoom" Click="Zoom100_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0"/>
                 <Button Content="＋" ToolTip="Zoom In" Click="ZoomIn_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0"/>
-                <Separator Width="10" Background="Transparent"/>
-                <Button ToolTip="Rotar" Click="Rotate_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
-                    <Path Style="{StaticResource NavIconStyle}" Data="M12 6V2L8 6l4 4V8c2.8 0 5 2.2 5 5 0 1.1-.3 2.1-.9 3l1.5 1.5C19.4 16.1 20 14.1 20 12c0-4.4-3.6-8-8-8z" Fill="{DynamicResource TextBrush}"/>
+
+                <!-- Modos: popup discreto con todas las opciones de lectura -->
+                <Button x:Name="ReaderModesButton" ToolTip="Modos de lectura" Style="{DynamicResource ReaderIconButtonStyle}" Margin="8,0,2,0"
+                        Click="ReaderModes_Click">
+                    <Path Style="{StaticResource NavIconStyle}" Data="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z" Fill="{DynamicResource TextBrush}"/>
+                    <Button.ContextMenu>
+                        <ContextMenu x:Name="ReaderModesMenu" Placement="Bottom">
+                            <!-- Modo de paginacion -->
+                            <MenuItem Header="Lectura continua (scroll)" x:Name="MenuModeContinuous" IsCheckable="True" Click="MenuModeContinuous_Click"/>
+                            <MenuItem Header="Paginado horizontal" x:Name="MenuModePaged" IsCheckable="True" Click="MenuModePaged_Click"/>
+                            <MenuItem Header="Paginado vertical" x:Name="MenuModeVerticalPaged" IsCheckable="True" Click="MenuModeVerticalPaged_Click"/>
+                            <Separator/>
+                            <!-- Doble pagina (solo aplica en modo paginado) -->
+                            <MenuItem Header="Doble página" x:Name="MenuDoublePage" IsCheckable="True" Click="MenuDoublePage_Click"/>
+                            <Separator/>
+                            <!-- Ajuste de imagen -->
+                            <MenuItem Header="Ajuste a ancho" x:Name="MenuFitWidth" IsCheckable="True" Click="MenuFitWidth_Click"/>
+                            <MenuItem Header="Ajuste a alto" x:Name="MenuFitHeight" IsCheckable="True" Click="MenuFitHeight_Click"/>
+                            <MenuItem Header="Ajustar a pantalla" x:Name="MenuFitScreen" IsCheckable="True" Click="MenuFitScreen_Click"/>
+                            <MenuItem Header="Tamaño original" x:Name="MenuFitOriginal" IsCheckable="True" Click="MenuFitOriginal_Click"/>
+                            <Separator/>
+                            <!-- Direccion de lectura -->
+                            <MenuItem Header="Dirección: Izq → Der" x:Name="MenuDirLTR" IsCheckable="True" Click="MenuDirLTR_Click"/>
+                            <MenuItem Header="Dirección: Der → Izq (manga)" x:Name="MenuDirRTL" IsCheckable="True" Click="MenuDirRTL_Click"/>
+                            <Separator/>
+                            <MenuItem Header="Modo nocturno" x:Name="MenuNightMode" IsCheckable="True" Click="ToggleNightMode_Click"/>
+                            <MenuItem Header="Miniaturas laterales" x:Name="MenuThumbnails" IsCheckable="True" Click="ToggleThumbnails_Click"/>
+                        </ContextMenu>
+                    </Button.ContextMenu>
                 </Button>
-                <Separator Width="10" Background="Transparent"/>
-                <Button ToolTip="Miniaturas" Click="ToggleThumbnails_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
-                    <Path Style="{StaticResource NavIconStyle}" Data="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z" Fill="{DynamicResource TextBrush}"/>
-                </Button>
-                <Button ToolTip="Modo Nocturno" Click="ToggleNightMode_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
-                    <Path Style="{StaticResource NavIconStyle}" Data="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" Fill="{DynamicResource TextBrush}"/>
-                </Button>
-                <Button ToolTip="Pantalla Completa Total" Click="ImmersiveFullScreen_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
+
+                <Button ToolTip="Pantalla completa" Click="ImmersiveFullScreen_Click" Style="{DynamicResource ReaderIconButtonStyle}" Margin="2,0">
                     <Path Style="{StaticResource NavIconStyle}" Data="M7 14H5v5h5v-2H7v-3zm10 5h-3v2h5v-5h-2v3zM7 5h3V3H5v5h2V5zm10 0v3h2V3h-5v2h3z" Fill="{DynamicResource TextBrush}"/>
                 </Button>
-                <!-- Toggle lectura continua / paginada -->
-                <ToggleButton x:Name="ToggleContinuousButton" ToolTip="Alternar modo de lectura" Click="ToggleContinuous_Click" Style="{DynamicResource ReaderToggleButtonStyle}" Margin="6,0">
-                    <Path Style="{StaticResource NavIconStyle}" Data="M6 2h8l4 4v14H6z" Fill="{DynamicResource TextBrush}"/>
-                </ToggleButton>
+
+                <!-- Toggle continuo (legacy, mantiene atajo y compatibilidad) -->
+                <ToggleButton x:Name="ToggleContinuousButton" Click="ToggleContinuous_Click" Visibility="Collapsed"/>
             </StackPanel>
-            </DockPanel>
-        </Grid>
+
+            <!-- Centro: indicador + slider (LastChildFill=True; rellena lo que sobra) -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="24,0">
+                <TextBlock x:Name="PageIndicator" Text="— / —"
+                           Foreground="{DynamicResource Text.Secondary.Brush}"
+                           FontFamily="{DynamicResource AppFontFamily}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           VerticalAlignment="Center"/>
+                <Slider x:Name="PageSlider" Width="320" Minimum="1" Maximum="1" Value="1" TickFrequency="1" IsSnapToTickEnabled="True" ValueChanged="PageSlider_ValueChanged" Margin="12,0,0,0" Style="{DynamicResource ReaderSliderStyle}"/>
+                <ProgressBar x:Name="ReaderProgressBar" Width="0" Height="0" Minimum="0" Maximum="100" Value="0" Visibility="Collapsed"/>
+            </StackPanel>
+        </DockPanel>
     </Border>
 
-    <!-- Contenido principal con panel de miniaturas -->
-    <Grid Grid.Row="2" x:Name="ContentGrid">
+    <!-- Contenido principal: sidebar permanente (oculto en Reader) + grilla de contenido. -->
+    <DockPanel Grid.Row="2" LastChildFill="True">
+
+        <!-- Sidebar de navegacion principal. Visible solo cuando NO estamos en el lector,
+             para que el contenido de un comic ocupe la pantalla completa. -->
+        <Border DockPanel.Dock="Left" x:Name="AppSidebar" Width="56"
+                Background="{DynamicResource Surface.Raised.Brush}"
+                BorderBrush="{DynamicResource Border.Subtle.Brush}"
+                BorderThickness="0,0,1,0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsReaderViewActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel VerticalAlignment="Top" Margin="0,12,0,0">
+                <Button x:Name="NavLibraryButton" Style="{DynamicResource Sidebar.Button}" Click="NavLibrary_Click" ToolTip="Biblioteca" Tag="active">
+                    <TextBlock Text="📚" FontSize="20"/>
+                </Button>
+                <Button x:Name="NavCollectionsButton" Style="{DynamicResource Sidebar.Button}" Click="NavCollections_Click" ToolTip="Colecciones">
+                    <TextBlock Text="★" FontSize="20"/>
+                </Button>
+                <Button x:Name="NavStatisticsButton" Style="{DynamicResource Sidebar.Button}" Click="NavStatistics_Click" ToolTip="Estadísticas">
+                    <TextBlock Text="📊" FontSize="20"/>
+                </Button>
+                <Button x:Name="NavAchievementsButton" Style="{DynamicResource Sidebar.Button}" Click="NavAchievements_Click" ToolTip="Logros">
+                    <TextBlock Text="🏆" FontSize="20"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Grid x:Name="ContentGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="ThumbCol" Width="0"/>
             <ColumnDefinition Width="*"/>
@@ -229,7 +289,8 @@
         <Border Grid.Column="2" x:Name="FavoritesPanel" Background="{DynamicResource PanelBackgroundBrush}" Visibility="Collapsed" Width="320">
             <local:FavoritesSection x:Name="FavoritesSection" />
         </Border>
-    </Grid>
+        </Grid>
+    </DockPanel>
 
         
     </Grid>

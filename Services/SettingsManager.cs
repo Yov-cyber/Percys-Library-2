@@ -47,6 +47,23 @@ namespace ComicReader.Services
                     var obj = JsonSerializer.Deserialize<AppSettings>(txt, _jsonOptions);
                     if (obj != null)
                     {
+                        // Migracion Phase 3: la barra del lector paso de tener
+                        // su propia fila (Grid.Row=1, Height=Auto) a ser un
+                        // overlay sobre el contenido (Grid.Row=2, Top, ZIndex).
+                        // Antes el default de HideOverlayOnlyInImmersive era
+                        // true, y bajo el layout viejo eso significaba 'la
+                        // barra ocupa su fila siempre en modo ventana'. Con el
+                        // layout nuevo eso significaria 'la barra obstruye
+                        // permanentemente el comic en modo ventana sin forma de
+                        // descartarla'. Para usuarios pre-Phase 3 forzamos el
+                        // valor a false una sola vez para que el auto-hide
+                        // funcione en modo ventana. Si el usuario lo quiere
+                        // siempre visible, puede re-activarlo desde Settings.
+                        if (!obj.OverlayLayoutMigrationApplied)
+                        {
+                            obj.HideOverlayOnlyInImmersive = false;
+                            obj.OverlayLayoutMigrationApplied = true;
+                        }
                         ReplaceSettings(obj);
                     }
                 }
@@ -136,7 +153,33 @@ namespace ComicReader.Services
             TrySubscribe(Settings);
             // Persist immediately to ensure new shape is saved
             SaveSettings();
+            // Notificar a consumidores externos que la instancia cambio. Antes,
+            // suscriptores como HomeView (greeting) o CollectionsView que se
+            // suscribian a Settings.PropertyChanged quedaban con un handle al
+            // objeto viejo despues de un import/reset. Disparamos el evento
+            // simulando un PropertyChanged "all properties" (PropertyName=null)
+            // y ademas SettingsReplaced para que el suscriptor pueda re-attach
+            // si quiere escuchar cambios futuros.
+            try { SettingsReplaced?.Invoke(null, EventArgs.Empty); } catch { }
+            try { SettingChanged?.Invoke(null, new PropertyChangedEventArgs(null)); } catch { }
         }
+
+        /// <summary>
+        /// Evento que se dispara cuando cambia cualquier propiedad del Settings actual,
+        /// incluso si la instancia subyacente fue reemplazada via ReplaceSettings().
+        /// Codigo que necesite reaccionar a cambios de Settings (UI binding manual,
+        /// caches dependientes, etc.) debe suscribirse a este evento en vez de
+        /// SettingsManager.Settings.PropertyChanged, porque la instancia de Settings
+        /// puede cambiar en cualquier momento (import, reset).
+        /// </summary>
+        public static event PropertyChangedEventHandler SettingChanged;
+
+        /// <summary>
+        /// Evento que se dispara cuando ReplaceSettings() crea una instancia nueva.
+        /// Util si el suscriptor mantiene su propio handler con la instancia vieja
+        /// y necesita liberar/reattach explicitamente.
+        /// </summary>
+        public static event EventHandler SettingsReplaced;
 
         private static async Task WriteToFileAsync()
         {
@@ -251,21 +294,21 @@ namespace ComicReader.Services
 
         private static void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            // Schedule a save when a setting changes, honoring the AutoSaveEnabled flag when present
+            // Schedule a save when a setting changes, honoring the AutoSaveEnabled flag.
+            // El forward al evento estatico debe correr SIEMPRE, incluso cuando
+            // AutoSaveEnabled==false (ej. el usuario desactivo persistencia pero
+            // cambia su nombre y queremos que el saludo del HomeView se refresque).
             try
             {
-                try
-                {
-                    if (Settings != null && Settings.AutoSaveEnabled == false)
-                    {
-                        // respect user's choice to disable auto-save
-                        return;
-                    }
-                }
+                bool autoSave = true;
+                try { autoSave = Settings == null || Settings.AutoSaveEnabled != false; }
                 catch { }
-                SaveSettings();
+                if (autoSave) SaveSettings();
             }
             catch { }
+            // Forward al evento estatico para suscriptores que viven mas alla
+            // que una instancia particular de Settings.
+            try { SettingChanged?.Invoke(sender, e); } catch { }
         }
     }
 }

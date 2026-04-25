@@ -71,6 +71,9 @@ namespace ComicReader.Views
             {
                 _currentFolderPath = value;
                 OnPropertyChanged(nameof(CurrentFolderPath));
+                // El saludo ("Buenos dias, X") solo es relevante en la vista
+                // raiz de la biblioteca; al entrar a una carpeta se oculta.
+                try { UpdateGreeting(); } catch { }
             }
         }
 
@@ -290,6 +293,63 @@ namespace ComicReader.Views
         private void HomeView_Loaded(object sender, RoutedEventArgs e)
         {
             SubscribeHistory();
+            UpdateGreeting();
+            // Suscribimos al evento estatico SettingsManager.SettingChanged en
+            // vez de a Settings.PropertyChanged directamente: si el usuario
+            // hace import o reset de settings, ReplaceSettings() crea una
+            // nueva instancia y un handler atado a la vieja queda muerto. El
+            // forwarder estatico siempre apunta a la instancia actual.
+            try
+            {
+                SettingsManager.SettingChanged -= SettingsManager_SettingChanged_Greeting;
+                SettingsManager.SettingChanged += SettingsManager_SettingChanged_Greeting;
+            }
+            catch { }
+        }
+
+        private void SettingsManager_SettingChanged_Greeting(object sender, PropertyChangedEventArgs e)
+        {
+            // PropertyName=null ocurre cuando ReplaceSettings dispara un cambio
+            // 'all properties': re-evaluar el saludo siempre. Para cambios
+            // individuales solo nos interesa UserName.
+            if (e == null || string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(AppSettings.UserName))
+            {
+                try { Dispatcher.BeginInvoke(new Action(UpdateGreeting)); } catch { }
+            }
+        }
+
+        private void Settings_PropertyChanged_Greeting(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppSettings.UserName))
+            {
+                try { Dispatcher.BeginInvoke(new Action(UpdateGreeting)); } catch { }
+            }
+        }
+
+        private void UpdateGreeting()
+        {
+            try
+            {
+                var tb = this.FindName("GreetingText") as TextBlock;
+                if (tb == null) return;
+                // El saludo solo aplica en la vista raiz; al navegar una
+                // carpeta el header pasa a mostrar el path/breadcrumb.
+                bool inFolder = !string.IsNullOrWhiteSpace(CurrentFolderPath);
+                var name = SettingsManager.Settings?.UserName?.Trim();
+                if (inFolder || string.IsNullOrEmpty(name))
+                {
+                    tb.Visibility = Visibility.Collapsed;
+                    tb.Text = string.Empty;
+                    return;
+                }
+                int h = DateTime.Now.Hour;
+                string saludo = h >= 5 && h < 12 ? "Buenos días"
+                              : h >= 12 && h < 20 ? "Buenas tardes"
+                              : "Buenas noches";
+                tb.Text = $"{saludo}, {name}";
+                tb.Visibility = Visibility.Visible;
+            }
+            catch { }
         }
 
         private void HomeView_Unloaded(object sender, RoutedEventArgs e)
@@ -301,6 +361,21 @@ namespace ComicReader.Views
                 Task[] arr;
                 lock (_bgLock) { arr = _bgTasks.ToArray(); }
                 if (arr != null && arr.Length > 0) Task.WaitAll(arr, 1200);
+            }
+            catch { }
+            // Des-suscribir el handler del saludo del evento estatico para no
+            // mantener viva esta instancia de HomeView via SettingsManager.
+            try
+            {
+                SettingsManager.SettingChanged -= SettingsManager_SettingChanged_Greeting;
+            }
+            catch { }
+            // Defensivo: si por alguna razon habia una suscripcion vieja al
+            // PropertyChanged de la instancia, limpiarla tambien.
+            try
+            {
+                if (SettingsManager.Settings is INotifyPropertyChanged inpc)
+                    inpc.PropertyChanged -= Settings_PropertyChanged_Greeting;
             }
             catch { }
             // Opcional: dejar suscrito para actualizaciones en background
@@ -844,6 +919,13 @@ namespace ComicReader.Views
             var favoritesWindow = new FavoritesWindow();
             favoritesWindow.Owner = Window.GetWindow(this);
             favoritesWindow.ShowDialog();
+        }
+
+        private void OpenAchievements_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var achievementsWindow = new AchievementsWindow();
+            achievementsWindow.Owner = Window.GetWindow(this);
+            achievementsWindow.ShowDialog();
         }
 
         // Nuevos métodos para funcionalidades avanzadas

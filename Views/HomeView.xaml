@@ -5,197 +5,62 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:ComicReader.Views"
              xmlns:conv="clr-namespace:ComicReader.Converters"
+             xmlns:controls="clr-namespace:ComicReader.Controls"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="800">
-             
+             d:DesignHeight="720" d:DesignWidth="1280"
+             Background="{DynamicResource Surface.Base.Brush}">
+
     <UserControl.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary />
-            </ResourceDictionary.MergedDictionaries>
-            <!-- Converters -->
-            <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-            <conv:NullToCollapsedConverter x:Key="NullToCollapsedConverter" />
-            <conv:CoverPathOrThumbnailConverter x:Key="CoverPathOrThumbnailConverter" />
-            
-            <!-- ===== Estilos mínimos para Recientes (limpios y discretos) ===== -->
-            <!-- Asignamos colores locales a claves del tema para que cambien con el tema seleccionado -->
-            <SolidColorBrush x:Key="RecentsAccent" Color="{DynamicResource AccentColor}"/>
-            <SolidColorBrush x:Key="RecentsAccentDark" Color="{DynamicResource PrimaryColor}"/>
-            <SolidColorBrush x:Key="RecentsDanger" Color="{DynamicResource ErrorColor}"/>
-            <SolidColorBrush x:Key="RecentsDangerDark" Color="{DynamicResource ErrorColor}"/>
-            <SolidColorBrush x:Key="RecentsText" Color="{DynamicResource TextColor}"/>
-            <SolidColorBrush x:Key="RecentsSubtle" Color="{DynamicResource SecondaryTextColor}"/>
-            <SolidColorBrush x:Key="RecentsCardBg" Color="{DynamicResource PanelBackgroundColor}"/>
-            <SolidColorBrush x:Key="RecentsCardBorder" Color="{DynamicResource BorderColor}"/>
+            <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+            <conv:NullToCollapsedConverter x:Key="NullToCollapsedConverter"/>
+            <conv:NullToVisibleConverter x:Key="NullToVisibleConverter"/>
+            <conv:CoverPathOrThumbnailConverter x:Key="CoverPathOrThumbnailConverter"/>
 
-            <!-- Botón base discreto -->
-            <Style x:Key="RecentsButton" TargetType="Button">
-                <Setter Property="Padding" Value="10,6"/>
-                <Setter Property="Margin" Value="6,0"/>
-                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="6">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource ItemHoverBrush}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <!-- Botón primario -->
-            <Style x:Key="RecentsPrimaryButton" TargetType="Button" BasedOn="{StaticResource RecentsButton}">
-                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                <Setter Property="Background" Value="{StaticResource RecentsAccent}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource RecentsAccentDark}"/>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource ItemHoverBrush}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <!-- Botón peligro -->
-            <Style x:Key="RecentsDangerButton" TargetType="Button" BasedOn="{StaticResource RecentsButton}">
-                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                <Setter Property="Background" Value="{StaticResource RecentsDanger}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource RecentsDangerDark}"/>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource ErrorHoverBrush}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <!-- Tarjeta simple (más discreta en panel oscuro) -->
-            <Style x:Key="RecentsCard" TargetType="Border">
-                <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="10"/>
-                <Setter Property="Padding" Value="10"/>
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-                <Setter Property="Effect">
-                    <Setter.Value>
-                        <DropShadowEffect BlurRadius="6" ShadowDepth="1" Opacity="0.06" Color="#000000"/>
-                    </Setter.Value>
-                </Setter>
-                <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                <Setter Property="RenderTransform">
-                    <Setter.Value>
-                        <ScaleTransform ScaleX="1" ScaleY="1"/>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="BorderBrush" Value="#BFD3FF"/>
-                        <Setter Property="Effect">
-                            <Setter.Value>
-                                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.10" Color="#000000"/>
-                            </Setter.Value>
-                        </Setter>
-                        <Setter Property="RenderTransform">
-                            <Setter.Value>
-                                <ScaleTransform ScaleX="1.01" ScaleY="1.01"/>
-                            </Setter.Value>
-                        </Setter>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-
-            <!-- Chip buttons (discretos) -->
-            <Style x:Key="ChipButton" TargetType="Button" BasedOn="{StaticResource RecentsButton}">
-                <Setter Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                <Setter Property="Padding" Value="10,6"/>
-                <Setter Property="Margin" Value="6,0"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="16">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="ChipButtonDanger" TargetType="Button" BasedOn="{StaticResource ChipButton}">
-                <Setter Property="Background" Value="{DynamicResource ErrorBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}"/>
-            </Style>
-
-            <!-- ToggleButton style matching ChipButton visual to use as tab toggles -->
-            <Style x:Key="ChipToggleButton" TargetType="ToggleButton">
-                <Setter Property="Padding" Value="10,6"/>
-                <Setter Property="Margin" Value="6,0"/>
-                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                <Setter Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ToggleButton">
-                            <Border x:Name="bd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="16" RenderTransformOrigin="0.5,0.5">
-                                <Border.RenderTransform>
-                                    <ScaleTransform ScaleX="1" ScaleY="1" />
-                                </Border.RenderTransform>
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <!-- Active visual: colored background, stronger border and slight scale -->
-                                    <Setter TargetName="bd" Property="Background" Value="{StaticResource RecentsAccent}"/>
-                                    <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource RecentsAccentDark}"/>
-                                    <Setter TargetName="bd" Property="RenderTransform">
-                                        <Setter.Value>
-                                            <ScaleTransform ScaleX="1.04" ScaleY="1.04" />
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <!-- Estilos de vista lista -->
-            <Style x:Key="RecentsListViewItemStyle" TargetType="ListViewItem">
-                <Setter Property="Padding" Value="6"/>
-                <Setter Property="Margin" Value="2,1"/>
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-                <!-- Quitar borde de enfoque que aparece como barra al seleccionar -->
-                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <!-- Barra de progreso ultra delgada para overlay sobre portada -->
+            <Style x:Key="CoverProgressBar" TargetType="ProgressBar"
+                   BasedOn="{StaticResource Progress.Default}">
+                <Setter Property="Height" Value="3"/>
+                <Setter Property="Background" Value="#66000000"/>
                 <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="VerticalAlignment" Value="Bottom"/>
+            </Style>
+
+            <!-- ListBoxItem transparente para que el ListBox quede como contenedor
+                 puro de virtualizacion. Toda la interaccion (click, hover, contexto)
+                 vive dentro de cada DataTemplate (la propia card del cover).
+                 Sin esto, ListBox impone padding/background/seleccion azul que
+                 contradicen el sistema visual. -->
+            <Style x:Key="HomeCardListItem" TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="0"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                <!-- Menú contextual por elemento -->
-                <Setter Property="ContextMenu">
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                <Setter Property="Template">
                     <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <ContentPresenter/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Cover card: portada protagonista, progreso integrado en la portada,
+                 título y meta debajo. Sin sombra, sin scale, sin gradiente decorativo.
+                 Toda la card es clickeable; menú contextual con acciones secundarias. -->
+            <DataTemplate x:Key="ComicCoverCardTemplate">
+                <Border Width="184" Margin="0,0,16,16" Cursor="Hand"
+                        Background="{DynamicResource Surface.Raised.Brush}"
+                        BorderBrush="{DynamicResource Border.Subtle.Brush}"
+                        BorderThickness="1" CornerRadius="8"
+                        SnapsToDevicePixels="True"
+                        MouseLeftButtonUp="OpenRecentComic_Click">
+                    <Border.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Leer"
                                       Command="{Binding DataContext.OpenComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -204,966 +69,345 @@
                                       Command="{Binding DataContext.ShowInFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                       CommandParameter="{Binding FilePath}"/>
                             <Separator/>
-                            <MenuItem Header="Quitar de la lista" Foreground="{DynamicResource ErrorBrush}"
+                            <MenuItem Header="Quitar de la lista"
                                       Command="{Binding DataContext.RemoveRecentComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                       CommandParameter="{Binding FilePath}"/>
                         </ContextMenu>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                    </Trigger>
-                    <Trigger Property="IsSelected" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource ItemSelectedBrush}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="RecentsGridHeader" TargetType="GridViewColumnHeader">
-                <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                <Setter Property="FontFamily" Value="Segoe UI"/>
-                <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Padding" Value="6,4"/>
-            </Style>
+                    </Border.ContextMenu>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-            <!-- Botones de texto (transparentes) -->
-            <Style x:Key="TextActionButton" TargetType="Button">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderBrush" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                <Setter Property="Padding" Value="8,4"/>
-                <Setter Property="Margin" Value="8,0"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="TextDangerButton" TargetType="Button" BasedOn="{StaticResource TextActionButton}">
-                <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}"/>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="{DynamicResource ErrorHoverBrush}"/>
-                        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
+                        <!-- Portada -->
+                        <Border Grid.Row="0" Height="266"
+                                Background="{DynamicResource Surface.Overlay.Brush}"
+                                CornerRadius="8,8,0,0" ClipToBounds="True">
+                            <Grid>
+                                <!-- Stretch=Uniform: respeta proporcion original sin recortar.
+                                     El comic tiene ratio ~2:3 = 0.667; el contenedor 184x266 ratio 0.692,
+                                     diferencia minima => bandas casi imperceptibles.
+                                     HighQuality + Aliased reducen el blur en el escalado. -->
+                                <Image Stretch="Uniform" SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
+                                       RenderOptions.EdgeMode="Aliased">
+                                    <Image.Source>
+                                        <MultiBinding Converter="{StaticResource CoverPathOrThumbnailConverter}">
+                                            <Binding Path="CoverPath"/>
+                                            <Binding Path="CoverThumbnail"/>
+                                        </MultiBinding>
+                                    </Image.Source>
+                                </Image>
 
-            <!-- Botón de icono fantasma (circular, discreto) -->
-            <Style x:Key="GhostIconButton" TargetType="Button">
-                <Setter Property="Width" Value="28"/>
-                <Setter Property="Height" Value="28"/>
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderBrush" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="root" CornerRadius="14" Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="root" Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                                    <Setter TargetName="root" Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="root" Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <!-- Botón de navegación para carrusel -->
-            <Style x:Key="CarouselNavButton" TargetType="Button">
-                <Setter Property="Width" Value="42"/>
-                <Setter Property="Height" Value="42"/>
-                <Setter Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="root" CornerRadius="21" Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="root" Property="Background" Value="{DynamicResource OverlayBackgroundBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            
-            <!-- Contenedor y fondo propio para la sección de Recientes -->
-            <SolidColorBrush x:Key="RecentsPanelBackgroundBrush" Color="{DynamicResource PanelBackgroundColor}"/>
-            <SolidColorBrush x:Key="RecentsPanelBorderBrush" Color="{DynamicResource BorderColor}"/>
-            
-            <Style x:Key="RecentsSectionContainer" TargetType="Border">
-                <Setter Property="Background" Value="{StaticResource RecentsPanelBackgroundBrush}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource RecentsPanelBorderBrush}"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="12"/>
-                <Setter Property="Padding" Value="10"/>
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-                <Setter Property="Effect">
-                    <Setter.Value>
-                        <DropShadowEffect BlurRadius="14" ShadowDepth="2" Opacity="0.10" Color="#000000"/>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        <!-- Visibilidad del panel vacío: visible solo cuando NO hay recientes -->
-        <Style x:Key="EmptyStateVisibilityStyle" TargetType="Border">
-            <Setter Property="Visibility" Value="Visible"/>
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding HasRecentComics}" Value="True">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                </DataTrigger>
-            </Style.Triggers>
-    </Style>
-        <!-- Estilos de Cómic -->
-        <LinearGradientBrush x:Key="ComicBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource PanelBackgroundColor}" Offset="0.35"/>
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.7"/>
-            <GradientStop Color="{DynamicResource PrimaryColor}" Offset="1"/>
-        </LinearGradientBrush>
-        
-        <RadialGradientBrush x:Key="HalftonePattern" Center="0.3,0.3" RadiusX="0.9" RadiusY="0.9">
-            <GradientStop Color="#15FFFFFF" Offset="0"/>
-            <GradientStop Color="#25FFFFFF" Offset="0.25"/>
-            <GradientStop Color="#10FFFFFF" Offset="0.6"/>
-            <GradientStop Color="#20FFFFFF" Offset="1"/>
-        </RadialGradientBrush>
-
-        <!-- Rayos tipo estallido (Starburst) -->
-        <DrawingBrush x:Key="StarburstBrush" ViewportUnits="Absolute" TileMode="Tile" Viewport="0,0,64,64" Stretch="None">
-            <DrawingBrush.Drawing>
-                <DrawingGroup>
-                    <GeometryDrawing Brush="{DynamicResource OverlayBackgroundBrush}">
-                        <GeometryDrawing.Geometry>
-                            <GeometryGroup>
-                                <GeometryGroup.Children>
-                                    <LineGeometry StartPoint="32,0" EndPoint="32,64"/>
-                                    <LineGeometry StartPoint="0,32" EndPoint="64,32"/>
-                                    <LineGeometry StartPoint="10,10" EndPoint="54,54"/>
-                                    <LineGeometry StartPoint="54,10" EndPoint="10,54"/>
-                                </GeometryGroup.Children>
-                            </GeometryGroup>
-                        </GeometryDrawing.Geometry>
-                    </GeometryDrawing>
-                </DrawingGroup>
-            </DrawingBrush.Drawing>
-        </DrawingBrush>
-        
-        <LinearGradientBrush x:Key="SpeechBubbleBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FFFFFFFF" Offset="0"/>
-            <GradientStop Color="#FFF8FAFC" Offset="1"/>
-        </LinearGradientBrush>
-        
-        <Style x:Key="ComicTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Impact, Arial Black, Arial"/>
-            <Setter Property="FontSize" Value="48"/>
-            <Setter Property="FontWeight" Value="Black"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-        </Style>
-        
-        <Style x:Key="SoundEffectStyle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Impact, Arial Black"/>
-            <Setter Property="FontWeight" Value="Black"/>
-            <Setter Property="TextAlignment" Value="Center"/>
-        </Style>
-        
-        <Style x:Key="SpeechBubbleStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource SpeechBubbleBrush}"/>
-            <Setter Property="CornerRadius" Value="20"/>
-            <Setter Property="Padding" Value="20,12"/>
-        </Style>
-        
-        <Style x:Key="ComicButtonStyle" TargetType="Button">
-            <Setter Property="FontFamily" Value="Comic Sans MS, cursive"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Padding" Value="20,10"/>
-            <Setter Property="Margin" Value="8"/>
-            <Setter Property="BorderThickness" Value="3"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" 
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="15">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <!-- Barra de progreso integrada en la portada (3px, acento).
+                                     Se ve directamente, sin texto adicional. -->
+                                <ProgressBar Style="{StaticResource CoverProgressBar}"
+                                             Minimum="0" Maximum="100"
+                                             Value="{Binding ProgressPercent, Mode=OneWay}"/>
+                            </Grid>
                         </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="RenderTransform">
-                        <Setter.Value>
-                            <ScaleTransform ScaleX="1.05" ScaleY="1.05"/>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
 
-        <!-- Panel estilo viñeta -->
-        <Style x:Key="VignettePanelStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="6"/>
-            <Setter Property="CornerRadius" Value="18"/>
-            <Setter Property="Padding" Value="16"/>
-            <Setter Property="Margin" Value="10"/>
-        </Style>
-        <!-- Cinta de título en viñeta -->
-        <Style x:Key="VignetteRibbonStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="6,4"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
+                        <!-- Título + meta -->
+                        <StackPanel Grid.Row="1" Margin="12,10,12,12">
+                            <TextBlock Text="{Binding DisplayName}"
+                                       Foreground="{DynamicResource Text.Primary.Brush}"
+                                       FontFamily="{DynamicResource AppFontFamily}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="Medium"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextWrapping="NoWrap"/>
+                            <TextBlock Foreground="{DynamicResource Text.Secondary.Brush}"
+                                       FontFamily="{DynamicResource AppFontFamily}"
+                                       FontSize="{DynamicResource FontSize.Caption}"
+                                       Margin="0,4,0,0">
+                                <Run Text="{Binding LastPage, Mode=OneWay}"/>
+                                <Run Text="/"/>
+                                <Run Text="{Binding PageCount, Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <!-- Folder item card (carpeta explorada): mismo lenguaje visual. -->
+            <DataTemplate x:Key="FolderItemCardTemplate">
+                <Border Width="184" Margin="0,0,16,16" Cursor="Hand"
+                        Background="{DynamicResource Surface.Raised.Brush}"
+                        BorderBrush="{DynamicResource Border.Subtle.Brush}"
+                        BorderThickness="1" CornerRadius="8"
+                        SnapsToDevicePixels="True"
+                        MouseLeftButtonUp="OpenFolderItem_Click">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0" Height="266"
+                                Background="{DynamicResource Surface.Overlay.Brush}"
+                                CornerRadius="8,8,0,0" ClipToBounds="True">
+                            <Grid>
+                                <Image Source="{Binding Thumbnail}" Stretch="Uniform"
+                                       SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
+                                       RenderOptions.EdgeMode="Aliased"
+                                       Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                <TextBlock Text="📁" FontSize="56"
+                                           Foreground="{DynamicResource Text.Secondary.Brush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </Grid>
+                        </Border>
+                        <StackPanel Grid.Row="1" Margin="12,10,12,12">
+                            <TextBlock Text="{Binding Name}"
+                                       Foreground="{DynamicResource Text.Primary.Brush}"
+                                       FontFamily="{DynamicResource AppFontFamily}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontWeight="Medium"
+                                       TextTrimming="CharacterEllipsis"
+                                       TextWrapping="NoWrap"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                <TextBlock Foreground="{DynamicResource Text.Secondary.Brush}"
+                                           FontFamily="{DynamicResource AppFontFamily}"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <Run Text="{Binding ComicCount, Mode=OneWay}"/>
+                                    <Run Text=" cómics"/>
+                                </TextBlock>
+                                <TextBlock Foreground="{DynamicResource Text.Secondary.Brush}"
+                                           FontFamily="{DynamicResource AppFontFamily}"
+                                           FontSize="{DynamicResource FontSize.Caption}"
+                                           Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <Run Text="{Binding Extension, Mode=OneWay}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </DataTemplate>
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    <!-- Fondo de Cómic con Efectos -->
+
     <Grid>
-        <!-- Fondo Principal -->
-        <Rectangle Fill="{StaticResource ComicBackgroundBrush}"/>
-        
-    <!-- Patrón de Semitono -->
-    <Rectangle Fill="{StaticResource HalftonePattern}" Opacity="0.5"/>
-    <!-- Rayos Starburst sutiles -->
-    <Rectangle Fill="{StaticResource StarburstBrush}" Opacity="0.25"/>
-        
-        <!-- Elementos Decorativos de Cómic -->
-        <Canvas>
-            <!-- Efecto POW! -->
-        <Border Canvas.Right="50" Canvas.Top="30" 
-            Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="4"
-                    CornerRadius="20" RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform>
-                    <RotateTransform Angle="15"/>
-                </Border.RenderTransform>
-                <TextBlock Text="POW!" Style="{StaticResource SoundEffectStyle}"
-                           FontSize="28" Foreground="White" Margin="15,8"/>
-            </Border>
-            
-            <!-- Efecto BAM! -->
-        <Border Canvas.Left="80" Canvas.Bottom="120" 
-            Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="4"
-                    CornerRadius="25" RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform>
-                    <RotateTransform Angle="-20"/>
-                </Border.RenderTransform>
-                <TextBlock Text="BAM!" Style="{StaticResource SoundEffectStyle}"
-                           FontSize="24" Foreground="White" Margin="12,6"/>
-            </Border>
-            
-            <!-- Efecto ZOOM! -->
-        <Border Canvas.Right="120" Canvas.Bottom="80" 
-            Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" BorderThickness="4"
-                    CornerRadius="30" RenderTransformOrigin="0.5,0.5">
-                <Border.RenderTransform>
-                    <RotateTransform Angle="25"/>
-                </Border.RenderTransform>
-                <TextBlock Text="ZOOM!" Style="{StaticResource SoundEffectStyle}"
-                           FontSize="20" Foreground="White" Margin="10,5"/>
-            </Border>
-            
-            <!-- Estrella Decorativa -->
-        <Path Canvas.Left="200" Canvas.Top="60" Fill="{DynamicResource AccentBrush}" Stroke="{DynamicResource PrimaryBrush}" StrokeThickness="2"
-                  Data="M 50,0 L 61,35 L 98,35 L 68,57 L 79,91 L 50,70 L 21,91 L 32,57 L 2,35 L 39,35 Z"
-                  RenderTransformOrigin="0.5,0.5">
-                <Path.RenderTransform>
-                    <RotateTransform x:Name="StarRotation"/>
-                </Path.RenderTransform>
-                <Path.Triggers>
-                    <EventTrigger RoutedEvent="Loaded">
-                        <BeginStoryboard>
-                            <Storyboard RepeatBehavior="Forever">
-                                <DoubleAnimation Storyboard.TargetName="StarRotation" 
-                                                 Storyboard.TargetProperty="Angle"
-                                                 From="0" To="360" Duration="0:0:10"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Path.Triggers>
-            </Path>
-        </Canvas>
-        
-    <!-- Contenido Principal (ahora desplazable verticalmente) -->
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-    <Grid Margin="40">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <!-- Hero + Menú de Viñetas -->
-            <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,20,0,30">
-                <TextBlock Text="PERCY'S LIBRARY" Style="{StaticResource ComicTitleStyle}" Margin="0,0,0,10"/>
-                <Border Style="{StaticResource SpeechBubbleStyle}" HorizontalAlignment="Center" Margin="0,0,0,24">
-                    <TextBlock Text="¡Tu aventura de lectura comienza aquí!" 
-                               FontFamily="Comic Sans MS" FontSize="18" FontWeight="Bold"
-                               Foreground="{DynamicResource SecondaryTextBrush}" TextAlignment="Center"/>
-                </Border>
+        <!-- ============== SALUDO PERSONALIZADO ==============
+             Solo visible cuando hay UserName configurado y NO se está navegando
+             una carpeta. Sin nombre, queda colapsado y el header de tabs sube.
+             El texto se calcula en HomeView.xaml.cs a partir de DateTime.Now. -->
+        <TextBlock x:Name="GreetingText" Grid.Row="0"
+                   Margin="32,28,32,0"
+                   FontSize="{DynamicResource FontSize.Display}"
+                   FontWeight="SemiBold"
+                   Foreground="{DynamicResource Text.Primary.Brush}"
+                   Visibility="Collapsed"/>
 
-                <!-- Paneles tipo viñetas (sin duplicados) -->
-                <UniformGrid Columns="2" HorizontalAlignment="Center">
-                    <!-- Abrir archivo -->
-                    <Border Style="{StaticResource VignettePanelStyle}">
-                        <StackPanel>
-                            <Border Style="{StaticResource VignetteRibbonStyle}">
-                                <TextBlock Text="ARCHIVO" Foreground="{DynamicResource TextBrush}" FontFamily="Impact" FontSize="14"/>
-                            </Border>
-                <Button Style="{StaticResource ComicButtonStyle}"
-                    Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" Foreground="{DynamicResource TextBrush}"
-                                    Click="OpenFile_Click" HorizontalAlignment="Stretch">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="📁" FontSize="20" Margin="0,0,8,0"/>
-                                    <TextBlock Text="ABRIR ARCHIVO"/>
-                                </StackPanel>
-                            </Button>
-                <Button Style="{StaticResource ComicButtonStyle}"
-                    Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" Foreground="{DynamicResource TextBrush}"
-                                    Click="EnterReadingMode_Click" HorizontalAlignment="Stretch" Margin="0,8,0,0">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="📖" FontSize="20" Margin="0,0,8,0"/>
-                                    <TextBlock Text="MODO LECTURA"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Border>
+        <!-- ============== HEADER (pestañas + acciones secundarias) ============== -->
+        <Grid Grid.Row="1" Margin="32,24,32,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-                    <!-- Abrir carpeta -->
-                    <Border Style="{StaticResource VignettePanelStyle}">
-                        <StackPanel>
-                                <Border Style="{StaticResource VignetteRibbonStyle}">
-                                <TextBlock Text="CARPETA" Foreground="{DynamicResource TextBrush}" FontFamily="Impact" FontSize="14"/>
-                            </Border>
-                <Button Style="{StaticResource ComicButtonStyle}"
-                    Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" Foreground="{DynamicResource TextBrush}"
-                                    Click="OpenFolder_Click" HorizontalAlignment="Stretch">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="📂" FontSize="20" Margin="0,0,8,0"/>
-                                    <TextBlock Text="EXPLORAR CARPETA…"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-
-                    
-
-                    <!-- Favoritos -->
-                    <Border Style="{StaticResource VignettePanelStyle}">
-                        <StackPanel>
-                                <Border Style="{StaticResource VignetteRibbonStyle}">
-                                <TextBlock Text="FAVORITOS" Foreground="{DynamicResource TextBrush}" FontFamily="Impact" FontSize="14"/>
-                            </Border>
-                <Button Style="{StaticResource ComicButtonStyle}"
-                    Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" Foreground="{DynamicResource TextBrush}"
-                                    Click="OpenFavorites_Click" HorizontalAlignment="Stretch">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="⭐" FontSize="18" Margin="0,0,6,0"/>
-                                    <TextBlock Text="COLECCIONES"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Estadísticas -->
-                    <Border Style="{StaticResource VignettePanelStyle}">
-                        <StackPanel>
-                                <Border Style="{StaticResource VignetteRibbonStyle}">
-                                <TextBlock Text="ESTADÍSTICAS" Foreground="{DynamicResource TextBrush}" FontFamily="Impact" FontSize="14"/>
-                            </Border>
-                <Button Style="{StaticResource ComicButtonStyle}"
-                    Background="{DynamicResource AccentBrush}" BorderBrush="{DynamicResource PrimaryBrush}" Foreground="{DynamicResource TextBrush}"
-                                    Click="OpenComicStats_Click" HorizontalAlignment="Stretch">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                    <TextBlock Text="📈" FontSize="18" Margin="0,0,6,0"/>
-                                    <TextBlock Text="MI PROGRESO"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Border>
-                </UniformGrid>
+            <!-- Pestañas (visible cuando NO se está navegando una carpeta) -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
+                        Visibility="{Binding CurrentFolderPath, Converter={StaticResource NullToVisibleConverter}}">
+                <ToggleButton x:Name="TabContinue" IsChecked="True" Click="TabContinue_Click"
+                              Style="{StaticResource Toggle.Chip}">
+                    <TextBlock Text="Continuar leyendo"/>
+                </ToggleButton>
+                <ToggleButton x:Name="TabCompleted" IsChecked="False" Click="TabCompleted_Click"
+                              Style="{StaticResource Toggle.Chip}" Margin="6,0,0,0">
+                    <TextBlock Text="Completados"/>
+                </ToggleButton>
             </StackPanel>
 
-            <!-- Estado Vacío (limpio) -->
-            <Border Grid.Row="1" Name="EmptyStatePanel" HorizontalAlignment="Center" Margin="0,24,0,32" Padding="20"
-                    Visibility="{Binding HasAnyContinueItems, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" MaxWidth="520">
-                    <TextBlock Text="Sin lecturas para continuar" FontFamily="Segoe UI" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" TextAlignment="Center"/>
-                    <TextBlock Text="Abre un archivo y aparecerá en Seguir leyendo." FontFamily="Segoe UI" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" TextAlignment="Center" Margin="0,6,0,16"/>
-                </StackPanel>
-            </Border>
+            <!-- Breadcrumb cuando se navega una carpeta -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
+                        Visibility="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}">
+                <Button Style="{StaticResource Button.Icon}" Click="BackToHome_Click" ToolTip="Volver a la biblioteca">
+                    <TextBlock Text="⟵" FontSize="14"/>
+                </Button>
+                <Button Style="{StaticResource Button.Icon}" Click="UpFolder_Click" ToolTip="Subir un nivel" Margin="4,0,0,0">
+                    <TextBlock Text="⬆" FontSize="14"/>
+                </Button>
+                <TextBlock Text="{Binding CurrentFolderPath}"
+                           Foreground="{DynamicResource Text.Secondary.Brush}"
+                           FontFamily="{DynamicResource AppFontFamily}"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           VerticalAlignment="Center" Margin="12,0,0,0"
+                           TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
 
-            <!-- Explorador de Carpeta (visible cuando hay carpeta seleccionada) -->
-            <Border Grid.Row="1" Margin="0,0,0,18" Visibility="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}">
-                <Border.Style>
-                    <Style TargetType="Border" BasedOn="{StaticResource RecentsSectionContainer}">
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+            <!-- Acciones secundarias: solo adquisicion de contenido (archivo / carpeta).
+                 Colecciones, Estadisticas y Logros se acceden ahora desde el sidebar
+                 permanente de MainWindow. -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource Button.Icon}" Click="OpenFile_Click" ToolTip="Abrir archivo">
+                    <TextBlock Text="📄" FontSize="16"/>
+                </Button>
+                <Button Style="{StaticResource Button.Icon}" Click="OpenFolder_Click" ToolTip="Explorar carpeta" Margin="4,0,0,0">
+                    <TextBlock Text="📂" FontSize="16"/>
+                </Button>
+            </StackPanel>
+        </Grid>
 
-                    <!-- Toolbar de carpeta -->
-                    <DockPanel Grid.Row="0" LastChildFill="False" Margin="8,2,8,10">
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                            <Button Style="{StaticResource GhostIconButton}" Click="BackToHome_Click" ToolTip="Cerrar carpeta">
-                                <TextBlock Text="⟵" FontSize="14"/>
-                            </Button>
-                            <Button Style="{StaticResource GhostIconButton}" Click="UpFolder_Click" ToolTip="Subir un nivel" Margin="6,0,0,0">
-                                <TextBlock Text="⬆" FontSize="14"/>
-                            </Button>
-                            <TextBlock Text="Carpeta:" Foreground="{DynamicResource SecondaryTextBrush}" Margin="10,0,6,0" VerticalAlignment="Center"/>
-                            <Border Background="{DynamicResource PanelBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="8,4">
-                                <TextBlock Text="{Binding CurrentFolderPath}" Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="12"/>
-                            </Border>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-                            <Button Style="{StaticResource RecentsButton}" Click="OpenCurrentFolderExternal_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🗁" Margin="0,0,6,0"/>
-                                    <TextBlock Text="Abrir en Explorer"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </DockPanel>
+        <!-- ============== CONTENIDO PRINCIPAL ============== -->
+        <Grid Grid.Row="2">
 
-                    <!-- Grid de contenidos -->
-                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding FolderContents}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel IsItemsHost="True" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                    <Border Width="200" Margin="8,6" Cursor="Hand" MouseLeftButtonUp="OpenFolderItem_Click"
-                        Style="{StaticResource ModernCardBorder}">
-                                        <Border.Effect>
-                                            <DropShadowEffect BlurRadius="8" ShadowDepth="1" Opacity="0.08"/>
-                                        </Border.Effect>
-                                        <Grid>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="160"/>
-                                                <RowDefinition Height="Auto"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
-                                            <!-- Miniatura o icono -->
-                                            <Grid Grid.Row="0" Background="{DynamicResource PanelBackgroundBrush}" ClipToBounds="True">
-                                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"/>
-                                                <TextBlock Text="📁" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                <TextBlock Text="📘" FontSize="42" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                                            </Grid>
-                                            <!-- Nombre -->
-                                            <TextBlock Grid.Row="1" Text="{Binding Name}" Style="{StaticResource CardTitleText}" Margin="8,8,8,0"/>
-                                            <!-- Detalle -->
-                                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="8,6,8,8">
-                                                <TextBlock Text="{Binding Extension}" Style="{StaticResource CardSubText}" Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                                                <TextBlock Text="{Binding Size}" Style="{StaticResource CardSubText}" Margin="8,0,0,0" Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                                                <TextBlock Text="{Binding ComicCount}" Style="{StaticResource CardSubText}" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                <TextBlock Text=" comics" Style="{StaticResource CardSubText}" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                            <ItemsControl.Style>
-                                <Style TargetType="ItemsControl">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding FolderContents.Count}" Value="0">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="ItemsControl">
-                                                        <Grid>
-                                                            <TextBlock Text="Esta carpeta está vacía." Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        </Grid>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ItemsControl.Style>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-
-            <!-- Sección Seguir leyendo con fondo propio -->
-            <Border Grid.Row="2" Margin="0,6,0,20">
-                <Border.Style>
-                    <Style TargetType="Border" BasedOn="{StaticResource RecentsSectionContainer}">
-                        <!-- Mostrar la sección si hay elementos en Seguir leyendo O en Completados -->
+            <!-- Estado vacío (sólo cuando NO hay items y NO hay carpeta navegada) -->
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                        MaxWidth="420" Margin="32">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasAnyContinueItems}" Value="True">
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding HasAnyContinueItems}" Value="False"/>
+                                    <Condition Binding="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}" Value="Collapsed"/>
+                                </MultiDataTrigger.Conditions>
                                 <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
+                            </MultiDataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Border.Style>
+                </StackPanel.Style>
+                <TextBlock Text="Tu biblioteca está vacía"
+                           Style="{StaticResource Text.Title}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Abre un archivo o explora una carpeta para empezar a leer."
+                           Style="{StaticResource Text.Body}"
+                           Foreground="{DynamicResource Text.Secondary.Brush}"
+                           HorizontalAlignment="Center" TextAlignment="Center"
+                           Margin="0,8,0,24" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource Button.Primary}" Click="OpenFile_Click" Content="Abrir archivo"/>
+                    <Button Style="{StaticResource Button.Secondary}" Click="OpenFolder_Click"
+                            Content="Explorar carpeta" Margin="8,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Biblioteca (cuando hay items y NO hay carpeta navegada).
+
+                 Sin ScrollViewer externo: las ListBox internas ya tienen su
+                 propio ScrollViewer y necesitan viewport finito para que la
+                 virtualizacion funcione. Un ScrollViewer externo forzaria
+                 altura infinita y destruiria la virtualizacion. -->
+            <Grid Margin="32,0,32,32">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding HasAnyContinueItems}" Value="True"/>
+                                    <Condition Binding="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}" Value="Collapsed"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                    <!-- Continuar leyendo.
 
-                    <!-- Barra de herramientas de Recientes (limpia, con lo esencial) -->
-                    <DockPanel Grid.Row="0" LastChildFill="False" Margin="12,8,12,6">
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Seguir leyendo" x:Name="MainSectionTitle" FontFamily="Segoe UI Semibold" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}" VerticalAlignment="Center"/>
-                            <Border Background="{DynamicResource OverlayBackgroundBrush}" CornerRadius="10" Padding="8,3" Margin="10,0,0,0" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
-                                <TextBlock Text="{Binding RecentComics.Count}" Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="12"/>
-                            </Border>
-                            <!-- Pestañas -->
-                            <StackPanel Orientation="Horizontal" Margin="12,0,0,0" VerticalAlignment="Center">
-                                <ToggleButton x:Name="TabContinue" IsChecked="True" Click="TabContinue_Click" Style="{StaticResource ChipToggleButton}">
-                                    <TextBlock Text="Seguir leyendo" />
-                                </ToggleButton>
-                                <ToggleButton x:Name="TabCompleted" IsChecked="False" Click="TabCompleted_Click" Style="{StaticResource ChipToggleButton}" Margin="6,0,0,0">
-                                    <TextBlock Text="Completados" />
-                                </ToggleButton>
-                            </StackPanel>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
-                            <!-- Ordenar -->
-                            <StackPanel Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center" Visibility="{Binding HasRecentComics, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="Ordenar:" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                <ComboBox Width="140" SelectedValuePath="Content" SelectedValue="{Binding SortBy, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                    <ComboBoxItem Content="Reciente"/>
-                                    <ComboBoxItem Content="Progreso"/>
-                                    <ComboBoxItem Content="Nombre"/>
-                                </ComboBox>
-                            </StackPanel>
-                            <!-- Ocultar completados -->
-                            <CheckBox Content="Ocultar terminados" IsChecked="{Binding HideCompleted, Mode=TwoWay}"
-                                      Foreground="{DynamicResource SecondaryTextBrush}" VerticalAlignment="Center" Margin="8,0"/>
-                            <!-- Selección de vista: Carrusel / Grid / Lista -->
-                            <StackPanel Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center">
-                                <ToggleButton x:Name="BtnViewCarousel" Click="SetViewCarousel_Click" Style="{StaticResource ChipToggleButton}" ToolTip="Vista carrusel">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="◀" Margin="0,0,6,0"/>
-                                        <TextBlock Text="Carrusel"/>
-                                    </StackPanel>
-                                </ToggleButton>
-                                <ToggleButton x:Name="BtnViewGrid" Click="SetViewGrid_Click" Style="{StaticResource ChipToggleButton}" Margin="6,0,0,0" ToolTip="Vista rejilla">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="▦" Margin="0,0,6,0"/>
-                                        <TextBlock Text="Rejilla"/>
-                                    </StackPanel>
-                                </ToggleButton>
-                                <ToggleButton x:Name="BtnViewList" Click="SetViewList_Click" Style="{StaticResource ChipToggleButton}" Margin="6,0,0,0" ToolTip="Vista lista">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="☰" Margin="0,0,6,0"/>
-                                        <TextBlock Text="Lista"/>
-                                    </StackPanel>
-                                </ToggleButton>
-                            </StackPanel>
-                            <!-- Paginación compacta -->
-                            <StackPanel Orientation="Horizontal" Margin="6,0" VerticalAlignment="Center" Visibility="{Binding HasMultiplePages, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <Button Style="{StaticResource GhostIconButton}" Click="PrevRecentPage_Click" ToolTip="Anterior">
-                                    <TextBlock Text="◀" FontSize="12"/>
-                                </Button>
-                                <Border Background="{DynamicResource PanelBackgroundBrush}" CornerRadius="12" Padding="10,2" Margin="4,0">
-                                    <TextBlock Text="{Binding CurrentPage}" Foreground="{DynamicResource TextBrush}" FontFamily="Consolas" FontSize="12"/>
-                                </Border>
-                                <TextBlock Text="/" Foreground="{DynamicResource SecondaryTextBrush}" Margin="2,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding TotalPages}" Foreground="{DynamicResource SecondaryTextBrush}" FontFamily="Consolas" FontSize="12" VerticalAlignment="Center"/>
-                                <Button Style="{StaticResource GhostIconButton}" Click="NextRecentPage_Click" ToolTip="Siguiente" Margin="4,0,0,0">
-                                    <TextBlock Text="▶" FontSize="12"/>
-                                </Button>
-                            </StackPanel>
-                            <!-- Acciones -->
-                            <Button Style="{StaticResource TextDangerButton}" Click="ClearRecentComics_Click">
-                                <TextBlock Text="Limpiar lista"/>
-                            </Button>
-                            <Border Background="{DynamicResource PanelBackgroundBrush}" CornerRadius="8" Padding="8,4" Margin="12,0" VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="Completados:" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding CompletedCount}" Foreground="{DynamicResource TextBrush}" FontFamily="Consolas"/>
-                                </StackPanel>
-                            </Border>
-                            <Button Style="{StaticResource TextDangerButton}" Click="ClearCompleted_Click" ToolTip="Limpiar completados">
-                                <TextBlock Text="Limpiar completados"/>
-                            </Button>
-                        </StackPanel>
-                    </DockPanel>
-                    
+                         Se usa ListBox (no ItemsControl) a proposito: un ListBox
+                         instancia internamente un ScrollViewer y bridgeaa
+                         CanContentScroll=True hacia el panel virtualizante, de
+                         modo que VirtualizingWrapPanel.MeasureOverride recibe el
+                         viewport real en lugar de Infinity (lo cual crasheaba
+                         cuando VirtualizingWrapPanel quedaba dentro de un
+                         ScrollViewer externo, como ocurria con ItemsControl).
+                         El ItemContainerStyle neutraliza el chrome de ListBox
+                         para que la card de cada cover sea el unico elemento
+                         visible. -->
+                    <ListBox ItemsSource="{Binding RecentComics}"
+                             ItemTemplate="{StaticResource ComicCoverCardTemplate}"
+                             ItemContainerStyle="{StaticResource HomeCardListItem}"
+                             Visibility="{Binding ElementName=TabContinue, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"
+                             Background="Transparent" BorderThickness="0"
+                             Padding="0" Margin="0"
+                             SelectionMode="Single"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.CanContentScroll="True"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             VirtualizingPanel.ScrollUnit="Pixel">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <!-- ItemWidth/Height incluyen el Margin de la card (184+16, ~340 alto). -->
+                                <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
 
-                    <ScrollViewer Grid.Row="1" Name="ComicsScrollViewer" HorizontalScrollBarVisibility="Disabled" Padding="12,0">
-                        <ScrollViewer.Style>
-                            <Style TargetType="ScrollViewer">
-                                <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-                                <Style.Triggers>
-                                    <!-- Desactivar scroll vertical cuando no está la vista lista -->
-                                    <DataTrigger Binding="{Binding IsRecentListView}" Value="False">
-                                        <Setter Property="VerticalScrollBarVisibility" Value="Disabled"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ScrollViewer.Style>
-                        <Grid>
-                            <!-- Carrusel horizontal tipo Netflix -->
-                            <Grid Name="ContinueCarouselRoot" Visibility="{Binding IsRecentListView, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Button Grid.Column="0" Style="{StaticResource CarouselNavButton}" Click="ContinueCarouselPrev_Click" Margin="8,0" VerticalAlignment="Center">
-                                        <TextBlock Text="◀" FontSize="16"/>
-                                    </Button>
-                                    <ScrollViewer Grid.Column="1" x:Name="ContinueCarouselScroll" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" CanContentScroll="True">
-                                        <ItemsControl ItemsSource="{Binding RecentComics}">
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <StackPanel Orientation="Horizontal"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border Width="200" Margin="8,6" Cursor="Hand" MouseLeftButtonUp="OpenRecentComic_Click" Style="{StaticResource ModernCardBorder}">
-                                                        <Border.ContextMenu>
-                                                            <ContextMenu>
-                                                                <MenuItem Header="Leer" Command="{Binding DataContext.OpenComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding FilePath}"/>
-                                                                <MenuItem Header="Mostrar en carpeta" Command="{Binding DataContext.ShowInFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding FilePath}"/>
-                                                                <Separator/>
-                                                                <MenuItem Header="Quitar de la lista" Command="{Binding DataContext.RemoveRecentComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding FilePath}"/>
-                                                            </ContextMenu>
-                                                        </Border.ContextMenu>
-                                                        <Border.Effect>
-                                                            <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.10"/>
-                                                        </Border.Effect>
-                                                        <Grid>
-                                                            <Grid.RowDefinitions>
-                                                                <RowDefinition Height="*"/>
-                                                                <RowDefinition Height="Auto"/>
-                                                            </Grid.RowDefinitions>
-                                                            <!-- Portada con overlay -->
-                                                            <Grid Grid.Row="0" Height="280" ClipToBounds="True">
-                                                                <Image Stretch="UniformToFill">
-                                                                    <Image.Source>
-                                                                        <MultiBinding Converter="{StaticResource CoverPathOrThumbnailConverter}">
-                                                                            <Binding Path="CoverPath"/>
-                                                                            <Binding Path="CoverThumbnail"/>
-                                                                        </MultiBinding>
-                                                                    </Image.Source>
-                                                                </Image>
-                                                                <Border Name="LoadingBorder" Background="{DynamicResource OverlayBackgroundBrush}" Visibility="Collapsed">
-                                                                    <TextBlock Text="Cargando…" Foreground="White" FontFamily="Segoe UI" FontWeight="SemiBold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                                </Border>
-                                                                <Rectangle VerticalAlignment="Bottom" Height="120">
-                                                                    <Rectangle.Fill>
-                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                            <GradientStop Color="#00000000" Offset="0"/>
-                                                                            <GradientStop Color="#CC000000" Offset="1"/>
-                                                                        </LinearGradientBrush>
-                                                                    </Rectangle.Fill>
-                                                                </Rectangle>
-                                                                <!-- Botón de quitar (esquina superior derecha) -->
-                                                                        <Button x:Name="RemoveCardButton" Style="{StaticResource GhostIconButton}"
-                                                                        Background="{DynamicResource ErrorBrush}" BorderBrush="{DynamicResource BorderBrush}" Foreground="{DynamicResource TextBrush}"
-                                                                        BorderThickness="1" Width="36" Height="36" Opacity="0.95"
-                                                                        ToolTip="Quitar de la lista"
-                                                                        Command="{Binding DataContext.RemoveRecentComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                        CommandParameter="{Binding FilePath}"
-                                                                        HorizontalAlignment="Right" VerticalAlignment="Top" Margin="8">
-                                                                    <Button.Effect>
-                                                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.4"/>
-                                                                    </Button.Effect>
-                                                                    <TextBlock Text="✖" FontSize="16" FontWeight="Bold"/>
-                                                                </Button>
-
-                                                                <Button Background="{DynamicResource OverlayBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Width="110" Height="30" Cursor="Hand"
-                                                                        Command="{Binding DataContext.OpenComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                        CommandParameter="{Binding FilePath}"
-                                                                        HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                                    <TextBlock Text="Continuar" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
-                                                                </Button>
-                                                            </Grid>
-                                                            <!-- Título + progreso -->
-                                                            <StackPanel Grid.Row="1" Margin="8,8,8,10">
-                                                                <TextBlock Text="{Binding DisplayName}" Style="{StaticResource CardTitleText}"/>
-                                                                <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercent, Mode=OneWay}" Height="6" Margin="0,6,0,0" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource PrimaryBrush}"/>
-                                                            </StackPanel>
-                                                        </Grid>
-                                                        <Border.RenderTransform>
-                                                            <ScaleTransform ScaleX="1" ScaleY="1"/>
-                                                        </Border.RenderTransform>
-                                                        <Border.Triggers>
-                                                            <EventTrigger RoutedEvent="MouseEnter">
-                                                                <BeginStoryboard>
-                                                                    <Storyboard>
-                                                                        <!-- Keep opacity animation for the Remove button, but avoid animating ScaleX/ScaleY here because of template scope issues. -->
-                                                                        <DoubleAnimation Storyboard.TargetName="RemoveCardButton" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.06"/>
-                                                                    </Storyboard>
-                                                                </BeginStoryboard>
-                                                            </EventTrigger>
-                                                            <EventTrigger RoutedEvent="MouseLeave">
-                                                                <BeginStoryboard>
-                                                                    <Storyboard>
-                                                                        <DoubleAnimation Storyboard.TargetName="RemoveCardButton" Storyboard.TargetProperty="Opacity" To="0.9" Duration="0:0:0.06"/>
-                                                                    </Storyboard>
-                                                                </BeginStoryboard>
-                                                            </EventTrigger>
-                                                        </Border.Triggers>
-                                                    </Border>
-                                                    <DataTemplate.Triggers>
-                                                        <DataTrigger Binding="{Binding CoverThumbnail}" Value="{x:Null}">
-                                                            <Setter TargetName="LoadingBorder" Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </DataTemplate.Triggers>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </ScrollViewer>
-                                    <Button Grid.Column="2" Style="{StaticResource CarouselNavButton}" Click="ContinueCarouselNext_Click" Margin="8,0" VerticalAlignment="Center">
-                                        <TextBlock Text="▶" FontSize="16"/>
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                            <!-- Vista en rejilla (Grid) para Seguir leyendo -->
-                            <Grid Name="ContinueGridRoot" Visibility="Collapsed">
-                                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" Padding="8,8,8,8">
-                                    <ItemsControl ItemsSource="{Binding RecentComics}">
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <WrapPanel Orientation="Horizontal" ItemWidth="180" ItemHeight="320"/>
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Width="180" Margin="8" Cursor="Hand" MouseLeftButtonUp="OpenRecentComic_Click" Style="{StaticResource ModernCardBorder}">
-                                                    <Grid>
-                                                        <Grid.RowDefinitions>
-                                                            <RowDefinition Height="*"/>
-                                                            <RowDefinition Height="Auto"/>
-                                                        </Grid.RowDefinitions>
-                                                        <Grid Grid.Row="0" Height="220" ClipToBounds="True">
-                                                            <Image Stretch="UniformToFill">
-                                                                <Image.Source>
-                                                                    <MultiBinding Converter="{StaticResource CoverPathOrThumbnailConverter}">
-                                                                        <Binding Path="CoverPath"/>
-                                                                        <Binding Path="CoverThumbnail"/>
-                                                                    </MultiBinding>
-                                                                </Image.Source>
-                                                            </Image>
-                                                            <Rectangle VerticalAlignment="Bottom" Height="80">
-                                                                <Rectangle.Fill>
-                                                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                        <GradientStop Color="#00000000" Offset="0"/>
-                                                                        <GradientStop Color="#CC000000" Offset="1"/>
-                                                                    </LinearGradientBrush>
-                                                                </Rectangle.Fill>
-                                                            </Rectangle>
-                                                        </Grid>
-                                                            <StackPanel Grid.Row="1" Margin="8,6,8,8">
-                                                            <TextBlock Text="{Binding DisplayName}" Style="{StaticResource CardTitleText}" TextTrimming="CharacterEllipsis"/>
-                                                            <ProgressBar Minimum="0" Maximum="100" Value="{Binding ProgressPercent, Mode=OneWay}" Height="6" Margin="0,6,0,0" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource PrimaryBrush}"/>
-                                                        </StackPanel>
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
-                            </Grid>
-                            <!-- Panel de Completados (ahora carrusel horizontal como 'Seguir leyendo') -->
-                            <Grid x:Name="CompletedPanel" Visibility="Collapsed" Opacity="0">
-                                <Grid Name="CompletedCarouselRoot">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Button Grid.Column="0" Style="{StaticResource CarouselNavButton}" Click="CompletedCarouselPrev_Click" Margin="8,0" VerticalAlignment="Center">
-                                            <TextBlock Text="◀" FontSize="16"/>
-                                        </Button>
-                                        <ScrollViewer Grid.Column="1" x:Name="CompletedCarouselScroll" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" CanContentScroll="True">
-                                            <ItemsControl ItemsSource="{Binding CompletedComics}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Horizontal"/>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Width="200" Margin="8,6" Cursor="Hand" Style="{StaticResource ModernCardBorder}">
-                                                            <Grid>
-                                                                <Grid.RowDefinitions>
-                                                                    <RowDefinition Height="*"/>
-                                                                    <RowDefinition Height="Auto"/>
-                                                                </Grid.RowDefinitions>
-                                                                <Grid Grid.Row="0" Height="280" ClipToBounds="True">
-                                                                    <Image Stretch="UniformToFill">
-                                                                        <Image.Source>
-                                                                            <MultiBinding Converter="{StaticResource CoverPathOrThumbnailConverter}">
-                                                                                <Binding Path="CoverPath"/>
-                                                                                <Binding Path="CoverThumbnail"/>
-                                                                            </MultiBinding>
-                                                                        </Image.Source>
-                                                                    </Image>
-                                                                    <Rectangle VerticalAlignment="Bottom" Height="120">
-                                                                        <Rectangle.Fill>
-                                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                                                                <GradientStop Color="#00000000" Offset="0"/>
-                                                                                <GradientStop Color="#CC000000" Offset="1"/>
-                                                                            </LinearGradientBrush>
-                                                                        </Rectangle.Fill>
-                                                                    </Rectangle>
-                                                                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="8" Padding="6" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="8">
-                                                                        <TextBlock Text="Completado ✅" Foreground="{DynamicResource TextBrush}" FontSize="12" FontWeight="SemiBold"/>
-                                                                    </Border>
-                                                                    <Button Background="{DynamicResource OverlayBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Width="110" Height="30" Cursor="Hand"
-                                                                            Command="{Binding DataContext.ReopenCompletedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                            CommandParameter="{Binding FilePath}"
-                                                                            HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                                        <TextBlock Text="Releer" Foreground="{DynamicResource TextBrush}" FontWeight="SemiBold"/>
-                                                                    </Button>
-                                                                </Grid>
-                                                                 <StackPanel Grid.Row="1" Margin="8,8,8,10">
-                                                                     <TextBlock Text="{Binding DisplayName}" Style="{StaticResource CardTitleText}"/>
-                                                                     <TextBlock Text="{Binding DateCompleted, StringFormat={}{0:dd/MM/yyyy}}" Style="{StaticResource CardSubText}"/>
-                                                                     <ProgressBar Minimum="0" Maximum="100" Value="100" Height="6" Margin="0,6,0,0" Background="{DynamicResource PanelBackgroundBrush}" Foreground="{DynamicResource PrimaryBrush}"/>
-                                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
-                                                                         <Button Style="{StaticResource TextActionButton}" Click="CompletedMenu_Click" Tag="{Binding FilePath}">⋯</Button>
-                                                                     </StackPanel>
-                                                                 </StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </ScrollViewer>
-                                        <Button Grid.Column="2" Style="{StaticResource CarouselNavButton}" Click="CompletedCarouselNext_Click" Margin="8,0" VerticalAlignment="Center">
-                                            <TextBlock Text="▶" FontSize="16"/>
-                                        </Button>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                            <!-- Vista Lista -->
-                            <ListView Name="RecentComicsListView" BorderThickness="0" Background="Transparent" ItemContainerStyle="{StaticResource RecentsListViewItemStyle}"
-                                      Visibility="{Binding IsRecentListView, Converter={StaticResource BoolToVisibilityConverter}}"
-                                      ItemsSource="{Binding RecentComics, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                      Loaded="RecentComicsListView_Loaded"
-                                      MouseDoubleClick="RecentComicsListView_MouseDoubleClick">
-                                <ListView.Resources>
-                                    <!-- Encabezado del GridView: barra más visible/contrastada -->
-                                    <Style TargetType="GridViewColumnHeader" BasedOn="{StaticResource RecentsGridHeader}">
-                                        <Setter Property="Background" Value="{DynamicResource PanelBackgroundBrush}"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-                                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
-                                        <Setter Property="FontSize" Value="12"/>
-                                    </Style>
-                                </ListView.Resources>
-                                <ListView.View>
-                                    <GridView AllowsColumnReorder="true">
-                                        <GridViewColumn x:Name="colCover" Header="Portada" Width="80">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <!-- Enmascarar el fondo de selección bajo la portada para que no se vea la barra -->
-                                                    <Border Background="{StaticResource RecentsPanelBackgroundBrush}" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Stretch">
-                                                        <Image Width="60" Height="60" Stretch="UniformToFill">
-                                                            <Image.Source>
-                                                                <MultiBinding Converter="{StaticResource CoverPathOrThumbnailConverter}">
-                                                                    <Binding Path="CoverPath"/>
-                                                                    <Binding Path="CoverThumbnail"/>
-                                                                </MultiBinding>
-                                                            </Image.Source>
-                                                        </Image>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn x:Name="colTitle" Header="Nombre" Width="240" DisplayMemberBinding="{Binding DisplayName}"/>
-                                        <GridViewColumn x:Name="colPath" Header="Ubicación" Width="400">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding FilePath}" TextTrimming="CharacterEllipsis"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn x:Name="colLastOpened" Header="Última apertura" Width="160">
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding LastOpened, StringFormat={}{0:dd/MM/yyyy HH:mm}}"/>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                        <GridViewColumn x:Name="colPage" Header="Página" Width="80" DisplayMemberBinding="{Binding LastPage}"/>
-                                        <!-- Acciones por elemento -->
-                                        <GridViewColumn x:Name="colActions" Width="170">
-                                            <GridViewColumn.Header>
-                                                <TextBlock Text=""/>
-                                            </GridViewColumn.Header>
-                                            <GridViewColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                                        <Button Style="{StaticResource RecentsPrimaryButton}" Padding="8,2" Margin="0,0,6,0"
-                                                                Command="{Binding DataContext.OpenComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding FilePath}" ToolTip="Leer">
-                                                            <TextBlock Text="Leer"/>
-                                                        </Button>
-                                                        <Button Style="{StaticResource TextDangerButton}" Padding="6,2" Margin="0"
-                                                                Command="{Binding DataContext.RemoveRecentComicCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding FilePath}" ToolTip="Quitar de la lista">
-                                                            <TextBlock Text="Quitar"/>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </DataTemplate>
-                                            </GridViewColumn.CellTemplate>
-                                        </GridViewColumn>
-                                    </GridView>
-                                </ListView.View>
-                            </ListView>
-                        </Grid>
-                    </ScrollViewer>
+                    <!-- Completados -->
+                    <ListBox ItemsSource="{Binding CompletedComics}"
+                             ItemTemplate="{StaticResource ComicCoverCardTemplate}"
+                             ItemContainerStyle="{StaticResource HomeCardListItem}"
+                             Visibility="{Binding ElementName=TabCompleted, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"
+                             Background="Transparent" BorderThickness="0"
+                             Padding="0" Margin="0"
+                             SelectionMode="Single"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.CanContentScroll="True"
+                             VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling"
+                             VirtualizingPanel.ScrollUnit="Pixel">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                    </ListBox>
                 </Grid>
-            </Border>
+            </Grid>
+
+            <!-- Explorador de carpeta. Mismo patron ListBox para virtualizar
+                 bien. Placeholder "carpeta vacia" via DataTrigger sobre el
+                 Template del ListBox. -->
+            <Grid Margin="32,0,32,32"
+                  Visibility="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}">
+                <ListBox ItemsSource="{Binding FolderContents}"
+                         ItemTemplate="{StaticResource FolderItemCardTemplate}"
+                         ItemContainerStyle="{StaticResource HomeCardListItem}"
+                         Background="Transparent" BorderThickness="0"
+                         Padding="0" Margin="0"
+                         SelectionMode="Single"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         ScrollViewer.CanContentScroll="True"
+                         VirtualizingPanel.IsVirtualizing="True"
+                         VirtualizingPanel.VirtualizationMode="Recycling"
+                         VirtualizingPanel.ScrollUnit="Pixel">
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                </ListBox>
+                <TextBlock Text="Esta carpeta está vacía."
+                           Foreground="{DynamicResource Text.Secondary.Brush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Margin="0,80,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FolderContents.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
         </Grid>
-        </ScrollViewer>
     </Grid>
 </UserControl>

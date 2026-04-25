@@ -138,30 +138,19 @@ namespace ComicReader
         {
             try
             {
+                // Phase 1+ : Tokens.xaml y Components.xaml se cargan deterministicamente
+                // desde App.xaml. Antes existia aqui un fallback que cargaba
+                // Themes/ThemeTokens.xaml si faltaban claves legacy; ese archivo
+                // fue eliminado en Phase 5 y los aliases viven ahora en Tokens.xaml,
+                // por lo que solo nos limitamos a registrar advertencias si algo
+                // critico no aparece.
                 var appRes = Application.Current.Resources;
                 var required = new[] { "TextBrush", "PanelBackgroundBrush", "AccentBrush", "ReaderToggleButtonStyle" };
-                bool missing = false;
                 foreach (var k in required)
                 {
                     if (!appRes.Contains(k))
                     {
                         Logger.Log($"Missing resource key: {k}", LogLevel.Warning);
-                        missing = true;
-                    }
-                }
-                if (missing)
-                {
-                    try
-                    {
-                        var tokenUri = new Uri("Themes/ThemeTokens.xaml", UriKind.Relative);
-                        var rd = new ResourceDictionary() { Source = tokenUri };
-                        // Insert at the beginning so tokens are available for other RDs
-                        Application.Current.Resources.MergedDictionaries.Insert(0, rd);
-                        Logger.Log("Loaded fallback ThemeTokens.xaml because required keys were missing.", LogLevel.Info);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogException("Failed to load fallback ThemeTokens.xaml", ex);
                     }
                 }
             }
@@ -383,6 +372,19 @@ namespace ComicReader
                 {
                     var cts = new System.Threading.CancellationTokenSource(1500);
                     SettingsManager.FlushPendingSavesAsync(cts.Token).GetAwaiter().GetResult();
+                }
+                catch { }
+                // Cerrar sesión de lectura activa para que sus paginas
+                // computen en stats y disparen logros pendientes.
+                try
+                {
+                    var stats = ComicReader.Core.Services.ServiceLocator.TryGet<ComicReader.Core.Abstractions.IReadingStatsService>();
+                    stats?.EndSession();
+                    // suppressNotifications=true: durante el cierre de la app
+                    // no queremos disparar toasts ni MessageBox bloqueantes;
+                    // los unlocks se persisten igual y el usuario los ve la
+                    // proxima vez que entre.
+                    ComicReader.Services.AchievementService.Instance.Refresh(suppressNotifications: true);
                 }
                 catch { }
                 ComicReader.Utils.ModernLogger.Shutdown();

@@ -282,7 +282,49 @@
   </Style>
 
   <Style x:Key="ToggleComic" TargetType="ToggleButton" BasedOn="{StaticResource Toggle.Default}"/>
-  <Style x:Key="ChipToggleButton" TargetType="ToggleButton" BasedOn="{StaticResource Toggle.Default}"/>
+
+  <!-- Chip-style toggle (pestañas, vista grid/list, etc).
+       Etiqueta de texto plano sobre superficie. Sin scale, sin glow. -->
+  <Style x:Key="Toggle.Chip" TargetType="ToggleButton">
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="Padding" Value="12,6"/>
+    <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+    <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+    <Setter Property="FontWeight" Value="Medium"/>
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary.Brush}"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ToggleButton">
+          <Border x:Name="bd"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="6"
+                  Padding="{TemplateBinding Padding}"
+                  SnapsToDevicePixels="True">
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{DynamicResource Surface.Hover.Brush}"/>
+              <Setter Property="Foreground" Value="{DynamicResource Text.Primary.Brush}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Setter TargetName="bd" Property="Background" Value="{DynamicResource Surface.Selected.Brush}"/>
+              <Setter Property="Foreground" Value="{DynamicResource Text.Primary.Brush}"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="ChipToggleButton" TargetType="ToggleButton" BasedOn="{StaticResource Toggle.Chip}"/>
   <Style x:Key="ReaderToggleButtonStyle" TargetType="ToggleButton" BasedOn="{StaticResource Toggle.Default}"/>
 
   <!-- ============================================================ -->

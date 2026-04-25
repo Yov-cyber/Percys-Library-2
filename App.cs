@@ -151,17 +151,25 @@ namespace ComicReader
                 }
                 if (missing)
                 {
+                    // Fallback: cargar Tokens.xaml + Components.xaml.
+                    // ThemeTokens.xaml es ahora un stub vacio (Phase 1 movio
+                    // todo a Tokens/Components). Cargar ese stub no resolveria
+                    // los keys faltantes y solo enmascararia el problema con
+                    // un log de "exito".
                     try
                     {
-                        var tokenUri = new Uri("Themes/ThemeTokens.xaml", UriKind.Relative);
-                        var rd = new ResourceDictionary() { Source = tokenUri };
-                        // Insert at the beginning so tokens are available for other RDs
-                        Application.Current.Resources.MergedDictionaries.Insert(0, rd);
-                        Logger.Log("Loaded fallback ThemeTokens.xaml because required keys were missing.", LogLevel.Info);
+                        var tokensUri = new Uri("Themes/Tokens.xaml", UriKind.Relative);
+                        var componentsUri = new Uri("Themes/Components.xaml", UriKind.Relative);
+                        var tokensRd = new ResourceDictionary() { Source = tokensUri };
+                        var componentsRd = new ResourceDictionary() { Source = componentsUri };
+                        // Insert tokens first so Components puede resolver DynamicResources
+                        Application.Current.Resources.MergedDictionaries.Insert(0, componentsRd);
+                        Application.Current.Resources.MergedDictionaries.Insert(0, tokensRd);
+                        Logger.Log("Loaded fallback Tokens.xaml + Components.xaml because required keys were missing.", LogLevel.Info);
                     }
                     catch (Exception ex)
                     {
-                        Logger.LogException("Failed to load fallback ThemeTokens.xaml", ex);
+                        Logger.LogException("Failed to load fallback Tokens.xaml/Components.xaml", ex);
                     }
                 }
             }

@@ -455,6 +455,57 @@ namespace ComicReader.Themes
             // Pincel para elementos deshabilitados
             var disabledColor = Color.FromArgb(100, 128, 128, 128);
             var disabledBrush = new SolidColorBrush(disabledColor); disabledBrush.Freeze(); theme["DisabledBrush"] = disabledBrush;
+
+            // ===== Tokens semanticos del sistema unificado (Phase 1) =====
+            // Components.xaml referencia 'Surface.*', 'Text.*', 'Border.*',
+            // 'Danger.*', 'Accent.*' como DynamicResource. Si no se generan
+            // aqui se quedan congelados en los valores estaticos del tema
+            // dark de Tokens.xaml al cambiar de tema. Mapeamos desde los
+            // colores legacy que cada tema define en su constructor.
+            void SetSemantic(string key, Color color)
+            {
+                var b = new SolidColorBrush(color);
+                b.Freeze();
+                theme[key] = b;
+            }
+
+            Color GetColor(string key, Color fallback)
+            {
+                return theme.Contains(key) && theme[key] is Color c ? c : fallback;
+            }
+
+            var windowBg = GetColor("WindowBackgroundColor", Color.FromRgb(0x0E, 0x0F, 0x12));
+            var panelBg = GetColor("PanelBackgroundColor", Color.FromRgb(0x16, 0x18, 0x1D));
+            var headerBg = GetColor("HeaderBackgroundColor", panelBg);
+            var hoverBg = GetColor("ItemHoverColor", Color.FromRgb(0x26, 0x29, 0x32));
+            var selectedBg = GetColor("ItemSelectedColor", Color.FromRgb(0x1B, 0x26, 0x38));
+            var textColor = GetColor("TextColor", Color.FromRgb(0xEC, 0xED, 0xEE));
+            var secondaryTextColor = GetColor("SecondaryTextColor", Color.FromRgb(0x9B, 0xA1, 0xA8));
+            var borderColor = GetColor("BorderColor", Color.FromRgb(0x3A, 0x3F, 0x4A));
+            var accentColor = GetColor("AccentColor", GetColor("PrimaryColor", Color.FromRgb(0x4D, 0x9D, 0xE0)));
+            var errorColor = GetColor("ErrorColor", Color.FromRgb(0xE5, 0x4B, 0x4B));
+
+            SetSemantic("Surface.Base.Brush", windowBg);
+            SetSemantic("Surface.Raised.Brush", panelBg);
+            SetSemantic("Surface.Overlay.Brush", headerBg);
+            SetSemantic("Surface.Hover.Brush", hoverBg);
+            SetSemantic("Surface.Selected.Brush", selectedBg);
+
+            SetSemantic("Text.Primary.Brush", textColor);
+            SetSemantic("Text.Secondary.Brush", secondaryTextColor);
+            // OnAccent: contraste sobre el accent. Heuristica: blanco si el
+            // accent es oscuro, negro si es claro.
+            var accentLuma = (accentColor.R * 0.299 + accentColor.G * 0.587 + accentColor.B * 0.114);
+            var onAccent = accentLuma < 140 ? Colors.White : Color.FromRgb(0x11, 0x11, 0x11);
+            SetSemantic("Text.OnAccent.Brush", onAccent);
+
+            // Subtle: derivado del border con alpha. Strong: el border crudo.
+            var subtleBorder = Color.FromArgb(0x66, borderColor.R, borderColor.G, borderColor.B);
+            SetSemantic("Border.Subtle.Brush", subtleBorder);
+            SetSemantic("Border.Strong.Brush", borderColor);
+
+            SetSemantic("Danger.Brush", errorColor);
+            SetSemantic("Accent.Brush", accentColor);
         }
 
         private static void EnsureThemeComplete(ResourceDictionary theme)

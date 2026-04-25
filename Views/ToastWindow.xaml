@@ -2,38 +2,80 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent" ShowInTaskbar="False" Topmost="True"
-        Width="360" Height="84" ResizeMode="NoResize" Opacity="0">
+        Width="360" Height="76" ResizeMode="NoResize" Opacity="0">
 
-    <!-- Comic-style toast: speech-bubble look, bold rounded font, icon, and entrance animation target -->
-    <Border x:Name="RootBorder" Background="#FF1B1F23" CornerRadius="12" Padding="12" Margin="8" Opacity="0.98" SnapsToDevicePixels="True">
+    <!--
+        Toast minimal alineado con el sistema (Tokens + Components):
+        - Sin Comic Sans, sin colores saturados, sin emojis decorativos por
+          defecto. Tipografia y colores via DynamicResource para que el
+          theme manager los cambie sin refactor.
+        - Texto Primary sobre Surface.Raised (legible: bug previo era texto
+          oscuro sobre fondo oscuro #0A0A0A en #1B1F23).
+        - Borde sutil + sombra discreta (no DropShadow exagerado).
+        - Indicador de TTL al pie como linea de 2px en accent (fina, sin chrome).
+        - El acento del icono cambia segun el tipo de toast (success / warning
+          / error / info) sin alterar el resto.
+    -->
+    <Border x:Name="RootBorder"
+            Background="{DynamicResource Surface.Raised.Brush}"
+            BorderBrush="{DynamicResource Border.Subtle.Brush}"
+            BorderThickness="1"
+            CornerRadius="6"
+            Padding="14,12"
+            Margin="8"
+            SnapsToDevicePixels="True">
         <Border.Effect>
-            <DropShadowEffect Color="#22000000" BlurRadius="14" ShadowDepth="6" Opacity="0.7" />
+            <DropShadowEffect Color="#000000" BlurRadius="16" ShadowDepth="2" Opacity="0.35"/>
         </Border.Effect>
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="44" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- icon / speech bubble -->
-            <Border Grid.Column="0" Width="36" Height="36" Background="#FFF3C969" CornerRadius="18" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock x:Name="IconText" Text="💬" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
+                <!-- Indicador de tipo: una linea vertical 3px del color
+                     correspondiente. Discreto, no compite con el texto. -->
+                <Border x:Name="KindIndicator" Grid.Column="0"
+                        Width="3" Height="32" CornerRadius="2"
+                        VerticalAlignment="Center"
+                        Background="{DynamicResource Accent.Brush}"/>
 
-            <StackPanel Grid.Column="1" Orientation="Vertical" Margin="8,0,8,0">
-                <TextBlock x:Name="MessageText" Foreground="#FF0A0A0A" TextWrapping="Wrap" FontSize="14" FontFamily="Comic Sans MS, Arial" FontWeight="Bold" />
-                <TextBlock x:Name="SubText" Foreground="#AA0A0A0A" FontSize="11" Visibility="Collapsed" />
-            </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Vertical"
+                            VerticalAlignment="Center" Margin="12,0,12,0">
+                    <TextBlock x:Name="MessageText"
+                               Foreground="{DynamicResource Text.Primary.Brush}"
+                               FontFamily="Segoe UI Variable, Segoe UI"
+                               FontSize="13" FontWeight="SemiBold"
+                               TextWrapping="Wrap"/>
+                    <TextBlock x:Name="SubText"
+                               Foreground="{DynamicResource Text.Secondary.Brush}"
+                               FontFamily="Segoe UI Variable, Segoe UI"
+                               FontSize="11" Visibility="Collapsed"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
 
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,0,0">
-                <Button x:Name="ActionButton" Content="Deshacer" Visibility="Collapsed" Margin="0,0,0,0" Click="ActionButton_Click" AutomationProperties.Name="Acción del toast"
-                        Padding="8,4" Background="#FF2BC67D" Foreground="White" BorderBrush="#FF1A7A4C" BorderThickness="1" FontWeight="SemiBold" Cursor="Hand"/>
-            </StackPanel>
+                <Button x:Name="ActionButton" Grid.Column="2"
+                        Content="Deshacer" Visibility="Collapsed"
+                        Click="ActionButton_Click"
+                        Style="{DynamicResource Button.Secondary}"
+                        VerticalAlignment="Center"
+                        Padding="10,4"
+                        FontSize="12"/>
+            </Grid>
 
-            <!-- tiny progress indicator under the content -->
-            <Border Grid.ColumnSpan="3" VerticalAlignment="Bottom" Height="6" Margin="0,8,0,0" Background="#55FFFFFF" CornerRadius="3">
-                <Rectangle x:Name="ProgressFill" Fill="#FF6EE7B7" HorizontalAlignment="Left" RadiusX="3" RadiusY="3" Width="0" />
+            <!-- TTL: barra accent fina abajo, sin track de fondo -->
+            <Border Grid.Row="1" Height="2" Margin="0,10,0,0"
+                    Background="Transparent">
+                <Rectangle x:Name="ProgressFill"
+                           Fill="{DynamicResource Accent.Brush}"
+                           HorizontalAlignment="Left"
+                           Width="0" Height="2"/>
             </Border>
         </Grid>
     </Border>

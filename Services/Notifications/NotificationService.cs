@@ -162,8 +162,10 @@ namespace ComicReader.Services.Notifications
                 toast = new NotificationToast(message, title, type, progress);
                 toast.IsHitTestVisible = true;
                 
-                // Posicionar
-                var yPosition = TopMargin + _activeToasts.Count * (toast.ActualHeight + ToastSpacing);
+                // Posicionar. ActualHeight es 0 antes del primer measure;
+                // usar la misma altura nominal que RepositionToasts (95)
+                // para evitar que el primer toast aparezca sobre los previos.
+                var yPosition = TopMargin + _activeToasts.Count * (NotificationToast.NominalHeight + ToastSpacing);
                 Canvas.SetRight(toast, RightMargin);
                 Canvas.SetTop(toast, yPosition);
 
@@ -222,7 +224,7 @@ namespace ComicReader.Services.Notifications
             for (int i = 0; i < _activeToasts.Count; i++)
             {
                 var toast = _activeToasts[i];
-                var targetY = TopMargin + i * (95 + ToastSpacing);
+                var targetY = TopMargin + i * (NotificationToast.NominalHeight + ToastSpacing);
 
                 var animation = new DoubleAnimation
                 {
@@ -309,75 +311,70 @@ namespace ComicReader.Services.Notifications
 
     public class NotificationToast : Border
     {
+        // Altura nominal usada por NotificationService para apilar toasts
+        // antes de que ocurra el primer measure (ActualHeight=0).
+        public const double NominalHeight = 78;
+
         private readonly TextBlock _titleBlock;
         private readonly TextBlock _messageBlock;
         private readonly ProgressBar _progressBar;
-        private readonly Border _iconContainer;
-        private readonly TextBlock _iconText;
 
+        // Construye el toast con el sistema de tokens del proyecto. Si los
+        // recursos no estan disponibles (test/design-time), usa fallbacks
+        // hexa de los mismos valores definidos en Tokens.xaml.
         public NotificationToast(string message, string title, NotificationType type, double? progress = null)
         {
-            // Configuración del border principal
             Width = 380;
-            MinHeight = 85;
-            CornerRadius = new CornerRadius(12);
-            Background = new SolidColorBrush(Color.FromRgb(30, 30, 30));
-            BorderBrush = GetBorderColor(type);
-            BorderThickness = new Thickness(0, 0, 0, 3);
-            Padding = new Thickness(16, 14, 16, 14);
+            MinHeight = 70;
+            CornerRadius = new CornerRadius(6);
+            Background = ResolveBrush("Surface.Raised.Brush", "#16181D");
+            BorderBrush = ResolveBrush("Border.Subtle.Brush", "#262932");
+            BorderThickness = new Thickness(1);
+            Padding = new Thickness(14, 12, 14, 12);
             Cursor = System.Windows.Input.Cursors.Hand;
             Opacity = 0;
 
-            // Sombra
+            // Sombra discreta. El diseno previo (Opacity 0.4, BlurRadius 20)
+            // dejaba un halo pesado que rompia la regla de "sin efectos
+            // decorativos".
             Effect = new System.Windows.Media.Effects.DropShadowEffect
             {
                 Color = Colors.Black,
-                Opacity = 0.4,
-                ShadowDepth = 8,
-                BlurRadius = 20
+                Opacity = 0.35,
+                ShadowDepth = 2,
+                BlurRadius = 16
             };
 
-            // Layout interno
             var grid = new Grid();
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Ícono
-            _iconContainer = new Border
+            // Indicador vertical 3px en el color del kind. Sustituye al
+            // circulo amarillo/verde/rojo del diseno previo.
+            var kindIndicator = new Border
             {
-                Width = 40,
-                Height = 40,
-                CornerRadius = new CornerRadius(20),
+                Width = 3,
+                Height = 32,
+                CornerRadius = new CornerRadius(2),
                 Background = GetIconBackground(type),
-                VerticalAlignment = VerticalAlignment.Top
+                VerticalAlignment = VerticalAlignment.Center
             };
+            Grid.SetColumn(kindIndicator, 0);
+            grid.Children.Add(kindIndicator);
 
-            _iconText = new TextBlock
-            {
-                Text = GetIcon(type),
-                FontSize = 20,
-                Foreground = Brushes.White,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                FontWeight = FontWeights.Bold
-            };
-
-            _iconContainer.Child = _iconText;
-            Grid.SetColumn(_iconContainer, 0);
-            grid.Children.Add(_iconContainer);
-
-            // Contenido
             var contentStack = new StackPanel
             {
-                Margin = new Thickness(12, 0, 0, 0)
+                Margin = new Thickness(12, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center
             };
 
             _titleBlock = new TextBlock
             {
                 Text = title,
-                FontSize = 15,
+                FontFamily = new FontFamily("Segoe UI Variable, Segoe UI"),
+                FontSize = 13,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = Brushes.White,
+                Foreground = ResolveBrush("Text.Primary.Brush", "#ECEDEE"),
                 TextWrapping = TextWrapping.NoWrap,
                 TextTrimming = TextTrimming.CharacterEllipsis
             };
@@ -385,24 +382,24 @@ namespace ComicReader.Services.Notifications
             _messageBlock = new TextBlock
             {
                 Text = message,
-                FontSize = 13,
-                Foreground = new SolidColorBrush(Color.FromRgb(200, 200, 200)),
+                FontFamily = new FontFamily("Segoe UI Variable, Segoe UI"),
+                FontSize = 12,
+                Foreground = ResolveBrush("Text.Secondary.Brush", "#9BA1A8"),
                 TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 4, 0, 0),
+                Margin = new Thickness(0, 2, 0, 0),
                 MaxHeight = 60
             };
 
             contentStack.Children.Add(_titleBlock);
             contentStack.Children.Add(_messageBlock);
 
-            // Progress bar si es necesario
             if (type == NotificationType.Progress)
             {
                 _progressBar = new ProgressBar
                 {
-                    Height = 4,
+                    Height = 2,
                     Margin = new Thickness(0, 8, 0, 0),
-                    Background = new SolidColorBrush(Color.FromRgb(50, 50, 50)),
+                    Background = ResolveBrush("Border.Subtle.Brush", "#262932"),
                     Foreground = GetIconBackground(type),
                     BorderThickness = new Thickness(0)
                 };
@@ -440,43 +437,32 @@ namespace ComicReader.Services.Notifications
             }
         }
 
+        // Color del indicador segun el kind. Resuelve desde tokens; los
+        // valores hexa son los mismos que en Tokens.xaml para que el
+        // fallback no introduzca un color nuevo.
         private Brush GetIconBackground(NotificationType type)
         {
             return type switch
             {
-                NotificationType.Success => new SolidColorBrush(Color.FromRgb(34, 197, 94)),
-                NotificationType.Info => new SolidColorBrush(Color.FromRgb(59, 130, 246)),
-                NotificationType.Warning => new SolidColorBrush(Color.FromRgb(251, 146, 60)),
-                NotificationType.Error => new SolidColorBrush(Color.FromRgb(239, 68, 68)),
-                NotificationType.Progress => new SolidColorBrush(Color.FromRgb(168, 85, 247)),
-                _ => new SolidColorBrush(Color.FromRgb(100, 100, 100))
+                NotificationType.Success => ResolveBrush("Success.Brush", "#10B981"),
+                NotificationType.Info => ResolveBrush("Accent.Brush", "#3B82F6"),
+                NotificationType.Warning => ResolveBrush("Warning.Brush", "#F59E0B"),
+                NotificationType.Error => ResolveBrush("Danger.Brush", "#EF4444"),
+                NotificationType.Progress => ResolveBrush("Accent.Brush", "#3B82F6"),
+                _ => ResolveBrush("Border.Strong.Brush", "#3A3F4A")
             };
         }
 
-        private Brush GetBorderColor(NotificationType type)
+        private static Brush ResolveBrush(string resourceKey, string fallbackHex)
         {
-            return type switch
+            try
             {
-                NotificationType.Success => new SolidColorBrush(Color.FromRgb(34, 197, 94)),
-                NotificationType.Info => new SolidColorBrush(Color.FromRgb(59, 130, 246)),
-                NotificationType.Warning => new SolidColorBrush(Color.FromRgb(251, 146, 60)),
-                NotificationType.Error => new SolidColorBrush(Color.FromRgb(239, 68, 68)),
-                NotificationType.Progress => new SolidColorBrush(Color.FromRgb(168, 85, 247)),
-                _ => new SolidColorBrush(Color.FromRgb(100, 100, 100))
-            };
-        }
-
-        private string GetIcon(NotificationType type)
-        {
-            return type switch
-            {
-                NotificationType.Success => "✓",
-                NotificationType.Info => "ℹ",
-                NotificationType.Warning => "⚠",
-                NotificationType.Error => "✕",
-                NotificationType.Progress => "⟳",
-                _ => "•"
-            };
+                var b = Application.Current?.TryFindResource(resourceKey) as Brush;
+                if (b != null) return b;
+            }
+            catch { }
+            try { return (Brush)new BrushConverter().ConvertFromString(fallbackHex); }
+            catch { return Brushes.Gray; }
         }
     }
 

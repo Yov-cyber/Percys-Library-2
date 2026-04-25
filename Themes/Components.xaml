@@ -183,6 +183,65 @@
     <Setter Property="FontFamily" Value="Segoe MDL2 Assets, Segoe Fluent Icons, Segoe UI Variable"/>
   </Style>
 
+  <!-- Boton del sidebar de navegacion principal: cuadrado, sin chrome, glyph centrado.
+       Necesita su propio ControlTemplate porque la combinacion estado activo
+       (Tag="active") + hover requiere prioridad explicita: el ControlTemplate
+       base aplica Surface.Hover.Brush directamente sobre el Border y eso pisa
+       cualquier Background del Style. Aqui lo manejamos con MultiTrigger. -->
+  <Style x:Key="Sidebar.Button" TargetType="Button">
+    <Setter Property="Width" Value="56"/>
+    <Setter Property="Height" Value="56"/>
+    <Setter Property="Margin" Value="0,2,0,2"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary.Brush}"/>
+    <Setter Property="Cursor" Value="Hand"/>
+    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    <Setter Property="SnapsToDevicePixels" Value="True"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Button">
+          <Border x:Name="bd"
+                  Background="{TemplateBinding Background}"
+                  CornerRadius="6"
+                  Padding="{TemplateBinding Padding}"
+                  SnapsToDevicePixels="True">
+            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              RecognizesAccessKey="True"/>
+          </Border>
+          <ControlTemplate.Triggers>
+            <!-- Hover sobre boton inactivo: superficie de hover gris -->
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="True"/>
+                <Condition Property="Tag" Value="{x:Null}"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="bd" Property="Background" Value="{DynamicResource Surface.Hover.Brush}"/>
+              <Setter Property="Foreground" Value="{DynamicResource Text.Primary.Brush}"/>
+            </MultiTrigger>
+            <!-- Boton activo (Tag="active"): fondo seleccionado + foreground accent.
+                 Aplica con o sin hover; en hover el fondo se mantiene en Selected. -->
+            <Trigger Property="Tag" Value="active">
+              <Setter TargetName="bd" Property="Background" Value="{DynamicResource Surface.Selected.Brush}"/>
+              <Setter Property="Foreground" Value="{DynamicResource Accent.Brush}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!-- Botón de control de ventana (minimize / maximize / close) -->
   <Style x:Key="WindowControlButton" TargetType="Button" BasedOn="{StaticResource Button.Icon}">
     <Setter Property="Width" Value="36"/>

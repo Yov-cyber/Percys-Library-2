@@ -997,6 +997,68 @@ namespace ComicReader
             }
         }
 
+        // -------------------------------------------------------------------
+        // Navegacion principal (sidebar). Cada click marca su boton como activo
+        // (Tag="active") y desactiva los demas. Biblioteca cambia el CurrentView a
+        // _homeView; las otras secciones aun viven en ventanas modales (F6.1/F6.2
+        // las convierten en vistas embebidas).
+        // -------------------------------------------------------------------
+        private void SetActiveNavButton(string activeName)
+        {
+            string[] all = { "NavLibraryButton", "NavCollectionsButton", "NavStatisticsButton", "NavAchievementsButton" };
+            foreach (var n in all)
+            {
+                if (this.FindName(n) is System.Windows.Controls.Button b)
+                    b.Tag = (n == activeName) ? "active" : null;
+            }
+        }
+
+        private void NavLibrary_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SetActiveNavButton("NavLibraryButton");
+                ShowHomeView();
+            }
+            catch { }
+        }
+
+        private void NavCollections_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SetActiveNavButton("NavCollectionsButton");
+                var w = new ComicReader.Views.FavoritesWindow { Owner = this };
+                w.ShowDialog();
+                SetActiveNavButton("NavLibraryButton");
+            }
+            catch { SetActiveNavButton("NavLibraryButton"); }
+        }
+
+        private void NavStatistics_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SetActiveNavButton("NavStatisticsButton");
+                var w = new ComicReader.Views.StatisticsWindow { Owner = this };
+                w.ShowDialog();
+                SetActiveNavButton("NavLibraryButton");
+            }
+            catch { SetActiveNavButton("NavLibraryButton"); }
+        }
+
+        private void NavAchievements_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                SetActiveNavButton("NavAchievementsButton");
+                var w = new ComicReader.Views.AchievementsWindow { Owner = this };
+                w.ShowDialog();
+                SetActiveNavButton("NavLibraryButton");
+            }
+            catch { SetActiveNavButton("NavLibraryButton"); }
+        }
+
         public async void ShowComicView()
         {
             bool useContinuous = SettingsManager.Settings?.EnableContinuousScroll == true;

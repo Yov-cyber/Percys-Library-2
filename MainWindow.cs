@@ -1791,27 +1791,44 @@ namespace ComicReader
                 bool doublePage = s?.DoublePageEnabled == true;
                 string fit = (s?.DefaultFitMode ?? "width").ToLowerInvariant();
 
-                if (this.FindName("MenuModeContinuous") is MenuItem mc) mc.IsChecked = isContinuous;
-                if (this.FindName("MenuModePaged") is MenuItem mp) mp.IsChecked = isHorizontalPaged;
-                if (this.FindName("MenuModeVerticalPaged") is MenuItem mv) mv.IsChecked = isVerticalPaged;
+                // ContextMenu tiene su propio namescope; this.FindName(...) no resuelve
+                // sus hijos porque viven en el namescope del ContextMenu, no en el de
+                // la Window. Resolvemos via el propio ReaderModesMenu, o caminando
+                // recursivamente sus Items si el FindName del ContextMenu no expone
+                // los nombres registrados (depende de como WPF arme el namescope al
+                // attach con la Button.ContextMenu). La busqueda por Name en Items
+                // es robusta y O(N) sobre ~12 items.
+                MenuItem FindMenuItem(string name)
+                {
+                    if (this.FindName("ReaderModesMenu") is not ContextMenu menu) return null;
+                    foreach (var obj in menu.Items)
+                    {
+                        if (obj is MenuItem mi && mi.Name == name) return mi;
+                    }
+                    return null;
+                }
+
+                if (FindMenuItem("MenuModeContinuous") is MenuItem mc) mc.IsChecked = isContinuous;
+                if (FindMenuItem("MenuModePaged") is MenuItem mp) mp.IsChecked = isHorizontalPaged;
+                if (FindMenuItem("MenuModeVerticalPaged") is MenuItem mv) mv.IsChecked = isVerticalPaged;
 
                 // Doble pagina solo aplica en modo paginado (cualquier orientacion).
-                if (this.FindName("MenuDoublePage") is MenuItem mdp)
+                if (FindMenuItem("MenuDoublePage") is MenuItem mdp)
                 {
                     mdp.IsChecked = doublePage && !isContinuous;
                     mdp.IsEnabled = !isContinuous;
                 }
 
-                if (this.FindName("MenuFitWidth") is MenuItem mfw) mfw.IsChecked = fit == "width";
-                if (this.FindName("MenuFitHeight") is MenuItem mfh) mfh.IsChecked = fit == "height";
-                if (this.FindName("MenuFitScreen") is MenuItem mfs) mfs.IsChecked = fit == "screen";
-                if (this.FindName("MenuFitOriginal") is MenuItem mfo) mfo.IsChecked = fit == "original";
+                if (FindMenuItem("MenuFitWidth") is MenuItem mfw) mfw.IsChecked = fit == "width";
+                if (FindMenuItem("MenuFitHeight") is MenuItem mfh) mfh.IsChecked = fit == "height";
+                if (FindMenuItem("MenuFitScreen") is MenuItem mfs) mfs.IsChecked = fit == "screen";
+                if (FindMenuItem("MenuFitOriginal") is MenuItem mfo) mfo.IsChecked = fit == "original";
 
-                if (this.FindName("MenuDirLTR") is MenuItem ml) ml.IsChecked = !isRtl;
-                if (this.FindName("MenuDirRTL") is MenuItem mr) mr.IsChecked = isRtl;
-                if (this.FindName("MenuNightMode") is MenuItem mn)
+                if (FindMenuItem("MenuDirLTR") is MenuItem ml) ml.IsChecked = !isRtl;
+                if (FindMenuItem("MenuDirRTL") is MenuItem mr) mr.IsChecked = isRtl;
+                if (FindMenuItem("MenuNightMode") is MenuItem mn)
                     mn.IsChecked = s?.IsNightMode == true;
-                if (this.FindName("MenuThumbnails") is MenuItem mt && this.FindName("ThumbCol") is System.Windows.Controls.ColumnDefinition tc)
+                if (FindMenuItem("MenuThumbnails") is MenuItem mt && this.FindName("ThumbCol") is System.Windows.Controls.ColumnDefinition tc)
                     mt.IsChecked = tc.Width.Value > 0;
             }
             catch { }

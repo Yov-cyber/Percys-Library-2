@@ -117,34 +117,12 @@ namespace ComicReader.Views
                 if (mt != null) mt.Text = message;
             }
             catch { }
-            // set visual style based on kind
-            try
-            {
-                var icon = w.FindName("IconText") as System.Windows.Controls.TextBlock;
-                var root = w.FindName("RootBorder") as System.Windows.Controls.Border;
-                var actionBtn = w.FindName("ActionButton") as System.Windows.Controls.Button;
-                switch (kind)
-                {
-                    case ToastKind.Success:
-                        if (icon != null) icon.Text = "✅";
-                        if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FFECF9F0");
-                        if (actionBtn != null) actionBtn.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FF2BC67D");
-                        break;
-                    case ToastKind.Warning:
-                        if (icon != null) icon.Text = "⚠️";
-                        if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FFFFF7E0");
-                        break;
-                    case ToastKind.Error:
-                        if (icon != null) icon.Text = "❌";
-                        if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FFFFEBEB");
-                        break;
-                    default:
-                        if (icon != null) icon.Text = "💬";
-                        if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FF1B1F23");
-                        break;
-                }
-            }
-            catch { }
+            // Aplicar el color del indicador segun el kind. El resto del
+            // toast (fondo, texto, boton) usa los tokens del sistema y se
+            // mantiene consistente entre temas. No cambiamos el fondo del
+            // toast por kind (eso producia los blancos/amarillos/rojos
+            // saturados del diseño anterior).
+            ApplyKindStyle(w, kind);
             w._action = action;
             w._durationMs = durationMs <= 0 ? 2200 : durationMs;
             if (!string.IsNullOrWhiteSpace(actionLabel) && action != null)
@@ -183,33 +161,7 @@ namespace ComicReader.Views
                 }
                 catch { }
                 try { var mt = w.FindName("MessageText") as System.Windows.Controls.TextBlock; if (mt != null) mt.Text = message; } catch { }
-                try
-                {
-                    var icon = w.FindName("IconText") as System.Windows.Controls.TextBlock;
-                    var root = w.FindName("RootBorder") as System.Windows.Controls.Border;
-                    var actionBtn = w.FindName("ActionButton") as System.Windows.Controls.Button;
-                    switch (kind)
-                    {
-                        case ToastKind.Success:
-                            if (icon != null) icon.Text = "✅";
-                            if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FFECF9F0");
-                            if (actionBtn != null) actionBtn.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FF2BC67D");
-                            break;
-                        case ToastKind.Warning:
-                            if (icon != null) icon.Text = "⚠️";
-                            if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FFFFF7E0");
-                            break;
-                        case ToastKind.Error:
-                            if (icon != null) icon.Text = "❌";
-                            if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FFFFEBEB");
-                            break;
-                        default:
-                            if (icon != null) icon.Text = "💬";
-                            if (root != null) root.Background = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#FF1B1F23");
-                            break;
-                    }
-                }
-                catch { }
+                ApplyKindStyle(w, kind);
 
                 w._action = action;
                 w._durationMs = durationMs <= 0 ? 2200 : durationMs;
@@ -253,6 +205,40 @@ namespace ComicReader.Views
         {
             try { _action?.Invoke(); } catch { }
             this.Close();
+        }
+
+        // Aplica el color del indicador vertical segun el kind. Resuelve los
+        // brushes desde el ResourceDictionary del Application; si por algun
+        // motivo no estan registrados (test, modo dise\u00f1o), cae a un brush
+        // hardcodeado pero del mismo valor que en Tokens.xaml.
+        private static void ApplyKindStyle(ToastWindow w, ToastKind kind)
+        {
+            try
+            {
+                var indicator = w.FindName("KindIndicator") as System.Windows.Controls.Border;
+                if (indicator == null) return;
+                System.Windows.Media.Brush brush = null;
+                string fallbackHex;
+                string resourceKey;
+                switch (kind)
+                {
+                    case ToastKind.Success:
+                        resourceKey = "Success.Brush"; fallbackHex = "#10B981"; break;
+                    case ToastKind.Warning:
+                        resourceKey = "Warning.Brush"; fallbackHex = "#F59E0B"; break;
+                    case ToastKind.Error:
+                        resourceKey = "Danger.Brush";  fallbackHex = "#EF4444"; break;
+                    default:
+                        resourceKey = "Accent.Brush";  fallbackHex = "#3B82F6"; break;
+                }
+                try { brush = System.Windows.Application.Current?.TryFindResource(resourceKey) as System.Windows.Media.Brush; } catch { }
+                if (brush == null)
+                {
+                    try { brush = (System.Windows.Media.Brush)new System.Windows.Media.BrushConverter().ConvertFromString(fallbackHex); } catch { }
+                }
+                if (brush != null) indicator.Background = brush;
+            }
+            catch { }
         }
     }
 }

@@ -294,15 +294,28 @@ namespace ComicReader.Views
         {
             SubscribeHistory();
             UpdateGreeting();
+            // Suscribimos al evento estatico SettingsManager.SettingChanged en
+            // vez de a Settings.PropertyChanged directamente: si el usuario
+            // hace import o reset de settings, ReplaceSettings() crea una
+            // nueva instancia y un handler atado a la vieja queda muerto. El
+            // forwarder estatico siempre apunta a la instancia actual.
             try
             {
-                if (SettingsManager.Settings is INotifyPropertyChanged inpc)
-                {
-                    inpc.PropertyChanged -= Settings_PropertyChanged_Greeting;
-                    inpc.PropertyChanged += Settings_PropertyChanged_Greeting;
-                }
+                SettingsManager.SettingChanged -= SettingsManager_SettingChanged_Greeting;
+                SettingsManager.SettingChanged += SettingsManager_SettingChanged_Greeting;
             }
             catch { }
+        }
+
+        private void SettingsManager_SettingChanged_Greeting(object sender, PropertyChangedEventArgs e)
+        {
+            // PropertyName=null ocurre cuando ReplaceSettings dispara un cambio
+            // 'all properties': re-evaluar el saludo siempre. Para cambios
+            // individuales solo nos interesa UserName.
+            if (e == null || string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(AppSettings.UserName))
+            {
+                try { Dispatcher.BeginInvoke(new Action(UpdateGreeting)); } catch { }
+            }
         }
 
         private void Settings_PropertyChanged_Greeting(object sender, PropertyChangedEventArgs e)
@@ -350,9 +363,15 @@ namespace ComicReader.Views
                 if (arr != null && arr.Length > 0) Task.WaitAll(arr, 1200);
             }
             catch { }
-            // Des-suscribir el handler del saludo: SettingsManager.Settings
-            // es un singleton estatico, asi que dejarlo enganchado mantendria
-            // viva esta instancia de HomeView aunque la ventana se cerrara.
+            // Des-suscribir el handler del saludo del evento estatico para no
+            // mantener viva esta instancia de HomeView via SettingsManager.
+            try
+            {
+                SettingsManager.SettingChanged -= SettingsManager_SettingChanged_Greeting;
+            }
+            catch { }
+            // Defensivo: si por alguna razon habia una suscripcion vieja al
+            // PropertyChanged de la instancia, limpiarla tambien.
             try
             {
                 if (SettingsManager.Settings is INotifyPropertyChanged inpc)

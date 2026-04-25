@@ -1447,9 +1447,21 @@ namespace ComicReader
                                         {
                                             try
                                             {
+                                                // Aplicar el mismo brillo/contraste a la pagina derecha para que ambas
+                                                // se vean uniformes. ImageAdjuster puede devolver cualquier ImageSource.
+                                                System.Windows.Media.Imaging.BitmapSource rightAdjusted = bmpRight;
+                                                if (s != null && (Math.Abs(s.Brightness - 1.0) > 0.001 || Math.Abs(s.Contrast - 1.0) > 0.001))
+                                                {
+                                                    try
+                                                    {
+                                                        var adjR = ImageAdjuster.ApplyBrightnessContrast(bmpRight, s.Brightness, s.Contrast);
+                                                        if (adjR is System.Windows.Media.Imaging.BitmapSource adjRBs) rightAdjusted = adjRBs;
+                                                    }
+                                                    catch { }
+                                                }
                                                 bool rtl = s?.CurrentReadingDirection == ReadingDirection.RightToLeft;
-                                                var leftImg = rtl ? (System.Windows.Media.Imaging.BitmapSource)bmpRight : leftBs;
-                                                var rightImg = rtl ? leftBs : (System.Windows.Media.Imaging.BitmapSource)bmpRight;
+                                                var leftImg = rtl ? rightAdjusted : leftBs;
+                                                var rightImg = rtl ? leftBs : rightAdjusted;
                                                 var composed = ComposeDoublePage(leftImg, rightImg);
                                                 if (composed != null) finalSource = composed;
                                             }
@@ -2222,6 +2234,7 @@ namespace ComicReader
                 int step = dbl ? 2 : 1;
                 int target = Math.Min(_comicLoader.Pages.Count - 1, _currentPageIndex + step);
                 if (dbl) target = target & ~1; // snap a inicio de par
+                if (target == _currentPageIndex) return; // ya estamos en el ultimo par; evita recarga + flicker
                 _currentPageIndex = target;
                 _lastNavDirection = 1;
                 // Cancelar carga anterior y cargar nueva

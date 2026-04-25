@@ -1180,6 +1180,9 @@ namespace ComicReader
                     case "screen":
                         FitToScreen();
                         break;
+                    case "original":
+                        _zoomFactor = 1.0; ApplyZoomToImage(); UpdateZoomIndicator();
+                        break;
                     case "width":
                     default:
                         FitToWidth();
@@ -4051,6 +4054,9 @@ namespace ComicReader
                                 break;
                             case "screen":
                                 FitToScreen();
+                                break;
+                            case "original":
+                                _zoomFactor = 1.0; ApplyZoomToImage(); UpdateZoomIndicator();
                                 break;
                             case "width":
                             default:

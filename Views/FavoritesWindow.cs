@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -56,11 +57,17 @@ namespace ComicReader.Views
             GetCollectionsListBox().ItemsSource = Collections;
             GetFavoritesListBox().ItemsSource = FilteredItems;
 
-            // Permitir arrastrar y soltar archivos de cómic directamente a la lista
+            // Permitir arrastrar y soltar archivos de comic directamente a la lista.
+            // GongSolutions DragDrop (configurado en XAML para el reorder interno)
+            // intercepta los eventos preview y marcaria los nativos como handled,
+            // dejando los handlers DragOver/Drop nativos sin disparar. Por eso
+            // ruteamos todo a traves de un IDropTarget custom: si el data es
+            // FileDrop ejecuta la logica nativa, sino delega al DefaultDropHandler
+            // (reorder).
             var favList = GetFavoritesListBox();
             favList.AllowDrop = true;
-            favList.DragOver += FavoritesListBox_DragOver;
-            favList.Drop += FavoritesListBox_Drop;
+            GongSolutions.Wpf.DragDrop.DragDrop.SetDropHandler(favList,
+                new FavoritesDropHandler(AddDroppedFilesToCurrentCollection));
 
             // Actualizar estadísticas iniciales
             UpdateStatistics();
@@ -723,23 +730,18 @@ namespace ComicReader.Views
             GetCollectionsListBox().SelectedItem = copy;
         }
 
-        private void FavoritesListBox_DragOver(object sender, DragEventArgs e)
-        {
-            if (_selectedCollection == null) { e.Effects = DragDropEffects.None; return; }
-            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effects = DragDropEffects.Copy; else e.Effects = DragDropEffects.None;
-            e.Handled = true;
-        }
-
-        private void FavoritesListBox_Drop(object sender, DragEventArgs e)
+        // Invocado desde FavoritesDropHandler cuando el drop es de archivos del
+        // Explorador (no un drag interno de reorder). Mantiene la logica original
+        // de extension + recursion por carpeta.
+        private void AddDroppedFilesToCurrentCollection(IEnumerable<string> paths)
         {
             try
             {
                 if (_selectedCollection == null) return;
-                if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
-                var files = ((string[])e.Data.GetData(DataFormats.FileDrop)) ?? System.Linq.Enumerable.Empty<string>();
+                if (paths == null) return;
                 var exts = new[] { ".cbz", ".cbr", ".cb7", ".cbt", ".zip", ".rar", ".7z", ".tar", ".pdf", ".epub",
                                     ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".heic", ".tif", ".tiff", ".avif" };
-                foreach (var path in files.SelectMany(p => Directory.Exists(p)
+                foreach (var path in paths.SelectMany(p => Directory.Exists(p)
                                                     ? Directory.GetFiles(p, "*", SearchOption.AllDirectories)
                                                     : new[] { p }))
                 {
@@ -761,10 +763,9 @@ namespace ComicReader.Views
             }
             catch (Exception ex)
             {
-                // ERROR HANDLING MODERNO con ErrorHandler
                 ComicReader.Services.ErrorHandling.ErrorHandler.Instance.HandleException(
-                    ex, 
-                    "Error al arrastrar archivos a la colección", 
+                    ex,
+                    "Error al arrastrar archivos a la colección",
                     ComicReader.Services.ErrorHandling.ErrorRecoveryStrategy.Notify);
             }
         }

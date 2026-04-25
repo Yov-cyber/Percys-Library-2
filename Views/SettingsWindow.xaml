@@ -145,11 +145,11 @@
                             <TextBlock Text="Interfaz del lector" Style="{StaticResource SettingsSectionTitle}"/>
 
                             <StackPanel Style="{StaticResource SettingsRow}">
-                                <TextBlock Text="Auto-ocultar barra de controles" Style="{StaticResource SettingsRowLabel}"/>
+                                <TextBlock Text="Auto-ocultar barra en modo ventana" Style="{StaticResource SettingsRowLabel}"/>
                                 <CheckBox VerticalAlignment="Center"
                                           IsChecked="{Binding AppSettings.HideOverlayOnlyInImmersive, Mode=TwoWay, Converter={StaticResource InverseBoolConverter}}"/>
                             </StackPanel>
-                            <TextBlock Text="Cuando esta activado, la barra del lector se desvanece despues de unos segundos sin actividad. Mover el mouse la trae de vuelta."
+                            <TextBlock Text="Cuando esta activado, la barra se desvanece tras unos segundos en modo ventana. Si esta desactivado, solo se oculta en pantalla completa inmersiva. Mover el mouse siempre la trae de vuelta."
                                        Style="{StaticResource SettingsRowCaption}" Margin="0,0,0,8"/>
 
                             <StackPanel Style="{StaticResource SettingsRow}">

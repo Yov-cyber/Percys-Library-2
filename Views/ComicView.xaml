@@ -31,7 +31,8 @@
                            Stretch="Uniform"
                            StretchDirection="Both"
                            SnapsToDevicePixels="True"
-                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased"/>
                     
                 </Border>
             </Grid>

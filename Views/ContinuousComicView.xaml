@@ -38,7 +38,8 @@
 									<Grid>
 										<Image x:Name="ThumbImage" Stretch="Uniform" Opacity="1" HorizontalAlignment="Center" IsHitTestVisible="False"
 											   SnapsToDevicePixels="True"
-											   RenderOptions.BitmapScalingMode="HighQuality">
+											   RenderOptions.BitmapScalingMode="HighQuality"
+											   RenderOptions.EdgeMode="Aliased">
 											<Image.Source>
 												<Binding Path="Thumbnail" />
 											</Image.Source>
@@ -55,7 +56,8 @@
 
 										<Image x:Name="PageImage" Stretch="Uniform" Loaded="Image_Loaded" Opacity="0" HorizontalAlignment="Center"
 											   SnapsToDevicePixels="True"
-											   RenderOptions.BitmapScalingMode="HighQuality">
+											   RenderOptions.BitmapScalingMode="HighQuality"
+											   RenderOptions.EdgeMode="Aliased">
 											<Image.Source>
 												<Binding Path="Image" NotifyOnTargetUpdated="True"/>
 											</Image.Source>

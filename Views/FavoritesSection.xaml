@@ -15,7 +15,8 @@
                     </Grid.ColumnDefinitions>
                     <Image Width="64" Height="90" Source="{Binding Thumbnail}" Stretch="Uniform"
                            SnapsToDevicePixels="True"
-                           RenderOptions.BitmapScalingMode="HighQuality" Grid.Column="0" />
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           RenderOptions.EdgeMode="Aliased" Grid.Column="0" />
                     <StackPanel Grid.Column="1" Margin="8,0">
                         <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource TextBrush}"/>
                         <TextBlock Text="{Binding Author}" Foreground="{DynamicResource SecondaryTextBrush}" FontSize="12"/>

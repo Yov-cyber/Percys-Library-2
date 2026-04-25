@@ -3964,19 +3964,30 @@ namespace ComicReader
                     if (!SettingsManager.Settings?.AutoAdvancePages ?? true) return;
                     // Pausar autoavance si está interactuando el usuario
                     if (_isPanning || (DateTime.UtcNow - _lastZoomChange) < _interactionGrace) return;
+                    // En doble pagina con conteo par, el ultimo par tiene
+                    // _currentPageIndex == Pages.Count - 2, pero NextPage_Click
+                    // hace snap a inicio de par y retorna early sin avanzar.
+                    // Detectamos "fin de comic" verificando si el indice cambio,
+                    // no solo por la condicion (idx < count-1).
+                    bool advanced = false;
                     if (_currentPageIndex < _comicLoader.Pages.Count - 1)
                     {
+                        int before = _currentPageIndex;
                         NextPage_Click(null, null);
+                        advanced = _currentPageIndex != before;
                     }
-                    else if (SettingsManager.Settings?.AutoAdvanceLoop == true)
+                    if (!advanced)
                     {
-                        _currentPageIndex = 0;
-                        LoadCurrentPage();
-                        UpdatePageIndicator();
-                    }
-                    else
-                    {
-                        _autoAdvanceTimer?.Stop();
+                        if (SettingsManager.Settings?.AutoAdvanceLoop == true)
+                        {
+                            _currentPageIndex = 0;
+                            LoadCurrentPage();
+                            UpdatePageIndicator();
+                        }
+                        else
+                        {
+                            _autoAdvanceTimer?.Stop();
+                        }
                     }
                 };
             }

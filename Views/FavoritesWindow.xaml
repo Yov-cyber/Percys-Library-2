@@ -226,7 +226,12 @@
                               SelectionChanged="TagFilterComboBox_SelectionChanged"
                               Margin="0,0,8,0"
                               ToolTip="Filtrar por etiqueta">
-                        <ComboBoxItem Content="(Todos)" IsSelected="True"/>
+                        <!-- Sin IsSelected="True": dispararia SelectionChanged durante
+                             InitializeComponent cuando FilteredItems aun es null,
+                             produciendo NRE y abortando la carga del BAML. La seleccion
+                             inicial se aplica programaticamente desde
+                             CollectionsListBox_SelectionChanged -> combo.SelectedIndex = 0. -->
+                        <ComboBoxItem Content="(Todos)"/>
                     </ComboBox>
                     <Button Content="Añadir carpeta"
                             Style="{DynamicResource Button.Secondary}"

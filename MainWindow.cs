@@ -1180,6 +1180,9 @@ namespace ComicReader
                     case "screen":
                         FitToScreen();
                         break;
+                    case "original":
+                        _zoomFactor = 1.0; ApplyZoomToImage(); UpdateZoomIndicator();
+                        break;
                     case "width":
                     default:
                         FitToWidth();
@@ -1387,14 +1390,24 @@ namespace ComicReader
 
                         // Lanzar carga completa en background; cuando termine, aplicar transición y efectos en UI thread
                         var token = _ctsWindow.Token;
+                        // Capturar estado al inicio de la carga: si el usuario cambia de modo
+                        // mientras esta corriendo, la decision se mantiene consistente.
+                        bool wantDouble = SettingsManager.Settings?.DoublePageEnabled == true
+                                          && SettingsManager.Settings?.EnableContinuousScroll != true;
+                        int pairIdx = _currentPageIndex + 1;
                         var _fullLoad = Task.Run(async () =>
                         {
                             var sw = System.Diagnostics.Stopwatch.StartNew();
                             BitmapImage bmp = null;
+                            BitmapImage bmpRight = null;
                             try
                             {
                                 if (token.IsCancellationRequested) return;
                                 bmp = await _comicLoader.GetPageImageAsync(_currentPageIndex, desiredWidth).ConfigureAwait(false);
+                                if (wantDouble && bmp != null && pairIdx < _comicLoader.Pages.Count)
+                                {
+                                    try { bmpRight = await _comicLoader.GetPageImageAsync(pairIdx, desiredWidth).ConfigureAwait(false); } catch { }
+                                }
                             }
                             catch { }
                             sw.Stop();
@@ -1415,21 +1428,49 @@ namespace ComicReader
                                         var page = _comicLoader.Pages[_currentPageIndex];
                                         // Aplicar brillo/contraste si procede
                                         var s = SettingsManager.Settings;
+                                        // Imagen final que se mostrara: en doble pagina, es la composicion.
+                                        System.Windows.Media.ImageSource finalSource = null;
                                         if (s != null && (Math.Abs(s.Brightness - 1.0) > 0.001 || Math.Abs(s.Contrast - 1.0) > 0.001))
                                         {
                                             try
                                             {
                                                 var adjusted = ImageAdjuster.ApplyBrightnessContrast(bmp, s.Brightness, s.Contrast);
                                                 page.Image = adjusted as BitmapImage ?? bmp;
-                                                _currentComicImage.Source = adjusted;
+                                                finalSource = adjusted;
                                             }
-                                            catch { page.Image = bmp; _currentComicImage.Source = bmp; }
+                                            catch { page.Image = bmp; finalSource = bmp; }
                                         }
                                         else
                                         {
                                             page.Image = bmp;
-                                            _currentComicImage.Source = page.Image ?? bmp;
+                                            finalSource = page.Image ?? bmp;
                                         }
+                                        // Si esta activo doble pagina y se logro cargar la pareja, componer.
+                                        if (wantDouble && bmpRight != null && finalSource is System.Windows.Media.Imaging.BitmapSource leftBs)
+                                        {
+                                            try
+                                            {
+                                                // Aplicar el mismo brillo/contraste a la pagina derecha para que ambas
+                                                // se vean uniformes. ImageAdjuster puede devolver cualquier ImageSource.
+                                                System.Windows.Media.Imaging.BitmapSource rightAdjusted = bmpRight;
+                                                if (s != null && (Math.Abs(s.Brightness - 1.0) > 0.001 || Math.Abs(s.Contrast - 1.0) > 0.001))
+                                                {
+                                                    try
+                                                    {
+                                                        var adjR = ImageAdjuster.ApplyBrightnessContrast(bmpRight, s.Brightness, s.Contrast);
+                                                        if (adjR is System.Windows.Media.Imaging.BitmapSource adjRBs) rightAdjusted = adjRBs;
+                                                    }
+                                                    catch { }
+                                                }
+                                                bool rtl = s?.CurrentReadingDirection == ReadingDirection.RightToLeft;
+                                                var leftImg = rtl ? rightAdjusted : leftBs;
+                                                var rightImg = rtl ? leftBs : rightAdjusted;
+                                                var composed = ComposeDoublePage(leftImg, rightImg);
+                                                if (composed != null) finalSource = composed;
+                                            }
+                                            catch { }
+                                        }
+                                        _currentComicImage.Source = finalSource;
 
                                         // Forzar escalado de alta calidad cuando la imagen completa está lista
                                         System.Windows.Media.RenderOptions.SetBitmapScalingMode(_currentComicImage, System.Windows.Media.BitmapScalingMode.HighQuality);
@@ -1510,8 +1551,17 @@ namespace ComicReader
                                         UpdatePageIndicator();
                                         ApplyZoomToImage();
                                         ApplyReadingModeEffects();
-                                        // Registrar página vista (1-based) en estadísticas
+                                        // Registrar pagina vista (1-based) en estadisticas.
+                                        // En doble pagina, registrar tambien la derecha si fue cargada.
                                         _stats?.RecordPageViewed(_currentPageIndex + 1);
+                                        try
+                                        {
+                                            bool dblStat = SettingsManager.Settings?.DoublePageEnabled == true
+                                                           && SettingsManager.Settings?.EnableContinuousScroll != true;
+                                            if (dblStat && bmpRight != null && _currentPageIndex + 1 < _comicLoader.Pages.Count)
+                                                _stats?.RecordPageViewed(_currentPageIndex + 2);
+                                        }
+                                        catch { }
                                         // Guardar progreso
                                         SettingsManager.Settings.LastOpenedFilePath = _comicLoader.FilePath;
                                         SettingsManager.Settings.LastOpenedPage = _currentPageIndex;
@@ -1703,14 +1753,34 @@ namespace ComicReader
         {
             try
             {
-                bool isContinuous = SettingsManager.Settings?.EnableContinuousScroll == true;
-                bool isRtl = SettingsManager.Settings?.CurrentReadingDirection == ComicReader.Services.ReadingDirection.RightToLeft;
+                var s = SettingsManager.Settings;
+                bool isContinuous = s?.EnableContinuousScroll == true;
+                bool isVerticalPaged = !isContinuous && s?.VerticalPagedMode == true;
+                bool isHorizontalPaged = !isContinuous && !isVerticalPaged;
+                bool isRtl = s?.CurrentReadingDirection == ComicReader.Services.ReadingDirection.RightToLeft;
+                bool doublePage = s?.DoublePageEnabled == true;
+                string fit = (s?.DefaultFitMode ?? "width").ToLowerInvariant();
+
                 if (this.FindName("MenuModeContinuous") is MenuItem mc) mc.IsChecked = isContinuous;
-                if (this.FindName("MenuModePaged") is MenuItem mp) mp.IsChecked = !isContinuous;
+                if (this.FindName("MenuModePaged") is MenuItem mp) mp.IsChecked = isHorizontalPaged;
+                if (this.FindName("MenuModeVerticalPaged") is MenuItem mv) mv.IsChecked = isVerticalPaged;
+
+                // Doble pagina solo aplica en modo paginado (cualquier orientacion).
+                if (this.FindName("MenuDoublePage") is MenuItem mdp)
+                {
+                    mdp.IsChecked = doublePage && !isContinuous;
+                    mdp.IsEnabled = !isContinuous;
+                }
+
+                if (this.FindName("MenuFitWidth") is MenuItem mfw) mfw.IsChecked = fit == "width";
+                if (this.FindName("MenuFitHeight") is MenuItem mfh) mfh.IsChecked = fit == "height";
+                if (this.FindName("MenuFitScreen") is MenuItem mfs) mfs.IsChecked = fit == "screen";
+                if (this.FindName("MenuFitOriginal") is MenuItem mfo) mfo.IsChecked = fit == "original";
+
                 if (this.FindName("MenuDirLTR") is MenuItem ml) ml.IsChecked = !isRtl;
                 if (this.FindName("MenuDirRTL") is MenuItem mr) mr.IsChecked = isRtl;
                 if (this.FindName("MenuNightMode") is MenuItem mn)
-                    mn.IsChecked = SettingsManager.Settings?.IsNightMode == true;
+                    mn.IsChecked = s?.IsNightMode == true;
                 if (this.FindName("MenuThumbnails") is MenuItem mt && this.FindName("ThumbCol") is System.Windows.Controls.ColumnDefinition tc)
                     mt.IsChecked = tc.Width.Value > 0;
             }
@@ -1721,8 +1791,10 @@ namespace ComicReader
         {
             try
             {
-                bool currentlyContinuous = SettingsManager.Settings?.EnableContinuousScroll == true;
+                var s = SettingsManager.Settings;
+                bool currentlyContinuous = s?.EnableContinuousScroll == true;
                 if (!currentlyContinuous) ToggleContinuous_Click(null, null);
+                if (s != null) { s.VerticalPagedMode = false; SettingsManager.SaveSettings(); }
                 SyncReaderModesMenu();
             }
             catch { }
@@ -1732,12 +1804,83 @@ namespace ComicReader
         {
             try
             {
-                bool currentlyContinuous = SettingsManager.Settings?.EnableContinuousScroll == true;
+                var s = SettingsManager.Settings;
+                bool currentlyContinuous = s?.EnableContinuousScroll == true;
                 if (currentlyContinuous) ToggleContinuous_Click(null, null);
+                if (s != null) { s.VerticalPagedMode = false; SettingsManager.SaveSettings(); }
                 SyncReaderModesMenu();
             }
             catch { }
         }
+
+        private void MenuModeVerticalPaged_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var s = SettingsManager.Settings;
+                if (s == null) return;
+                // Paginado vertical: forzar modo paginado y activar la flag.
+                if (s.EnableContinuousScroll) ToggleContinuous_Click(null, null);
+                s.VerticalPagedMode = true;
+                SettingsManager.SaveSettings();
+                ShowModeToast("Paginado vertical: flechas Arriba/Abajo cambian de pagina");
+                SyncReaderModesMenu();
+            }
+            catch { }
+        }
+
+        private void MenuDoublePage_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var s = SettingsManager.Settings;
+                if (s == null) return;
+                // Solo aplica en paginado.
+                if (s.EnableContinuousScroll) { ShowModeToast("Doble pagina no aplica en lectura continua"); SyncReaderModesMenu(); return; }
+                s.DoublePageEnabled = !s.DoublePageEnabled;
+                // Snap el indice a la primera pagina del par cuando se activa doble.
+                try
+                {
+                    if (s.DoublePageEnabled && (_currentPageIndex & 1) == 1)
+                    {
+                        _currentPageIndex = Math.Max(0, _currentPageIndex - 1);
+                    }
+                }
+                catch { }
+                SettingsManager.SaveSettings();
+                ShowModeToast(s.DoublePageEnabled ? "Doble pagina: ON" : "Doble pagina: OFF");
+                // Recargar pagina actual para que se componga el par.
+                try { Interlocked.Increment(ref _pageLoadSeq); LoadCurrentPage(); UpdatePageIndicator(); } catch { }
+                SyncReaderModesMenu();
+            }
+            catch { }
+        }
+
+        private void ApplyFitMode(string mode)
+        {
+            try
+            {
+                var s = SettingsManager.Settings;
+                if (s == null) return;
+                s.DefaultFitMode = mode;
+                SettingsManager.SaveSettings();
+                switch (mode)
+                {
+                    case "height": ApplyFitToHeight(); break;
+                    case "screen": FitToScreen(); break;
+                    case "original": _zoomFactor = 1.0; ApplyZoomToImage(); UpdateZoomIndicator(); break;
+                    case "width":
+                    default: FitToWidth(); break;
+                }
+                SyncReaderModesMenu();
+            }
+            catch { }
+        }
+
+        private void MenuFitWidth_Click(object sender, RoutedEventArgs e) => ApplyFitMode("width");
+        private void MenuFitHeight_Click(object sender, RoutedEventArgs e) => ApplyFitMode("height");
+        private void MenuFitScreen_Click(object sender, RoutedEventArgs e) => ApplyFitMode("screen");
+        private void MenuFitOriginal_Click(object sender, RoutedEventArgs e) => ApplyFitMode("original");
 
         private void MenuDirLTR_Click(object sender, RoutedEventArgs e)
         {
@@ -2039,10 +2182,13 @@ namespace ComicReader
                 try { var moved = ScrollContinuousWithinView(down: false); ComicReader.Utils.DevLogger.Debug($"PrevPage_Click -> ScrollContinuousWithinView returned {moved}"); if (moved) UpdatePageIndicator(); } catch (Exception ex) { ComicReader.Utils.DevLogger.Debug($"PrevPage_Click exception: {ex}"); }
                 return;
             }
-            // Modo paginado (comportamiento original)
+            // Modo paginado (comportamiento original). Avanza por 2 si esta activo doble pagina.
             if (_currentPageIndex > 0)
             {
-                int target = _currentPageIndex - 1;
+                bool dbl = SettingsManager.Settings?.DoublePageEnabled == true;
+                int step = dbl ? 2 : 1;
+                int target = Math.Max(0, _currentPageIndex - step);
+                if (dbl) target = target & ~1; // snap a inicio de par
                 _currentPageIndex = target;
                 _lastNavDirection = -1;
                 // Cancelar carga anterior y cargar nueva
@@ -2079,8 +2225,9 @@ namespace ComicReader
                     }
                     catch { }
                 }
-                // Actualizar progreso en servicio
-                try { if (_isComicOpen) ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, _currentPageIndex + 1, _comicLoader.PageCount); } catch { }
+                // Actualizar progreso en servicio. En doble pagina,
+                // EffectiveProgressOneBased reporta la segunda del par cuando hay dos visibles.
+                try { if (_isComicOpen) ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, EffectiveProgressOneBased(), _comicLoader.PageCount); } catch { }
             }
         }
 
@@ -2093,10 +2240,14 @@ namespace ComicReader
                 try { var moved = ScrollContinuousWithinView(down: true); ComicReader.Utils.DevLogger.Debug($"NextPage_Click -> ScrollContinuousWithinView returned {moved}"); if (moved) UpdatePageIndicator(); } catch (Exception ex) { ComicReader.Utils.DevLogger.Debug($"NextPage_Click exception: {ex}"); }
                 return;
             }
-            // Modo paginado (comportamiento original)
+            // Modo paginado (comportamiento original). Avanza por 2 si esta activo doble pagina.
             if (_currentPageIndex < _comicLoader.Pages.Count - 1)
             {
-                int target = _currentPageIndex + 1;
+                bool dbl = SettingsManager.Settings?.DoublePageEnabled == true;
+                int step = dbl ? 2 : 1;
+                int target = Math.Min(_comicLoader.Pages.Count - 1, _currentPageIndex + step);
+                if (dbl) target = target & ~1; // snap a inicio de par
+                if (target == _currentPageIndex) return; // ya estamos en el ultimo par; evita recarga + flicker
                 _currentPageIndex = target;
                 _lastNavDirection = 1;
                 // Cancelar carga anterior y cargar nueva
@@ -2113,12 +2264,16 @@ namespace ComicReader
                     if (n4 < _comicLoader.Pages.Count) TrackBackgroundTask(_comicLoader.GetPageImageAsync(n4, 1200));
                 }
                 catch { }
-                // Actualizar progreso
+                // Actualizar progreso. En doble pagina, si hay pagina derecha
+                // visible (_currentPageIndex + 1 dentro del rango), el progreso
+                // efectivo es la segunda pagina del par; sin esto, comics con
+                // total par nunca dispararian la regla de finalizacion (oneBased
+                // < PageCount al llegar al ultimo par).
                 try
                 {
                     if (_isComicOpen)
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {
@@ -2128,6 +2283,22 @@ namespace ComicReader
                 }
                 catch { }
             }
+        }
+
+        // En doble pagina, cuando hay par visible, el progreso reportado debe
+        // contar las dos paginas. En cualquier otro caso es _currentPageIndex + 1.
+        private int EffectiveProgressOneBased()
+        {
+            try
+            {
+                bool dbl = SettingsManager.Settings?.DoublePageEnabled == true
+                           && SettingsManager.Settings?.EnableContinuousScroll != true;
+                int total = _comicLoader?.Pages?.Count ?? 0;
+                if (dbl && total > 0 && _currentPageIndex + 1 < total)
+                    return _currentPageIndex + 2;
+                return _currentPageIndex + 1;
+            }
+            catch { return _currentPageIndex + 1; }
         }
 
         public void GoToPage_Click(object sender, RoutedEventArgs e)
@@ -2153,10 +2324,10 @@ namespace ComicReader
                         LoadCurrentPage();
                     }
                     UpdatePageIndicator();
-                    // Actualizar progreso y manejar finalización
+                    // Actualizar progreso y manejar finalizacion
                     try
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {
@@ -2177,7 +2348,20 @@ namespace ComicReader
                 if (SettingsManager.Settings?.ShowPageNumberOverlay == true)
                 {
                     pi2.Visibility = Visibility.Visible;
-                    pi2.Text = noComic ? "— / —" : $"Página {_currentPageIndex + 1} de {_comicLoader.Pages.Count}";
+                    if (noComic)
+                    {
+                        pi2.Text = "— / —";
+                    }
+                    else
+                    {
+                        bool dbl = SettingsManager.Settings?.DoublePageEnabled == true
+                                   && SettingsManager.Settings?.EnableContinuousScroll != true;
+                        int total = _comicLoader.Pages.Count;
+                        if (dbl && _currentPageIndex + 1 < total)
+                            pi2.Text = $"Páginas {_currentPageIndex + 1}-{_currentPageIndex + 2} de {total}";
+                        else
+                            pi2.Text = $"Página {_currentPageIndex + 1} de {total}";
+                    }
                 }
                 else
                 {
@@ -2259,12 +2443,12 @@ namespace ComicReader
                 }
                 _isSliderChanging = true;
                 try { UpdatePageIndicator(); } finally { _isSliderChanging = false; }
-                // Actualizar progreso en servicio y manejar finalización
+                // Actualizar progreso en servicio y manejar finalizacion
                 try
                 {
                     if (_isComicOpen)
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {
@@ -2483,6 +2667,41 @@ namespace ComicReader
             FitToScreen();
         }
 
+        // Composicion en memoria de dos paginas en una sola imagen para modo
+        // doble pagina. Normaliza la altura entre ambas (escala a la mayor) y
+        // las pinta una al lado de la otra. El llamador debe pasar `left` y
+        // `right` ya en orden de lectura visual (en RTL invertir antes).
+        private static System.Windows.Media.Imaging.BitmapSource ComposeDoublePage(
+            System.Windows.Media.Imaging.BitmapSource left,
+            System.Windows.Media.Imaging.BitmapSource right)
+        {
+            try
+            {
+                if (left == null) return right;
+                if (right == null) return left;
+                int targetH = Math.Max(left.PixelHeight, right.PixelHeight);
+                if (targetH <= 0) return left;
+                double leftScale = (double)targetH / left.PixelHeight;
+                double rightScale = (double)targetH / right.PixelHeight;
+                double leftW = left.PixelWidth * leftScale;
+                double rightW = right.PixelWidth * rightScale;
+                int totalW = (int)Math.Ceiling(leftW + rightW);
+                if (totalW <= 0) return left;
+                var dv = new System.Windows.Media.DrawingVisual();
+                using (var dc = dv.RenderOpen())
+                {
+                    dc.DrawImage(left, new System.Windows.Rect(0, 0, leftW, targetH));
+                    dc.DrawImage(right, new System.Windows.Rect(leftW, 0, rightW, targetH));
+                }
+                var rtb = new System.Windows.Media.Imaging.RenderTargetBitmap(
+                    totalW, targetH, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+                rtb.Render(dv);
+                rtb.Freeze();
+                return rtb;
+            }
+            catch { return left; }
+        }
+
         private void FitToScreen()
         {
             if (_currentComicImage?.Parent is ScrollViewer scrollViewer && _currentComicImage.Source != null)
@@ -2573,6 +2792,13 @@ namespace ComicReader
                         try { var moved = ScrollContinuousWithinView(down: false); ComicReader.Utils.DevLogger.Debug($"Key.Up -> moved={moved}"); if (moved) { e.Handled = true; return; } } catch (Exception ex) { ComicReader.Utils.DevLogger.Debug($"Key.Up exception: {ex}"); }
                         // si no hay desplazamiento posible, dejamos seguir para otras teclas
                     }
+                    // Paginado vertical: Up = pagina anterior directa, sin scroll dentro de la pagina.
+                    if (SettingsManager.Settings?.VerticalPagedMode == true && SettingsManager.Settings?.EnableContinuousScroll != true)
+                    {
+                        PrevPage_Click(null, null);
+                        e.Handled = true;
+                        break;
+                    }
                     if (!ScrollWithinPage(down: false))
                     {
                         // Ya está en el tope: ir a página anterior y posicionar al fondo
@@ -2599,6 +2825,13 @@ namespace ComicReader
                         // En modo continuo: forzar scroll del visor aunque el foco no esté dentro
                         try { var moved = ScrollContinuousWithinView(down: true); ComicReader.Utils.DevLogger.Debug($"Key.Down -> moved={moved}"); if (moved) { e.Handled = true; return; } } catch (Exception ex) { ComicReader.Utils.DevLogger.Debug($"Key.Down exception: {ex}"); }
                         // si no hay desplazamiento posible, dejamos seguir para otras teclas
+                    }
+                    // Paginado vertical: Down = pagina siguiente directa.
+                    if (SettingsManager.Settings?.VerticalPagedMode == true && SettingsManager.Settings?.EnableContinuousScroll != true)
+                    {
+                        NextPage_Click(null, null);
+                        e.Handled = true;
+                        break;
                     }
                     if (!ScrollWithinPage(down: true))
                     {
@@ -2653,8 +2886,9 @@ namespace ComicReader
                         LoadCurrentPage();
                     }
                     UpdatePageIndicator();
-                    // Guardar progreso en Home
-                    try { ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, _currentPageIndex + 1, _comicLoader.PageCount); } catch { }
+                    // Guardar progreso en Home (usar EffectiveProgressOneBased para
+                    // que el modo doble pagina reporte la pagina derecha)
+                    try { ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, EffectiveProgressOneBased(), _comicLoader.PageCount); } catch { }
                     e.Handled = true;
                     break;
                 case Key.End:
@@ -2667,10 +2901,10 @@ namespace ComicReader
                         LoadCurrentPage();
                     }
                     UpdatePageIndicator();
-                    // Guardar progreso y eliminar si es última página
+                    // Guardar progreso y eliminar si es ultima pagina
                     try
                     {
-                        var oneBased = _currentPageIndex + 1;
+                        var oneBased = EffectiveProgressOneBased();
                         ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, oneBased, _comicLoader.PageCount);
                         if (oneBased >= _comicLoader.PageCount)
                         {
@@ -3764,19 +3998,30 @@ namespace ComicReader
                     if (!SettingsManager.Settings?.AutoAdvancePages ?? true) return;
                     // Pausar autoavance si está interactuando el usuario
                     if (_isPanning || (DateTime.UtcNow - _lastZoomChange) < _interactionGrace) return;
+                    // En doble pagina con conteo par, el ultimo par tiene
+                    // _currentPageIndex == Pages.Count - 2, pero NextPage_Click
+                    // hace snap a inicio de par y retorna early sin avanzar.
+                    // Detectamos "fin de comic" verificando si el indice cambio,
+                    // no solo por la condicion (idx < count-1).
+                    bool advanced = false;
                     if (_currentPageIndex < _comicLoader.Pages.Count - 1)
                     {
+                        int before = _currentPageIndex;
                         NextPage_Click(null, null);
+                        advanced = _currentPageIndex != before;
                     }
-                    else if (SettingsManager.Settings?.AutoAdvanceLoop == true)
+                    if (!advanced)
                     {
-                        _currentPageIndex = 0;
-                        LoadCurrentPage();
-                        UpdatePageIndicator();
-                    }
-                    else
-                    {
-                        _autoAdvanceTimer?.Stop();
+                        if (SettingsManager.Settings?.AutoAdvanceLoop == true)
+                        {
+                            _currentPageIndex = 0;
+                            LoadCurrentPage();
+                            UpdatePageIndicator();
+                        }
+                        else
+                        {
+                            _autoAdvanceTimer?.Stop();
+                        }
                     }
                 };
             }
@@ -3840,6 +4085,9 @@ namespace ComicReader
                                 break;
                             case "screen":
                                 FitToScreen();
+                                break;
+                            case "original":
+                                _zoomFactor = 1.0; ApplyZoomToImage(); UpdateZoomIndicator();
                                 break;
                             case "width":
                             default:

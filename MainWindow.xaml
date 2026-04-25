@@ -156,9 +156,21 @@
                     <Path Style="{StaticResource NavIconStyle}" Data="M4 6h16v2H4zM4 11h16v2H4zM4 16h16v2H4z" Fill="{DynamicResource TextBrush}"/>
                     <Button.ContextMenu>
                         <ContextMenu x:Name="ReaderModesMenu" Placement="Bottom">
+                            <!-- Modo de paginacion -->
                             <MenuItem Header="Lectura continua (scroll)" x:Name="MenuModeContinuous" IsCheckable="True" Click="MenuModeContinuous_Click"/>
-                            <MenuItem Header="Paginado" x:Name="MenuModePaged" IsCheckable="True" Click="MenuModePaged_Click"/>
+                            <MenuItem Header="Paginado horizontal" x:Name="MenuModePaged" IsCheckable="True" Click="MenuModePaged_Click"/>
+                            <MenuItem Header="Paginado vertical" x:Name="MenuModeVerticalPaged" IsCheckable="True" Click="MenuModeVerticalPaged_Click"/>
                             <Separator/>
+                            <!-- Doble pagina (solo aplica en modo paginado) -->
+                            <MenuItem Header="Doble página" x:Name="MenuDoublePage" IsCheckable="True" Click="MenuDoublePage_Click"/>
+                            <Separator/>
+                            <!-- Ajuste de imagen -->
+                            <MenuItem Header="Ajuste a ancho" x:Name="MenuFitWidth" IsCheckable="True" Click="MenuFitWidth_Click"/>
+                            <MenuItem Header="Ajuste a alto" x:Name="MenuFitHeight" IsCheckable="True" Click="MenuFitHeight_Click"/>
+                            <MenuItem Header="Ajustar a pantalla" x:Name="MenuFitScreen" IsCheckable="True" Click="MenuFitScreen_Click"/>
+                            <MenuItem Header="Tamaño original" x:Name="MenuFitOriginal" IsCheckable="True" Click="MenuFitOriginal_Click"/>
+                            <Separator/>
+                            <!-- Direccion de lectura -->
                             <MenuItem Header="Dirección: Izq → Der" x:Name="MenuDirLTR" IsCheckable="True" Click="MenuDirLTR_Click"/>
                             <MenuItem Header="Dirección: Der → Izq (manga)" x:Name="MenuDirRTL" IsCheckable="True" Click="MenuDirRTL_Click"/>
                             <Separator/>

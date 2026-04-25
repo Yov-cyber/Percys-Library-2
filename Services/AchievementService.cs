@@ -74,19 +74,25 @@ namespace ComicReader.Services
             }
             catch { }
 
-            if (dash == null) return newlyUnlocked;
-
+            // Restaurar estado de unlock persistido siempre, incluso si el
+            // dashboard no esta disponible (stats service no registrado o
+            // GetDashboard() lanza). Sin esto, los logros ya desbloqueados se
+            // mostrarian todos como bloqueados en la UI cuando el dashboard
+            // falle.
             foreach (var a in _catalog)
             {
-                a.CurrentValue = a.Metric switch
+                if (dash != null)
                 {
-                    AchievementMetric.PagesRead             => dash.TotalPagesRead,
-                    AchievementMetric.ComicsCompleted       => dash.TotalComicsRead,
-                    AchievementMetric.Streak                => dash.CurrentStreak,
-                    AchievementMetric.ReadingTimeMinutes    => (int)dash.TotalReadingTime.TotalMinutes,
-                    AchievementMetric.LongestSessionMinutes => (int)dash.LongestReadingSession.TotalMinutes,
-                    _ => 0,
-                };
+                    a.CurrentValue = a.Metric switch
+                    {
+                        AchievementMetric.PagesRead             => dash.TotalPagesRead,
+                        AchievementMetric.ComicsCompleted       => dash.TotalComicsRead,
+                        AchievementMetric.Streak                => dash.CurrentStreak,
+                        AchievementMetric.ReadingTimeMinutes    => (int)dash.TotalReadingTime.TotalMinutes,
+                        AchievementMetric.LongestSessionMinutes => (int)dash.LongestReadingSession.TotalMinutes,
+                        _ => 0,
+                    };
+                }
 
                 bool wasUnlocked = a.Unlocked;
                 if (_unlocks.TryGetValue(a.Id, out var unlockedAt))

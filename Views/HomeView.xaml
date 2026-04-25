@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:ComicReader.Views"
              xmlns:conv="clr-namespace:ComicReader.Converters"
+             xmlns:controls="clr-namespace:ComicReader.Controls"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="1280"
              Background="{DynamicResource Surface.Base.Brush}">
@@ -61,8 +62,13 @@
                                 Background="{DynamicResource Surface.Overlay.Brush}"
                                 CornerRadius="8,8,0,0" ClipToBounds="True">
                             <Grid>
-                                <Image Stretch="UniformToFill" SnapsToDevicePixels="True"
-                                       RenderOptions.BitmapScalingMode="HighQuality">
+                                <!-- Stretch=Uniform: respeta proporcion original sin recortar.
+                                     El comic tiene ratio ~2:3 = 0.667; el contenedor 184x266 ratio 0.692,
+                                     diferencia minima => bandas casi imperceptibles.
+                                     HighQuality + Aliased reducen el blur en el escalado. -->
+                                <Image Stretch="Uniform" SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
+                                       RenderOptions.EdgeMode="Unspecified">
                                     <Image.Source>
                                         <MultiBinding Converter="{StaticResource CoverPathOrThumbnailConverter}">
                                             <Binding Path="CoverPath"/>
@@ -118,7 +124,9 @@
                                 Background="{DynamicResource Surface.Overlay.Brush}"
                                 CornerRadius="8,8,0,0" ClipToBounds="True">
                             <Grid>
-                                <Image Source="{Binding Thumbnail}" Stretch="UniformToFill"
+                                <Image Source="{Binding Thumbnail}" Stretch="Uniform"
+                                       SnapsToDevicePixels="True"
+                                       RenderOptions.BitmapScalingMode="HighQuality"
                                        Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                                 <TextBlock Text="📁" FontSize="56"
                                            Foreground="{DynamicResource Text.Secondary.Brush}"
@@ -268,10 +276,16 @@
                     <!-- Continuar leyendo -->
                     <ItemsControl ItemsSource="{Binding RecentComics}"
                                   ItemTemplate="{StaticResource ComicCoverCardTemplate}"
-                                  Visibility="{Binding ElementName=TabContinue, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
+                                  Visibility="{Binding ElementName=TabContinue, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling"
+                                  VirtualizingPanel.ScrollUnit="Pixel"
+                                  ScrollViewer.CanContentScroll="True">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                                <!-- VirtualizingWrapPanel: extiende VirtualizingPanel + IScrollInfo.
+                                     ItemWidth/Height incluyen el Margin de la card (184+16, ~340 alto). -->
+                                <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
@@ -279,10 +293,14 @@
                     <!-- Completados -->
                     <ItemsControl ItemsSource="{Binding CompletedComics}"
                                   ItemTemplate="{StaticResource ComicCoverCardTemplate}"
-                                  Visibility="{Binding ElementName=TabCompleted, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}">
+                                  Visibility="{Binding ElementName=TabCompleted, Path=IsChecked, Converter={StaticResource BoolToVisibilityConverter}}"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling"
+                                  VirtualizingPanel.ScrollUnit="Pixel"
+                                  ScrollViewer.CanContentScroll="True">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                                <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
@@ -294,10 +312,14 @@
                           PanningMode="VerticalOnly" Padding="32,0,32,32"
                           Visibility="{Binding CurrentFolderPath, Converter={StaticResource NullToCollapsedConverter}}">
                 <ItemsControl ItemsSource="{Binding FolderContents}"
-                              ItemTemplate="{StaticResource FolderItemCardTemplate}">
+                              ItemTemplate="{StaticResource FolderItemCardTemplate}"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              VirtualizingPanel.ScrollUnit="Pixel"
+                              ScrollViewer.CanContentScroll="True">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                            <controls:VirtualizingWrapPanel ItemWidth="200" ItemHeight="340"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.Style>

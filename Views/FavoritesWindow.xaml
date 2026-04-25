@@ -327,8 +327,11 @@
                                     SnapsToDevicePixels="True"
                                     UseLayoutRounding="True">
                                 <Grid>
+                                    <!-- Stretch=Uniform: respeta proporcion del cover; las bandas
+                                         se mezclan con el Surface.Overlay del padre. -->
                                     <Image Source="{Binding ThumbnailImage}"
-                                           Stretch="UniformToFill"
+                                           Stretch="Uniform"
+                                           SnapsToDevicePixels="True"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            RenderOptions.BitmapScalingMode="HighQuality"/>

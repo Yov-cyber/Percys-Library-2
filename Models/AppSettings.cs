@@ -225,7 +225,10 @@ namespace ComicReader.Services
         private double _hideOverlayDelaySeconds = 3.0;
         public double HideOverlayDelaySeconds { get => _hideOverlayDelaySeconds; set => SetProperty(ref _hideOverlayDelaySeconds, value); }
 
-        private bool _hideOverlayOnlyInImmersive = true;
+        // Default false: la barra del lector se auto-oculta tambien en modo
+        // ventana (no solo en pantalla completa inmersiva). Es la experiencia
+        // "UI invisible" que esperamos por defecto.
+        private bool _hideOverlayOnlyInImmersive = false;
         public bool HideOverlayOnlyInImmersive { get => _hideOverlayOnlyInImmersive; set => SetProperty(ref _hideOverlayOnlyInImmersive, value); }
 
         private double _hideCursorDelaySeconds = 3.0;

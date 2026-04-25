@@ -318,6 +318,9 @@
               <Setter TargetName="bd" Property="Background" Value="{DynamicResource Surface.Selected.Brush}"/>
               <Setter Property="Foreground" Value="{DynamicResource Text.Primary.Brush}"/>
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter Property="Opacity" Value="0.45"/>
+            </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>

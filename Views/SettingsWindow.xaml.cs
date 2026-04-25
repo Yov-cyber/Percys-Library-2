@@ -103,8 +103,15 @@ namespace ComicReader.Views
                     // Default a "Continuous" si EnableContinuousScroll esta activo, si no
                     // respeta el valor de ReadingMode legacy.
                     var preferred = settings.EnableContinuousScroll ? "Continuous" : (settings.ReadingMode ?? "PageByPage");
+                    bool matched = false;
                     foreach (ComboBoxItem item in modeCombo.Items)
-                        if (item.Tag?.ToString() == preferred) { modeCombo.SelectedItem = item; break; }
+                        if (item.Tag?.ToString() == preferred) { modeCombo.SelectedItem = item; matched = true; break; }
+                    // Fallback para valores legacy (ej. "DoublePage" del UI viejo) que ya
+                    // no tienen entrada en el combo: caer a "PageByPage" para no dejar
+                    // el combo en estado vacio confundiendo al usuario.
+                    if (!matched)
+                        foreach (ComboBoxItem item in modeCombo.Items)
+                            if (item.Tag?.ToString() == "PageByPage") { modeCombo.SelectedItem = item; break; }
                 }
 
                 if (this.FindName("PageTurnAnimationCombo") is ComboBox animCombo)

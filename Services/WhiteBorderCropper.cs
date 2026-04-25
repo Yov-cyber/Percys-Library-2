@@ -62,10 +62,17 @@ namespace ComicReader.Services
 
                 int stride = (src.Format.BitsPerPixel / 8) * w;
 
-                int top = ScanRows(src, w, h, stride, fromTop: true);
-                int bottom = ScanRows(src, w, h, stride, fromTop: false);
-                int left = ScanCols(src, w, h, stride, fromLeft: true);
-                int right = ScanCols(src, w, h, stride, fromLeft: false);
+                // Una sola copia del buffer completo, reutilizada por las 4
+                // funciones de escaneo. Antes ScanCols hacia su propia copia
+                // dos veces (~64MB extras por pagina 4K) y ScanRows pedia
+                // CopyPixels por fila, lo que sumaba mucha presion al GC.
+                byte[] pixels = new byte[stride * h];
+                src.CopyPixels(pixels, stride, 0);
+
+                int top = ScanRows(pixels, w, h, stride, fromTop: true);
+                int bottom = ScanRows(pixels, w, h, stride, fromTop: false);
+                int left = ScanCols(pixels, w, h, stride, fromLeft: true);
+                int right = ScanCols(pixels, w, h, stride, fromLeft: false);
 
                 int maxTop = (int)(h * MaxCropFraction);
                 int maxBottom = (int)(h * MaxCropFraction);
@@ -94,52 +101,45 @@ namespace ComicReader.Services
         }
 
         // Devuelve la cantidad de filas blancas consecutivas desde el borde indicado.
-        private static int ScanRows(BitmapSource src, int w, int h, int stride, bool fromTop)
+        private static int ScanRows(byte[] pixels, int w, int h, int stride, bool fromTop)
         {
-            byte[] row = new byte[stride];
             int count = 0;
             int step = fromTop ? 1 : -1;
             int start = fromTop ? 0 : h - 1;
             int end = fromTop ? h : -1;
             for (int y = start; y != end; y += step)
             {
-                src.CopyPixels(new Int32Rect(0, y, w, 1), row, stride, 0);
-                if (!IsRowWhite(row, w)) break;
+                if (!IsRowWhite(pixels, y, w, stride)) break;
                 count++;
             }
             return count;
         }
 
         // Devuelve la cantidad de columnas blancas consecutivas desde el borde indicado.
-        private static int ScanCols(BitmapSource src, int w, int h, int stride, bool fromLeft)
+        private static int ScanCols(byte[] pixels, int w, int h, int stride, bool fromLeft)
         {
-            // CopyPixels para una columna no es eficiente; en vez de eso
-            // copiamos todo y testeamos. Para imagenes grandes (>16 MP)
-            // se podria optimizar, pero el caso comun (~3-6 MP) es OK.
-            byte[] all = new byte[stride * h];
-            src.CopyPixels(all, stride, 0);
-
             int count = 0;
             int step = fromLeft ? 1 : -1;
             int start = fromLeft ? 0 : w - 1;
             int end = fromLeft ? w : -1;
             for (int x = start; x != end; x += step)
             {
-                if (!IsColumnWhite(all, x, w, h, stride)) break;
+                if (!IsColumnWhite(pixels, x, w, h, stride)) break;
                 count++;
             }
             return count;
         }
 
-        private static bool IsRowWhite(byte[] row, int w)
+        private static bool IsRowWhite(byte[] pixels, int y, int w, int stride)
         {
             int sampleStep = Math.Max(1, w / SamplesPerLine);
+            int rowOffset = y * stride;
             for (int x = 0; x < w; x += sampleStep)
             {
-                int i = x * 4;
-                byte b = row[i];
-                byte g = row[i + 1];
-                byte r = row[i + 2];
+                int i = rowOffset + x * 4;
+                byte b = pixels[i];
+                byte g = pixels[i + 1];
+                byte r = pixels[i + 2];
                 if (!IsWhite(r, g, b)) return false;
             }
             return true;

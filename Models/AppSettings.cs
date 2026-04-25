@@ -262,6 +262,19 @@ namespace ComicReader.Services
         private ReadingDirection _currentReadingDirection = ReadingDirection.LeftToRight;
         public ReadingDirection CurrentReadingDirection { get => _currentReadingDirection; set => SetProperty(ref _currentReadingDirection, value); }
 
+        // Doble pagina: cuando true y EnableContinuousScroll=false, el lector
+        // muestra dos paginas consecutivas lado a lado. La pareja se construye
+        // por composicion (RenderTargetBitmap), respetando manga RTL.
+        private bool _doublePageEnabled = false;
+        public bool DoublePageEnabled { get => _doublePageEnabled; set => SetProperty(ref _doublePageEnabled, value); }
+
+        // Paginado vertical estricto: cuando true y EnableContinuousScroll=false,
+        // las flechas Arriba/Abajo cambian de pagina (en lugar de hacer scroll
+        // dentro de la pagina). Es la experiencia "single-page vertical" sin
+        // scroll continuo.
+        private bool _verticalPagedMode = false;
+        public bool VerticalPagedMode { get => _verticalPagedMode; set => SetProperty(ref _verticalPagedMode, value); }
+
         // Additional properties for Settings UI compatibility
         private string _readingMode = "PageByPage";
         public string ReadingMode { get => _readingMode; set => SetProperty(ref _readingMode, value); }

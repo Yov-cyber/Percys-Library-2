@@ -294,19 +294,16 @@ namespace ComicReader.Services
 
         private static void Settings_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            // Schedule a save when a setting changes, honoring the AutoSaveEnabled flag when present
+            // Schedule a save when a setting changes, honoring the AutoSaveEnabled flag.
+            // El forward al evento estatico debe correr SIEMPRE, incluso cuando
+            // AutoSaveEnabled==false (ej. el usuario desactivo persistencia pero
+            // cambia su nombre y queremos que el saludo del HomeView se refresque).
             try
             {
-                try
-                {
-                    if (Settings != null && Settings.AutoSaveEnabled == false)
-                    {
-                        // respect user's choice to disable auto-save
-                        return;
-                    }
-                }
+                bool autoSave = true;
+                try { autoSave = Settings == null || Settings.AutoSaveEnabled != false; }
                 catch { }
-                SaveSettings();
+                if (autoSave) SaveSettings();
             }
             catch { }
             // Forward al evento estatico para suscriptores que viven mas alla

@@ -846,6 +846,13 @@ namespace ComicReader.Views
             favoritesWindow.ShowDialog();
         }
 
+        private void OpenAchievements_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var achievementsWindow = new AchievementsWindow();
+            achievementsWindow.Owner = Window.GetWindow(this);
+            achievementsWindow.ShowDialog();
+        }
+
         // Nuevos métodos para funcionalidades avanzadas
         private void SearchComics_Click(object sender, System.Windows.RoutedEventArgs e)
         {

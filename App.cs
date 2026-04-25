@@ -393,6 +393,15 @@ namespace ComicReader
                     SettingsManager.FlushPendingSavesAsync(cts.Token).GetAwaiter().GetResult();
                 }
                 catch { }
+                // Cerrar sesión de lectura activa para que sus paginas
+                // computen en stats y disparen logros pendientes.
+                try
+                {
+                    var stats = ComicReader.Core.Services.ServiceLocator.TryGet<ComicReader.Core.Abstractions.IReadingStatsService>();
+                    stats?.EndSession();
+                    ComicReader.Services.AchievementService.Instance.Refresh();
+                }
+                catch { }
                 ComicReader.Utils.ModernLogger.Shutdown();
             }
             catch { }

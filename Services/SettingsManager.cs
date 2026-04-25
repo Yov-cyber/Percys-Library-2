@@ -47,6 +47,23 @@ namespace ComicReader.Services
                     var obj = JsonSerializer.Deserialize<AppSettings>(txt, _jsonOptions);
                     if (obj != null)
                     {
+                        // Migracion Phase 3: la barra del lector paso de tener
+                        // su propia fila (Grid.Row=1, Height=Auto) a ser un
+                        // overlay sobre el contenido (Grid.Row=2, Top, ZIndex).
+                        // Antes el default de HideOverlayOnlyInImmersive era
+                        // true, y bajo el layout viejo eso significaba 'la
+                        // barra ocupa su fila siempre en modo ventana'. Con el
+                        // layout nuevo eso significaria 'la barra obstruye
+                        // permanentemente el comic en modo ventana sin forma de
+                        // descartarla'. Para usuarios pre-Phase 3 forzamos el
+                        // valor a false una sola vez para que el auto-hide
+                        // funcione en modo ventana. Si el usuario lo quiere
+                        // siempre visible, puede re-activarlo desde Settings.
+                        if (!obj.OverlayLayoutMigrationApplied)
+                        {
+                            obj.HideOverlayOnlyInImmersive = false;
+                            obj.OverlayLayoutMigrationApplied = true;
+                        }
                         ReplaceSettings(obj);
                     }
                 }

@@ -1620,6 +1620,93 @@ namespace ComicReader
             catch { }
         }
 
+        // ============================================================
+        // Modos de lectura (popup unificado en la barra del lector)
+        // ============================================================
+        private void ReaderModes_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (sender is Button b && b.ContextMenu != null)
+                {
+                    SyncReaderModesMenu();
+                    b.ContextMenu.PlacementTarget = b;
+                    b.ContextMenu.IsOpen = true;
+                }
+            }
+            catch { }
+        }
+
+        private void SyncReaderModesMenu()
+        {
+            try
+            {
+                bool isContinuous = SettingsManager.Settings?.EnableContinuousScroll == true;
+                bool isRtl = SettingsManager.Settings?.CurrentReadingDirection == ComicReader.Services.ReadingDirection.RightToLeft;
+                if (this.FindName("MenuModeContinuous") is MenuItem mc) mc.IsChecked = isContinuous;
+                if (this.FindName("MenuModePaged") is MenuItem mp) mp.IsChecked = !isContinuous;
+                if (this.FindName("MenuDirLTR") is MenuItem ml) ml.IsChecked = !isRtl;
+                if (this.FindName("MenuDirRTL") is MenuItem mr) mr.IsChecked = isRtl;
+                if (this.FindName("MenuNightMode") is MenuItem mn)
+                    mn.IsChecked = SettingsManager.Settings?.IsNightMode == true;
+                if (this.FindName("MenuThumbnails") is MenuItem mt && this.FindName("ThumbCol") is System.Windows.Controls.ColumnDefinition tc)
+                    mt.IsChecked = tc.Width.Value > 0;
+            }
+            catch { }
+        }
+
+        private void MenuModeContinuous_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                bool currentlyContinuous = SettingsManager.Settings?.EnableContinuousScroll == true;
+                if (!currentlyContinuous) ToggleContinuous_Click(null, null);
+                SyncReaderModesMenu();
+            }
+            catch { }
+        }
+
+        private void MenuModePaged_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                bool currentlyContinuous = SettingsManager.Settings?.EnableContinuousScroll == true;
+                if (currentlyContinuous) ToggleContinuous_Click(null, null);
+                SyncReaderModesMenu();
+            }
+            catch { }
+        }
+
+        private void MenuDirLTR_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (SettingsManager.Settings != null)
+                {
+                    SettingsManager.Settings.CurrentReadingDirection = ComicReader.Services.ReadingDirection.LeftToRight;
+                    SettingsManager.SaveSettings();
+                    ShowModeToast("Direccion: izquierda a derecha");
+                }
+                SyncReaderModesMenu();
+            }
+            catch { }
+        }
+
+        private void MenuDirRTL_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (SettingsManager.Settings != null)
+                {
+                    SettingsManager.Settings.CurrentReadingDirection = ComicReader.Services.ReadingDirection.RightToLeft;
+                    SettingsManager.SaveSettings();
+                    ShowModeToast("Direccion: derecha a izquierda (manga)");
+                }
+                SyncReaderModesMenu();
+            }
+            catch { }
+        }
+
         private void ShowModeToast(string text)
         {
             try

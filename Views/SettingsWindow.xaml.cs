@@ -144,7 +144,12 @@ namespace ComicReader.Views
             {
                 var vm = _vm;
 
-                if (vm?.SelectedThemeInfo != null)
+                // Solo persistir tema si el usuario lo cambio en esta sesion.
+                // ThemeInfos esta filtrado a Dark/Light + fallback en SettingsViewModel,
+                // asi que SelectedThemeInfo nunca es null. Sin gate de _themeChanged
+                // un usuario con tema Sepia/Comic veria su tema sobreescrito a Dark
+                // al hacer click en Aplicar (incluso si solo cambio scroll-sensitivity).
+                if (_themeChanged && vm?.SelectedThemeInfo != null)
                 {
                     var themeMode = vm.SelectedThemeInfo.Mode;
                     var themeName = themeMode.ToString();

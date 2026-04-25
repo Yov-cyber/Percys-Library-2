@@ -67,7 +67,10 @@ namespace ComicReader.Views
             var favList = GetFavoritesListBox();
             favList.AllowDrop = true;
             GongSolutions.Wpf.DragDrop.DragDrop.SetDropHandler(favList,
-                new FavoritesDropHandler(AddDroppedFilesToCurrentCollection));
+                new FavoritesDropHandler(
+                    onFilesDropped: AddDroppedFilesToCurrentCollection,
+                    canAcceptFileDrop: () => _selectedCollection != null,
+                    onInternalReorderCommitted: SyncModelOrderFromFiltered));
 
             // Actualizar estadísticas iniciales
             UpdateStatistics();
@@ -766,6 +769,46 @@ namespace ComicReader.Views
                 ComicReader.Services.ErrorHandling.ErrorHandler.Instance.HandleException(
                     ex,
                     "Error al arrastrar archivos a la colección",
+                    ComicReader.Services.ErrorHandling.ErrorRecoveryStrategy.Notify);
+            }
+        }
+
+        // Tras un reorder via GongSolutions DefaultDropHandler, FilteredItems
+        // (ItemsSource del ListBox) refleja el nuevo orden, pero el modelo
+        // (CurrentCollectionItems y _selectedCollection.Items) sigue con el
+        // orden antiguo. Sin sincronizar, ApplyFilter() reconstruye
+        // FilteredItems desde el modelo y revierte el reorder. Aqui movemos
+        // los items del modelo para que coincidan con el orden visible y
+        // persistimos.
+        private void SyncModelOrderFromFiltered()
+        {
+            try
+            {
+                if (_selectedCollection == null) return;
+                if (FilteredItems == null) return;
+
+                // Reordena CurrentCollectionItems segun el orden de FilteredItems,
+                // preservando los items que no pasen el filtro al final (no se
+                // los puede mover via drag, asi que mantienen su posicion
+                // relativa entre si en el orden previo).
+                var visibleOrder = FilteredItems.ToList();
+                var visibleSet = new HashSet<FavoriteComic>(visibleOrder);
+                var hidden = CurrentCollectionItems.Where(x => !visibleSet.Contains(x)).ToList();
+
+                CurrentCollectionItems.Clear();
+                foreach (var v in visibleOrder) CurrentCollectionItems.Add(v);
+                foreach (var h in hidden) CurrentCollectionItems.Add(h);
+
+                _selectedCollection.Items.Clear();
+                foreach (var c in CurrentCollectionItems) _selectedCollection.Items.Add(c);
+
+                FavoritesStorage.Save(Collections);
+            }
+            catch (Exception ex)
+            {
+                ComicReader.Services.ErrorHandling.ErrorHandler.Instance.HandleException(
+                    ex,
+                    "Error al guardar el nuevo orden de la colección",
                     ComicReader.Services.ErrorHandling.ErrorRecoveryStrategy.Notify);
             }
         }

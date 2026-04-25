@@ -21,16 +21,31 @@ namespace ComicReader.Views
     internal sealed class FavoritesDropHandler : DefaultDropHandler
     {
         private readonly Action<IEnumerable<string>> _onFilesDropped;
+        private readonly Func<bool> _canAcceptFileDrop;
+        private readonly Action _onInternalReorderCommitted;
 
-        public FavoritesDropHandler(Action<IEnumerable<string>> onFilesDropped)
+        public FavoritesDropHandler(
+            Action<IEnumerable<string>> onFilesDropped,
+            Func<bool> canAcceptFileDrop,
+            Action onInternalReorderCommitted)
         {
             _onFilesDropped = onFilesDropped ?? throw new ArgumentNullException(nameof(onFilesDropped));
+            _canAcceptFileDrop = canAcceptFileDrop ?? throw new ArgumentNullException(nameof(canAcceptFileDrop));
+            _onInternalReorderCommitted = onInternalReorderCommitted ?? throw new ArgumentNullException(nameof(onInternalReorderCommitted));
         }
 
         public override void DragOver(IDropInfo dropInfo)
         {
             if (IsFileDrop(dropInfo))
             {
+                // Solo mostrar feedback de copia si hay una coleccion seleccionada
+                // donde realmente se vayan a agregar los archivos. Sin esto el
+                // cursor mostraba "+" pero el drop terminaba siendo no-op.
+                if (!SafeCanAccept())
+                {
+                    dropInfo.Effects = DragDropEffects.None;
+                    return;
+                }
                 dropInfo.Effects = DragDropEffects.Copy;
                 dropInfo.DropTargetAdorner = DropTargetAdorners.Highlight;
                 return;
@@ -42,6 +57,7 @@ namespace ComicReader.Views
         {
             if (IsFileDrop(dropInfo))
             {
+                if (!SafeCanAccept()) return;
                 try
                 {
                     var paths = ExtractFilePaths(dropInfo);
@@ -54,7 +70,17 @@ namespace ComicReader.Views
                 }
                 return;
             }
+            // Reorder interno: DefaultDropHandler mueve items dentro de
+            // ItemsSource (FilteredItems), pero el modelo (Items de la
+            // coleccion + CurrentCollectionItems) queda desincronizado. Se
+            // notifica al consumidor para que reordene el modelo y persista.
             base.Drop(dropInfo);
+            try { _onInternalReorderCommitted(); } catch { }
+        }
+
+        private bool SafeCanAccept()
+        {
+            try { return _canAcceptFileDrop(); } catch { return false; }
         }
 
         private static bool IsFileDrop(IDropInfo info)

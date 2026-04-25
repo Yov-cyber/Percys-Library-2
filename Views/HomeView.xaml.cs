@@ -290,6 +290,47 @@ namespace ComicReader.Views
         private void HomeView_Loaded(object sender, RoutedEventArgs e)
         {
             SubscribeHistory();
+            UpdateGreeting();
+            try
+            {
+                if (SettingsManager.Settings is INotifyPropertyChanged inpc)
+                {
+                    inpc.PropertyChanged -= Settings_PropertyChanged_Greeting;
+                    inpc.PropertyChanged += Settings_PropertyChanged_Greeting;
+                }
+            }
+            catch { }
+        }
+
+        private void Settings_PropertyChanged_Greeting(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AppSettings.UserName))
+            {
+                try { Dispatcher.BeginInvoke(new Action(UpdateGreeting)); } catch { }
+            }
+        }
+
+        private void UpdateGreeting()
+        {
+            try
+            {
+                var tb = this.FindName("GreetingText") as TextBlock;
+                if (tb == null) return;
+                var name = SettingsManager.Settings?.UserName?.Trim();
+                if (string.IsNullOrEmpty(name))
+                {
+                    tb.Visibility = Visibility.Collapsed;
+                    tb.Text = string.Empty;
+                    return;
+                }
+                int h = DateTime.Now.Hour;
+                string saludo = h >= 5 && h < 12 ? "Buenos días"
+                              : h >= 12 && h < 20 ? "Buenas tardes"
+                              : "Buenas noches";
+                tb.Text = $"{saludo}, {name}";
+                tb.Visibility = Visibility.Visible;
+            }
+            catch { }
         }
 
         private void HomeView_Unloaded(object sender, RoutedEventArgs e)

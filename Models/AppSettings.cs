@@ -282,6 +282,23 @@ namespace ComicReader.Services
         private string _pageTurnAnimation = "Fade";
         public string PageTurnAnimation { get => _pageTurnAnimation; set => SetProperty(ref _pageTurnAnimation, value); }
 
+        // Toque humano: nombre del usuario, opcional. Se usa para personalizar
+        // el saludo en el header de Home segun la hora del dia. Si esta vacio,
+        // el header muestra simplemente "Biblioteca".
+        private string _userName = string.Empty;
+        public string UserName { get => _userName; set => SetProperty(ref _userName, value ?? string.Empty); }
+
+        // ComicVine API: integracion opt-in para enriquecer metadatos de los
+        // comics (titulo, numero, fecha, sinopsis, creditos). Requiere registro
+        // gratuito en https://comicvine.gamespot.com/api/ y respeta su rate
+        // limit (~200 req/hora). Si la key esta vacia o el flag esta apagado,
+        // la app funciona 100% offline como hasta ahora.
+        private string _comicVineApiKey = string.Empty;
+        public string ComicVineApiKey { get => _comicVineApiKey; set => SetProperty(ref _comicVineApiKey, value ?? string.Empty); }
+
+        private bool _enableComicVineEnrichment = false;
+        public bool EnableComicVineEnrichment { get => _enableComicVineEnrichment; set => SetProperty(ref _enableComicVineEnrichment, value); }
+
         // Add more stubs here as needed by other parts of the app.
     }
 }

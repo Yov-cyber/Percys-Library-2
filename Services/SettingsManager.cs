@@ -153,7 +153,33 @@ namespace ComicReader.Services
             TrySubscribe(Settings);
             // Persist immediately to ensure new shape is saved
             SaveSettings();
+            // Notificar a consumidores externos que la instancia cambio. Antes,
+            // suscriptores como HomeView (greeting) o CollectionsView que se
+            // suscribian a Settings.PropertyChanged quedaban con un handle al
+            // objeto viejo despues de un import/reset. Disparamos el evento
+            // simulando un PropertyChanged "all properties" (PropertyName=null)
+            // y ademas SettingsReplaced para que el suscriptor pueda re-attach
+            // si quiere escuchar cambios futuros.
+            try { SettingsReplaced?.Invoke(null, EventArgs.Empty); } catch { }
+            try { SettingChanged?.Invoke(null, new PropertyChangedEventArgs(null)); } catch { }
         }
+
+        /// <summary>
+        /// Evento que se dispara cuando cambia cualquier propiedad del Settings actual,
+        /// incluso si la instancia subyacente fue reemplazada via ReplaceSettings().
+        /// Codigo que necesite reaccionar a cambios de Settings (UI binding manual,
+        /// caches dependientes, etc.) debe suscribirse a este evento en vez de
+        /// SettingsManager.Settings.PropertyChanged, porque la instancia de Settings
+        /// puede cambiar en cualquier momento (import, reset).
+        /// </summary>
+        public static event PropertyChangedEventHandler SettingChanged;
+
+        /// <summary>
+        /// Evento que se dispara cuando ReplaceSettings() crea una instancia nueva.
+        /// Util si el suscriptor mantiene su propio handler con la instancia vieja
+        /// y necesita liberar/reattach explicitamente.
+        /// </summary>
+        public static event EventHandler SettingsReplaced;
 
         private static async Task WriteToFileAsync()
         {
@@ -283,6 +309,9 @@ namespace ComicReader.Services
                 SaveSettings();
             }
             catch { }
+            // Forward al evento estatico para suscriptores que viven mas alla
+            // que una instancia particular de Settings.
+            try { SettingChanged?.Invoke(sender, e); } catch { }
         }
     }
 }

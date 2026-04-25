@@ -499,8 +499,20 @@ namespace ComicReader.Themes
             var onAccent = accentLuma < 140 ? Colors.White : Color.FromRgb(0x11, 0x11, 0x11);
             SetSemantic("Text.OnAccent.Brush", onAccent);
 
-            // Subtle: derivado del border con alpha. Strong: el border crudo.
-            var subtleBorder = Color.FromArgb(0x66, borderColor.R, borderColor.G, borderColor.B);
+            // Subtle vs Strong: ambos opacos para coincidir con Tokens.xaml
+            // (la version anterior con alpha 0x66 hacia que los bordes
+            // generados en runtime fueran ~60% mas tenues que los del
+            // fallback estatico, causando un flash visual al aplicar tema y
+            // bordes casi invisibles en sidebar/cards/toasts/inputs).
+            // Strong = borderColor crudo. Subtle = mezcla 50/50 de
+            // borderColor con el panelBg de fondo: queda mas tenue que
+            // Strong pero opaco, y se ve consistente sobre cualquier
+            // superficie sin depender del compositing alpha.
+            byte Mix(byte a, byte b) => (byte)((a + b) / 2);
+            var subtleBorder = Color.FromRgb(
+                Mix(borderColor.R, panelBg.R),
+                Mix(borderColor.G, panelBg.G),
+                Mix(borderColor.B, panelBg.B));
             SetSemantic("Border.Subtle.Brush", subtleBorder);
             SetSemantic("Border.Strong.Brush", borderColor);
 

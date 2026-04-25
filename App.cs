@@ -380,7 +380,11 @@ namespace ComicReader
                 {
                     var stats = ComicReader.Core.Services.ServiceLocator.TryGet<ComicReader.Core.Abstractions.IReadingStatsService>();
                     stats?.EndSession();
-                    ComicReader.Services.AchievementService.Instance.Refresh();
+                    // suppressNotifications=true: durante el cierre de la app
+                    // no queremos disparar toasts ni MessageBox bloqueantes;
+                    // los unlocks se persisten igual y el usuario los ve la
+                    // proxima vez que entre.
+                    ComicReader.Services.AchievementService.Instance.Refresh(suppressNotifications: true);
                 }
                 catch { }
                 ComicReader.Utils.ModernLogger.Shutdown();

@@ -62,8 +62,12 @@ namespace ComicReader.Services
         /// <summary>
         /// Lee el dashboard actual y actualiza progreso + estado de cada logro.
         /// Devuelve la lista de logros que pasaron a desbloqueado en esta llamada.
+        /// Si <paramref name="suppressNotifications"/> es true (caso tipico:
+        /// llamada desde App.OnExit), no se dispara el evento ni el toast por
+        /// cada nuevo logro; igual se persiste el unlock para que la proxima
+        /// vez que abra la app aparezca como desbloqueado.
         /// </summary>
-        public List<Achievement> Refresh()
+        public List<Achievement> Refresh(bool suppressNotifications = false)
         {
             var newlyUnlocked = new List<Achievement>();
             StatsDashboard dash = null;
@@ -117,16 +121,19 @@ namespace ComicReader.Services
             if (newlyUnlocked.Count > 0)
             {
                 SaveUnlocks();
-                foreach (var a in newlyUnlocked)
+                if (!suppressNotifications)
                 {
-                    try { AchievementUnlocked?.Invoke(a); } catch { }
-                    try
+                    foreach (var a in newlyUnlocked)
                     {
-                        Notifications.NotificationService.Instance?.Info(
-                            a.Description,
-                            $"Logro desbloqueado: {a.Name}");
+                        try { AchievementUnlocked?.Invoke(a); } catch { }
+                        try
+                        {
+                            Notifications.NotificationService.Instance?.Info(
+                                a.Description,
+                                $"Logro desbloqueado: {a.Name}");
+                        }
+                        catch { }
                     }
-                    catch { }
                 }
             }
 

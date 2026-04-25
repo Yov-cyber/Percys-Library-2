@@ -81,22 +81,10 @@ namespace ComicReader.ViewModels
 
         public SettingsViewModel()
         {
-            // El selector publico de temas se reduce a las dos opciones que el
-            // sistema de diseno nuevo soporta: Oscuro (default) y Claro. El
-            // resto de modos definidos en ThemeManager queda disponible
-            // internamente pero no se expone en la UI.
-            try
-            {
-                var avail = ThemeManager.GetAvailableThemes();
-                var allowed = new[] { ThemeMode.Dark, ThemeMode.Light };
-                foreach (var t in avail.Where(x => allowed.Contains(x.Mode)))
-                {
-                    if (!ThemeInfos.Any(x => x.Mode == t.Mode)) ThemeInfos.Add(t);
-                }
-            }
-            catch { }
-
             // Build commands (prefer existing RelayCommand if present)
+            // Nota: la inicializacion + filtrado de ThemeInfos ocurre mas abajo
+            // (ver "// ThemeInfos collection"), no aqui — la propiedad aun es
+            // null en este punto del constructor.
             Func<Action, ICommand> mk = (act) =>
             {
                 try

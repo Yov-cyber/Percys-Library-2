@@ -32,6 +32,7 @@
             <Button DockPanel.Dock="Right" Content="Cerrar"
                     Style="{DynamicResource Button.Secondary}"
                     Click="CloseButton_Click"
+                    HorizontalAlignment="Right"
                     Padding="14,6" MinWidth="84"/>
         </DockPanel>
 
@@ -92,13 +93,13 @@
                     <!-- Progreso actual: cómics en lectura -->
                     <Border Style="{DynamicResource Card}" Padding="20,16">
                         <StackPanel>
-                            <DockPanel Margin="0,0,0,12">
+                            <DockPanel LastChildFill="False" Margin="0,0,0,12">
                                 <TextBlock DockPanel.Dock="Left" Text="En curso"
                                            FontSize="{DynamicResource FontSize.Title}"
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource Text.Primary.Brush}"/>
-                                <TextBlock Text="{Binding ProgressList.Count, StringFormat='{}{0} cómics'}"
-                                           DockPanel.Dock="Right"
+                                <TextBlock DockPanel.Dock="Right"
+                                           Text="{Binding ProgressList.Count, StringFormat='{}{0} cómics'}"
                                            FontSize="{DynamicResource FontSize.Caption}"
                                            Foreground="{DynamicResource Text.Secondary.Brush}"
                                            VerticalAlignment="Center"/>
@@ -239,7 +240,6 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Padding="10,8" Margin="0,4"
-                                                    Background="{DynamicResource Surface.Overlay.Brush}"
                                                     CornerRadius="6"
                                                     Focusable="True"
                                                     AutomationProperties.Name="{Binding Title}"

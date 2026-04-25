@@ -138,38 +138,19 @@ namespace ComicReader
         {
             try
             {
+                // Phase 1+ : Tokens.xaml y Components.xaml se cargan deterministicamente
+                // desde App.xaml. Antes existia aqui un fallback que cargaba
+                // Themes/ThemeTokens.xaml si faltaban claves legacy; ese archivo
+                // fue eliminado en Phase 5 y los aliases viven ahora en Tokens.xaml,
+                // por lo que solo nos limitamos a registrar advertencias si algo
+                // critico no aparece.
                 var appRes = Application.Current.Resources;
                 var required = new[] { "TextBrush", "PanelBackgroundBrush", "AccentBrush", "ReaderToggleButtonStyle" };
-                bool missing = false;
                 foreach (var k in required)
                 {
                     if (!appRes.Contains(k))
                     {
                         Logger.Log($"Missing resource key: {k}", LogLevel.Warning);
-                        missing = true;
-                    }
-                }
-                if (missing)
-                {
-                    // Fallback: cargar Tokens.xaml + Components.xaml.
-                    // ThemeTokens.xaml es ahora un stub vacio (Phase 1 movio
-                    // todo a Tokens/Components). Cargar ese stub no resolveria
-                    // los keys faltantes y solo enmascararia el problema con
-                    // un log de "exito".
-                    try
-                    {
-                        var tokensUri = new Uri("Themes/Tokens.xaml", UriKind.Relative);
-                        var componentsUri = new Uri("Themes/Components.xaml", UriKind.Relative);
-                        var tokensRd = new ResourceDictionary() { Source = tokensUri };
-                        var componentsRd = new ResourceDictionary() { Source = componentsUri };
-                        // Insert tokens first so Components puede resolver DynamicResources
-                        Application.Current.Resources.MergedDictionaries.Insert(0, componentsRd);
-                        Application.Current.Resources.MergedDictionaries.Insert(0, tokensRd);
-                        Logger.Log("Loaded fallback Tokens.xaml + Components.xaml because required keys were missing.", LogLevel.Info);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogException("Failed to load fallback Tokens.xaml/Components.xaml", ex);
                     }
                 }
             }

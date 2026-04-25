@@ -762,6 +762,7 @@ namespace ComicReader.Views
                     CurrentCollectionItems.Add(item);
                 }
                 ApplyFilter();
+                UpdateStatistics();
                 FavoritesStorage.Save(Collections);
             }
             catch (Exception ex)

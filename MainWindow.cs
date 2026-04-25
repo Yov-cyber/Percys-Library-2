@@ -2886,8 +2886,9 @@ namespace ComicReader
                         LoadCurrentPage();
                     }
                     UpdatePageIndicator();
-                    // Guardar progreso en Home
-                    try { ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, _currentPageIndex + 1, _comicLoader.PageCount); } catch { }
+                    // Guardar progreso en Home (usar EffectiveProgressOneBased para
+                    // que el modo doble pagina reporte la pagina derecha)
+                    try { ComicReader.Services.ContinueReadingService.Instance.UpsertProgress(_comicLoader.FilePath, EffectiveProgressOneBased(), _comicLoader.PageCount); } catch { }
                     e.Handled = true;
                     break;
                 case Key.End:

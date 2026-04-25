@@ -228,7 +228,6 @@
   <Style x:Key="CardActionButton" TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
     <Setter Property="Padding" Value="8,6"/>
   </Style>
-  <Style x:Key="ReaderToggleButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
   <Style x:Key="RecentsButton" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
   <Style x:Key="RecentsPrimaryButton" TargetType="Button" BasedOn="{StaticResource Button.Primary}"/>
   <Style x:Key="RecentsDangerButton" TargetType="Button" BasedOn="{StaticResource Button.Danger}"/>
@@ -284,6 +283,7 @@
 
   <Style x:Key="ToggleComic" TargetType="ToggleButton" BasedOn="{StaticResource Toggle.Default}"/>
   <Style x:Key="ChipToggleButton" TargetType="ToggleButton" BasedOn="{StaticResource Toggle.Default}"/>
+  <Style x:Key="ReaderToggleButtonStyle" TargetType="ToggleButton" BasedOn="{StaticResource Toggle.Default}"/>
 
   <!-- ============================================================ -->
   <!-- TARJETA / PANEL                                              -->

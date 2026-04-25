@@ -13,7 +13,7 @@ namespace ComicReader.Themes
         private static readonly Dictionary<ThemeMode, ResourceDictionary> _themes = 
             new Dictionary<ThemeMode, ResourceDictionary>();
         
-        private static ThemeMode _currentTheme = ThemeMode.Comic;
+        private static ThemeMode _currentTheme = ThemeMode.Dark;
         public static event Action<ThemeMode> ThemeChanged;
 
         static ThemeManager()
@@ -145,22 +145,10 @@ namespace ComicReader.Themes
                 var app = Application.Current;
                 if (app?.Resources != null)
                 {
-                    // Limpiar recursos de tema anteriores
-                    var resourcesToRemove = new List<object>();
-                    foreach (var key in app.Resources.Keys)
-                    {
-                        if (key.ToString().Contains("Brush") || key.ToString().Contains("Color"))
-                        {
-                            resourcesToRemove.Add(key);
-                        }
-                    }
-                    
-                    foreach (var key in resourcesToRemove)
-                    {
-                        app.Resources.Remove(key);
-                    }
-
-                    // Aplicar nuevo tema
+                    // Phase 1: ya no se borran todos los Brush/Color del diccionario global.
+                    // Tokens.xaml es la fuente de verdad; el tema sólo SOBREESCRIBE los keys
+                    // que el tema explícitamente define. Esto evita borrar brushes que la
+                    // estética unificada define y que el tema no reescribe.
                     foreach (var key in themeResource.Keys)
                     {
                         app.Resources[key] = themeResource[key];
@@ -323,30 +311,35 @@ namespace ComicReader.Themes
 
         private static ResourceDictionary CreateDarkTheme()
         {
+            // Phase 1: paleta única "Percy's Library Dark" — coincide con Tokens.xaml.
+            // Acento azul (#3B82F6) reservado a acción primaria y progreso de lectura.
+            // Sin acento amarillo / naranja / verde decorativo.
             var theme = new ResourceDictionary();
 
-            // Colores primarios
-            theme["PrimaryColor"] = Color.FromRgb(100, 181, 246);
-            theme["SecondaryColor"] = Color.FromRgb(255, 213, 79);
-            theme["AccentColor"] = Color.FromRgb(129, 199, 132);
-            theme["ErrorColor"] = Color.FromRgb(239, 83, 80);
+            // Acento + estados
+            theme["PrimaryColor"] = Color.FromRgb(0x3B, 0x82, 0xF6);
+            theme["SecondaryColor"] = Color.FromRgb(0x16, 0x18, 0x1D);
+            theme["AccentColor"] = Color.FromRgb(0x3B, 0x82, 0xF6);
+            theme["ErrorColor"] = Color.FromRgb(0xEF, 0x44, 0x44);
 
-            // Colores de fondo
-            theme["WindowBackgroundColor"] = Color.FromRgb(18, 18, 18);
-            theme["PanelBackgroundColor"] = Color.FromRgb(32, 32, 32);
-            theme["HeaderBackgroundColor"] = Color.FromRgb(48, 48, 48);
-            theme["InputBackgroundColor"] = Color.FromRgb(42, 42, 42);
+            // Superficies (Surface.Base / Raised / Overlay)
+            theme["WindowBackgroundColor"] = Color.FromRgb(0x0E, 0x0F, 0x12);
+            theme["PanelBackgroundColor"] = Color.FromRgb(0x16, 0x18, 0x1D);
+            theme["HeaderBackgroundColor"] = Color.FromRgb(0x16, 0x18, 0x1D);
+            theme["InputBackgroundColor"] = Color.FromRgb(0x16, 0x18, 0x1D);
 
-            // Colores de texto
-            theme["TextColor"] = Color.FromRgb(255, 255, 255);
-            theme["SecondaryTextColor"] = Color.FromRgb(170, 170, 170);
-            theme["DisabledTextColor"] = Color.FromRgb(120, 120, 120);
+            // Texto
+            theme["TextColor"] = Color.FromRgb(0xEC, 0xED, 0xEE);
+            theme["SecondaryTextColor"] = Color.FromRgb(0x9B, 0xA1, 0xA8);
+            theme["DisabledTextColor"] = Color.FromRgb(0x5C, 0x61, 0x68);
 
-            // Colores de interacción
-            theme["BorderColor"] = Color.FromRgb(80, 80, 80);
-            theme["ItemHoverColor"] = Color.FromRgb(55, 55, 55);
-            theme["ItemSelectedColor"] = Color.FromRgb(25, 118, 210);
-            theme["CurrentPageColor"] = Color.FromRgb(102, 187, 106);
+            // Interacción
+            theme["BorderColor"] = Color.FromRgb(0x26, 0x29, 0x32);
+            theme["ItemHoverColor"] = Color.FromRgb(0x26, 0x29, 0x32);
+            theme["ItemSelectedColor"] = Color.FromRgb(0x1B, 0x26, 0x38);
+            theme["CurrentPageColor"] = Color.FromRgb(0x1B, 0x26, 0x38);
+            theme["CurrentPageBorderColor"] = Color.FromRgb(0x3B, 0x82, 0xF6);
+            theme["BookmarkColor"] = Color.FromRgb(0xF5, 0x9E, 0x0B);
 
             CreateBrushesFromColors(theme);
             return theme;
@@ -354,49 +347,11 @@ namespace ComicReader.Themes
 
         private static ResourceDictionary CreateComicTheme()
         {
-            var theme = new ResourceDictionary();
-
-            // Colores vibrantes inspirados en cómics
-            theme["PrimaryColor"] = Color.FromRgb(255, 87, 34);  // Naranja vibrante
-            theme["SecondaryColor"] = Color.FromRgb(156, 39, 176); // Púrpura
-            theme["AccentColor"] = Color.FromRgb(0, 188, 212);   // Cyan
-            theme["ErrorColor"] = Color.FromRgb(244, 67, 54);
-
-            // Fondos: también establecemos colores base para asegurar consistencia
-            theme["WindowBackgroundColor"] = Color.FromRgb(63, 81, 181);
-            theme["PanelBackgroundColor"] = Color.FromRgb(240, 240, 255);
-            // Additionally provide gradient brushes for richer look (non-mandatory)
-            var windowBrush = new LinearGradientBrush();
-            windowBrush.GradientStops.Add(new GradientStop(Color.FromRgb(63, 81, 181), 0.0));
-            windowBrush.GradientStops.Add(new GradientStop(Color.FromRgb(156, 39, 176), 1.0));
-            windowBrush.Freeze();
-            theme["WindowBackgroundBrush"] = windowBrush;
-
-            var panelBrush = new LinearGradientBrush();
-            panelBrush.GradientStops.Add(new GradientStop(Color.FromRgb(240, 240, 255), 0.0));
-            panelBrush.GradientStops.Add(new GradientStop(Color.FromRgb(250, 240, 255), 1.0));
-            panelBrush.Freeze();
-            theme["PanelBackgroundBrush"] = panelBrush;
-
-            theme["HeaderBackgroundColor"] = Color.FromRgb(33, 33, 33);
-            theme["InputBackgroundColor"] = Color.FromRgb(255, 255, 255);
-
-            // Colores de texto con estilo cómic
-            theme["TextColor"] = Color.FromRgb(33, 33, 33);
-            theme["SecondaryTextColor"] = Color.FromRgb(96, 125, 139);
-            theme["DisabledTextColor"] = Color.FromRgb(176, 190, 197);
-
-            // Colores de interacción con estilo pop
-            theme["BorderColor"] = Color.FromRgb(255, 87, 34);
-            theme["ItemHoverColor"] = Color.FromRgb(255, 241, 118);
-            theme["ItemSelectedColor"] = Color.FromRgb(255, 213, 79);
-            theme["CurrentPageColor"] = Color.FromRgb(129, 199, 132);
-
-            // Colores especiales para el tema cómic
-            theme["BookmarkColor"] = Color.FromRgb(255, 152, 0);
-            theme["CurrentPageBorderColor"] = Color.FromRgb(255, 235, 59);
-            CreateBrushesFromColors(theme);
-            return theme;
+            // Phase 1: el "Comic" theme original era el desorden naranja+púrpura+cyan
+            // que disparaba el chaos visual. Eliminado. Usuarios con "Comic" guardado
+            // como tema activo ahora ven la paleta limpia "Dark" hasta que Phase 4
+            // colapse el selector de temas a una sola opción.
+            return CreateDarkTheme();
         }
 
         private static ResourceDictionary CreateSepiaTheme()

@@ -1,51 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  OBSOLETO — Phase 1.
+  Este archivo formaba parte del sistema de temas/estilos legacy. Toda su
+  responsabilidad se trasladó a Themes/Tokens.xaml y Themes/Components.xaml,
+  cargados directamente desde App.xaml. Este archivo queda vacío para que
+  WPF lo compile sin definir recursos duplicados. Será eliminado en Phase 5.
+-->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <!-- Paleta Unificada -->
-  <Color x:Key="Color.Primary.Blue">#2E5BDA</Color>
-  <Color x:Key="Color.Primary.Red">#E53E3E</Color>
-  <Color x:Key="Color.Primary.Yellow">#F7D917</Color>
-  <Color x:Key="Color.Primary.Orange">#FF8C42</Color>
-  <Color x:Key="Color.Primary.Purple">#9F7AEA</Color>
-  <Color x:Key="Color.Primary.Green">#48BB78</Color>
-
-  <Color x:Key="Color.Neutral.Dark">#1A1A1A</Color>
-  <Color x:Key="Color.Neutral.Mid">#2D3748</Color>
-  <Color x:Key="Color.Neutral.Light">#4A5568</Color>
-  <Color x:Key="Color.Neutral.SoftWhite">#F7FAFC</Color>
-  <Color x:Key="Color.Neutral.OffWhite">#EDF2F7</Color>
-  <Color x:Key="Color.Background.Deep">#0F1419</Color>
-  <Color x:Key="Color.Background.Card">#1E2024</Color>
-  <Color x:Key="Color.Background.Panel">#252A30</Color>
-
-  <!-- Brushes -->
-  <SolidColorBrush x:Key="Brush.Primary" Color="{StaticResource Color.Primary.Blue}"/>
-  <SolidColorBrush x:Key="Brush.Primary.Accent" Color="{StaticResource Color.Primary.Yellow}"/>
-  <SolidColorBrush x:Key="Brush.Danger" Color="{StaticResource Color.Primary.Red}"/>
-  <SolidColorBrush x:Key="Brush.Success" Color="{StaticResource Color.Primary.Green}"/>
-  <SolidColorBrush x:Key="Brush.Window" Color="{StaticResource Color.Background.Deep}"/>
-  <SolidColorBrush x:Key="Brush.Card" Color="{StaticResource Color.Background.Card}"/>
-  <SolidColorBrush x:Key="Brush.Panel" Color="{StaticResource Color.Background.Panel}"/>
-  <SolidColorBrush x:Key="Brush.Text" Color="{StaticResource Color.Neutral.SoftWhite}"/>
-  <SolidColorBrush x:Key="Brush.Text.Secondary" Color="{StaticResource Color.Neutral.OffWhite}"/>
-  <SolidColorBrush x:Key="Brush.Border" Color="{StaticResource Color.Neutral.Light}"/>
-
-  <LinearGradientBrush x:Key="Brush.Header.Gradient" StartPoint="0,0" EndPoint="1,0">
-    <GradientStop Color="{StaticResource Color.Primary.Blue}" Offset="0"/>
-    <GradientStop Color="{StaticResource Color.Primary.Purple}" Offset="0.5"/>
-    <GradientStop Color="{StaticResource Color.Primary.Blue}" Offset="1"/>
-  </LinearGradientBrush>
-
-  <!-- Backwards-compatible resource names used across XAML -->
-  <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource Color.Primary.Blue}" />
-  <SolidColorBrush x:Key="AccentForegroundBrush" Color="#FFFFFFFF" />
-  <SolidColorBrush x:Key="AccentLowBrush" Color="#223B82F6" />
-
-  <SolidColorBrush x:Key="WindowBackgroundBrush" Color="{StaticResource Color.Background.Deep}" />
-  <SolidColorBrush x:Key="PanelBackgroundBrush" Color="{StaticResource Color.Background.Panel}" />
-  <SolidColorBrush x:Key="CardBackgroundBrush" Color="{StaticResource Color.Background.Card}" />
-  <SolidColorBrush x:Key="CardBgBrush" Color="{StaticResource Color.Background.Card}" />
-
-  <SolidColorBrush x:Key="TextBrush" Color="{StaticResource Color.Neutral.SoftWhite}" />
-  <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource Color.Neutral.OffWhite}" />
-  <SolidColorBrush x:Key="DisabledTextBrush" Color="#99FFFFFF" />
-</ResourceDictionary>
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />

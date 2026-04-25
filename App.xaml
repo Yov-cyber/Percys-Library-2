@@ -2,49 +2,40 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:ComicReader.Converters"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
-            >
+             xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <Application.Resources>
         <ResourceDictionary>
-            <!-- Incluir estilos base -->
+            <!--
+              Sistema de diseño unificado (Phase 1).
+              Sólo dos diccionarios: tokens (paleta, tipografía, escalas) y components
+              (estilos canónicos de botón / card / input / slider / progress / list).
+              Cualquier brush o estilo legacy queda como alias dentro de esos dos archivos.
+              No agregues más MergedDictionaries aquí: si necesitas un nuevo recurso,
+              añádelo a Tokens.xaml o Components.xaml.
+            -->
             <ResourceDictionary.MergedDictionaries>
-                <!-- Bootstrap: estilos mínimos cargados primero para evitar referencias faltantes -->
-                <ResourceDictionary Source="Themes/Bootstrap.xaml" />
-                <!-- Modern theme added first so tokens can be overridden by other theme files if needed -->
-                <ResourceDictionary Source="Themes/Modern.xaml"/>
-                <ResourceDictionary Source="Themes/ThemeTokens.xaml"/>
-                <ResourceDictionary Source="Themes/BaseStyles.xaml"/>
-                <ResourceDictionary Source="Themes/DarkTheme.xaml"/>
-                <ResourceDictionary Source="Themes/CardStyles.xaml"/>
-                <ResourceDictionary Source="Resources/ReaderStyles.xaml"/>
-                <!-- Comic controls & styles (fallbacks and comic-themed controls) -->
-                <ResourceDictionary Source="Styles/Controls.Comic.xaml" />
-                <!-- Redesign overrides and new components -->
-                <ResourceDictionary Source="Styles/ComicRedesignControls.xaml" />
-                <ResourceDictionary Source="Styles/ComicRedesignTheme.xaml" />
-                <ResourceDictionary Source="Themes/ReadingStatsResources.xaml" />
+                <ResourceDictionary Source="Themes/Tokens.xaml" />
+                <ResourceDictionary Source="Themes/Components.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <!-- Global rendering and UI tokens -->
+
+            <!-- Render hints -->
             <sys:Boolean x:Key="UseBitmapScalingModeHighQuality">True</sys:Boolean>
-            <!-- Default app font (uses Segoe UI Variable if available) -->
-            <FontFamily x:Key="AppFontFamily">Segoe UI Variable, Segoe UI, Arial</FontFamily>
-            <!-- Application-level RenderOptions -->
-            <Style TargetType="Window">
-                <Setter Property="Foreground" Value="{DynamicResource WindowForegroundBrush}"/>
-                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
-                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
-            </Style>
-            <!-- Hint to use high-quality bitmap scaling in controls that respect it -->
             <sys:Boolean x:Key="PreferHighQualityScaling">True</sys:Boolean>
-            
+
+            <!-- Default Window style: superficie base + tipografía única -->
+            <Style TargetType="Window">
+                <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
+            </Style>
+
             <!-- Convertidores -->
             <converters:NullToCollapsedConverter x:Key="NullToCollapsedConverter"/>
             <converters:NullToVisibleConverter x:Key="NullToVisibleConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <converters:IsComicViewVisibleConverter x:Key="IsComicViewVisibleConverter"/>
-            <converters:StringToBrushConverter x:Key="StringToBrushConverter" />
-            
-            <!-- Paleta ahora proviene de ThemeTokens.xaml -->
+            <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

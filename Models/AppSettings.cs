@@ -231,6 +231,13 @@ namespace ComicReader.Services
         private bool _hideOverlayOnlyInImmersive = false;
         public bool HideOverlayOnlyInImmersive { get => _hideOverlayOnlyInImmersive; set => SetProperty(ref _hideOverlayOnlyInImmersive, value); }
 
+        // Phase 3: flag de migracion. Cuando es false, SettingsManager.LoadSettings()
+        // resetea HideOverlayOnlyInImmersive a false una vez para usuarios que
+        // venian del layout viejo donde la barra tenia su propia fila. Despues
+        // de migrar se setea a true y nunca mas se toca.
+        private bool _overlayLayoutMigrationApplied = false;
+        public bool OverlayLayoutMigrationApplied { get => _overlayLayoutMigrationApplied; set => SetProperty(ref _overlayLayoutMigrationApplied, value); }
+
         private double _hideCursorDelaySeconds = 3.0;
         public double HideCursorDelaySeconds { get => _hideCursorDelaySeconds; set => SetProperty(ref _hideCursorDelaySeconds, value); }
 

@@ -300,12 +300,16 @@
   <sys:Double x:Key="BaseFontSize">14</sys:Double>
   <sys:Double x:Key="HeadingFontSize">18</sys:Double>
 
-  <sys:Double x:Key="Spacing.XS">4</sys:Double>
-  <sys:Double x:Key="Spacing.S">8</sys:Double>
-  <sys:Double x:Key="Spacing.M">12</sys:Double>
-  <sys:Double x:Key="Spacing.L">16</sys:Double>
-  <sys:Double x:Key="Spacing.XL">24</sys:Double>
-  <sys:Double x:Key="Spacing.XXL">32</sys:Double>
+  <!-- Spacing tokens son Thickness para que sirvan de Padding/Margin
+       en Setters sin romper la conversion de WPF (ThicknessConverter no
+       acepta sys:Double). Si en el futuro se necesita el valor numerico
+       crudo, definir Spacing.*.Value como sys:Double aparte. -->
+  <Thickness x:Key="Spacing.XS">4</Thickness>
+  <Thickness x:Key="Spacing.S">8</Thickness>
+  <Thickness x:Key="Spacing.M">12</Thickness>
+  <Thickness x:Key="Spacing.L">16</Thickness>
+  <Thickness x:Key="Spacing.XL">24</Thickness>
+  <Thickness x:Key="Spacing.XXL">32</Thickness>
 
   <CornerRadius x:Key="Radius.None">0</CornerRadius>
   <CornerRadius x:Key="Radius.S">4</CornerRadius>

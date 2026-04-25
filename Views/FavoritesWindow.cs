@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -56,11 +57,20 @@ namespace ComicReader.Views
             GetCollectionsListBox().ItemsSource = Collections;
             GetFavoritesListBox().ItemsSource = FilteredItems;
 
-            // Permitir arrastrar y soltar archivos de cómic directamente a la lista
+            // Permitir arrastrar y soltar archivos de comic directamente a la lista.
+            // GongSolutions DragDrop (configurado en XAML para el reorder interno)
+            // intercepta los eventos preview y marcaria los nativos como handled,
+            // dejando los handlers DragOver/Drop nativos sin disparar. Por eso
+            // ruteamos todo a traves de un IDropTarget custom: si el data es
+            // FileDrop ejecuta la logica nativa, sino delega al DefaultDropHandler
+            // (reorder).
             var favList = GetFavoritesListBox();
             favList.AllowDrop = true;
-            favList.DragOver += FavoritesListBox_DragOver;
-            favList.Drop += FavoritesListBox_Drop;
+            GongSolutions.Wpf.DragDrop.DragDrop.SetDropHandler(favList,
+                new FavoritesDropHandler(
+                    onFilesDropped: AddDroppedFilesToCurrentCollection,
+                    canAcceptFileDrop: () => _selectedCollection != null,
+                    onInternalReorderCommitted: SyncModelOrderFromFiltered));
 
             // Actualizar estadísticas iniciales
             UpdateStatistics();
@@ -723,23 +733,18 @@ namespace ComicReader.Views
             GetCollectionsListBox().SelectedItem = copy;
         }
 
-        private void FavoritesListBox_DragOver(object sender, DragEventArgs e)
-        {
-            if (_selectedCollection == null) { e.Effects = DragDropEffects.None; return; }
-            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effects = DragDropEffects.Copy; else e.Effects = DragDropEffects.None;
-            e.Handled = true;
-        }
-
-        private void FavoritesListBox_Drop(object sender, DragEventArgs e)
+        // Invocado desde FavoritesDropHandler cuando el drop es de archivos del
+        // Explorador (no un drag interno de reorder). Mantiene la logica original
+        // de extension + recursion por carpeta.
+        private void AddDroppedFilesToCurrentCollection(IEnumerable<string> paths)
         {
             try
             {
                 if (_selectedCollection == null) return;
-                if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
-                var files = ((string[])e.Data.GetData(DataFormats.FileDrop)) ?? System.Linq.Enumerable.Empty<string>();
+                if (paths == null) return;
                 var exts = new[] { ".cbz", ".cbr", ".cb7", ".cbt", ".zip", ".rar", ".7z", ".tar", ".pdf", ".epub",
                                     ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp", ".heic", ".tif", ".tiff", ".avif" };
-                foreach (var path in files.SelectMany(p => Directory.Exists(p)
+                foreach (var path in paths.SelectMany(p => Directory.Exists(p)
                                                     ? Directory.GetFiles(p, "*", SearchOption.AllDirectories)
                                                     : new[] { p }))
                 {
@@ -757,14 +762,54 @@ namespace ComicReader.Views
                     CurrentCollectionItems.Add(item);
                 }
                 ApplyFilter();
+                UpdateStatistics();
                 FavoritesStorage.Save(Collections);
             }
             catch (Exception ex)
             {
-                // ERROR HANDLING MODERNO con ErrorHandler
                 ComicReader.Services.ErrorHandling.ErrorHandler.Instance.HandleException(
-                    ex, 
-                    "Error al arrastrar archivos a la colección", 
+                    ex,
+                    "Error al arrastrar archivos a la colección",
+                    ComicReader.Services.ErrorHandling.ErrorRecoveryStrategy.Notify);
+            }
+        }
+
+        // Tras un reorder via GongSolutions DefaultDropHandler, FilteredItems
+        // (ItemsSource del ListBox) refleja el nuevo orden, pero el modelo
+        // (CurrentCollectionItems y _selectedCollection.Items) sigue con el
+        // orden antiguo. Sin sincronizar, ApplyFilter() reconstruye
+        // FilteredItems desde el modelo y revierte el reorder. Aqui movemos
+        // los items del modelo para que coincidan con el orden visible y
+        // persistimos.
+        private void SyncModelOrderFromFiltered()
+        {
+            try
+            {
+                if (_selectedCollection == null) return;
+                if (FilteredItems == null) return;
+
+                // Reordena CurrentCollectionItems segun el orden de FilteredItems,
+                // preservando los items que no pasen el filtro al final (no se
+                // los puede mover via drag, asi que mantienen su posicion
+                // relativa entre si en el orden previo).
+                var visibleOrder = FilteredItems.ToList();
+                var visibleSet = new HashSet<FavoriteComic>(visibleOrder);
+                var hidden = CurrentCollectionItems.Where(x => !visibleSet.Contains(x)).ToList();
+
+                CurrentCollectionItems.Clear();
+                foreach (var v in visibleOrder) CurrentCollectionItems.Add(v);
+                foreach (var h in hidden) CurrentCollectionItems.Add(h);
+
+                _selectedCollection.Items.Clear();
+                foreach (var c in CurrentCollectionItems) _selectedCollection.Items.Add(c);
+
+                FavoritesStorage.Save(Collections);
+            }
+            catch (Exception ex)
+            {
+                ComicReader.Services.ErrorHandling.ErrorHandler.Instance.HandleException(
+                    ex,
+                    "Error al guardar el nuevo orden de la colección",
                     ComicReader.Services.ErrorHandling.ErrorRecoveryStrategy.Notify);
             }
         }

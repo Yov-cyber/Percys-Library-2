@@ -199,22 +199,15 @@
                            TextTrimming="CharacterEllipsis"/>
             </StackPanel>
 
-            <!-- Acciones secundarias (icon-only, discretas) -->
+            <!-- Acciones secundarias: solo adquisicion de contenido (archivo / carpeta).
+                 Colecciones, Estadisticas y Logros se acceden ahora desde el sidebar
+                 permanente de MainWindow. -->
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Style="{StaticResource Button.Icon}" Click="OpenFile_Click" ToolTip="Abrir archivo">
                     <TextBlock Text="📄" FontSize="16"/>
                 </Button>
                 <Button Style="{StaticResource Button.Icon}" Click="OpenFolder_Click" ToolTip="Explorar carpeta" Margin="4,0,0,0">
                     <TextBlock Text="📂" FontSize="16"/>
-                </Button>
-                <Button Style="{StaticResource Button.Icon}" Click="OpenFavorites_Click" ToolTip="Colecciones" Margin="4,0,0,0">
-                    <TextBlock Text="★" FontSize="16"/>
-                </Button>
-                <Button Style="{StaticResource Button.Icon}" Click="OpenComicStats_Click" ToolTip="Estadísticas" Margin="4,0,0,0">
-                    <TextBlock Text="📈" FontSize="16"/>
-                </Button>
-                <Button Style="{StaticResource Button.Icon}" Click="OpenAchievements_Click" ToolTip="Logros" Margin="4,0,0,0">
-                    <TextBlock Text="🏆" FontSize="16"/>
                 </Button>
             </StackPanel>
         </Grid>

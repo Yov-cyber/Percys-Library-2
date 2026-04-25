@@ -65,8 +65,9 @@
 
         <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"
                 shell:WindowChrome.IsHitTestVisibleInChrome="True">
-            <Button Content="★" ToolTip="Favoritos" Click="ToggleFavorites_Click" Style="{StaticResource WindowControlButton}"
-                shell:WindowChrome.IsHitTestVisibleInChrome="True" Margin="0,0,6,0"/>
+            <!-- Favoritos / Estadisticas / Logros se invocan ahora desde AppSidebar.
+                 Aqui solo quedan acciones globales (modo lectura, configuracion) y
+                 los controles de ventana. -->
             <Button Content="📖" ToolTip="Entrar al modo lectura" Click="EnterReadingMode_Click" Style="{StaticResource WindowControlButton}"
                 shell:WindowChrome.IsHitTestVisibleInChrome="True"/>
             <Button Content="⚙" ToolTip="Configuración" Click="OpenSettingsDialog_Click" Style="{StaticResource WindowControlButton}"
@@ -188,8 +189,42 @@
         </DockPanel>
     </Border>
 
-    <!-- Contenido principal con panel de miniaturas -->
-    <Grid Grid.Row="2" x:Name="ContentGrid">
+    <!-- Contenido principal: sidebar permanente (oculto en Reader) + grilla de contenido. -->
+    <DockPanel Grid.Row="2" LastChildFill="True">
+
+        <!-- Sidebar de navegacion principal. Visible solo cuando NO estamos en el lector,
+             para que el contenido de un comic ocupe la pantalla completa. -->
+        <Border DockPanel.Dock="Left" x:Name="AppSidebar" Width="56"
+                Background="{DynamicResource Surface.Raised.Brush}"
+                BorderBrush="{DynamicResource Border.Subtle.Brush}"
+                BorderThickness="0,0,1,0">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsReaderViewActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel VerticalAlignment="Top" Margin="0,12,0,0">
+                <Button x:Name="NavLibraryButton" Style="{DynamicResource Sidebar.Button}" Click="NavLibrary_Click" ToolTip="Biblioteca" Tag="active">
+                    <TextBlock Text="📚" FontSize="20"/>
+                </Button>
+                <Button x:Name="NavCollectionsButton" Style="{DynamicResource Sidebar.Button}" Click="NavCollections_Click" ToolTip="Colecciones">
+                    <TextBlock Text="★" FontSize="20"/>
+                </Button>
+                <Button x:Name="NavStatisticsButton" Style="{DynamicResource Sidebar.Button}" Click="NavStatistics_Click" ToolTip="Estadísticas">
+                    <TextBlock Text="📊" FontSize="20"/>
+                </Button>
+                <Button x:Name="NavAchievementsButton" Style="{DynamicResource Sidebar.Button}" Click="NavAchievements_Click" ToolTip="Logros">
+                    <TextBlock Text="🏆" FontSize="20"/>
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <Grid x:Name="ContentGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition x:Name="ThumbCol" Width="0"/>
             <ColumnDefinition Width="*"/>
@@ -242,7 +277,8 @@
         <Border Grid.Column="2" x:Name="FavoritesPanel" Background="{DynamicResource PanelBackgroundBrush}" Visibility="Collapsed" Width="320">
             <local:FavoritesSection x:Name="FavoritesSection" />
         </Border>
-    </Grid>
+        </Grid>
+    </DockPanel>
 
         
     </Grid>

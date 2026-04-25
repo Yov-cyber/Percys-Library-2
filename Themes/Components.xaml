@@ -183,6 +183,28 @@
     <Setter Property="FontFamily" Value="Segoe MDL2 Assets, Segoe Fluent Icons, Segoe UI Variable"/>
   </Style>
 
+  <!-- Boton del sidebar de navegacion principal: cuadrado, sin chrome, glyph centrado.
+       El estado activo se aplica via Tag="active" (lo setea el code-behind al cambiar
+       de seccion) que dispara un fondo Surface.Selected y borde de acento a la izquierda. -->
+  <Style x:Key="Sidebar.Button" TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+    <Setter Property="Width" Value="56"/>
+    <Setter Property="Height" Value="56"/>
+    <Setter Property="Margin" Value="0,2,0,2"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Foreground" Value="{DynamicResource Text.Secondary.Brush}"/>
+    <Style.Triggers>
+      <Trigger Property="IsMouseOver" Value="True">
+        <Setter Property="Foreground" Value="{DynamicResource Text.Primary.Brush}"/>
+      </Trigger>
+      <Trigger Property="Tag" Value="active">
+        <Setter Property="Foreground" Value="{DynamicResource Accent.Brush}"/>
+        <Setter Property="Background" Value="{DynamicResource Surface.Selected.Brush}"/>
+      </Trigger>
+    </Style.Triggers>
+  </Style>
+
   <!-- Botón de control de ventana (minimize / maximize / close) -->
   <Style x:Key="WindowControlButton" TargetType="Button" BasedOn="{StaticResource Button.Icon}">
     <Setter Property="Width" Value="36"/>

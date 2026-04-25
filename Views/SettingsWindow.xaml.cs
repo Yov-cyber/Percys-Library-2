@@ -5,6 +5,8 @@ using System.Windows.Threading;
 using ComicReader.ViewModels;
 using ComicReader.Themes;
 using ComicReader.Services;
+using Notifications = ComicReader.Services.Notifications;
+using ErrorHandling = ComicReader.Services.ErrorHandling;
 
 namespace ComicReader.Views
 {

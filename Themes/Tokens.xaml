@@ -192,7 +192,7 @@
   <SolidColorBrush x:Key="FocusBorderBrush" Color="{StaticResource Accent}"/>
   <SolidColorBrush x:Key="CurrentPageBorderBrush" Color="{StaticResource Accent}"/>
   <SolidColorBrush x:Key="IndicatorBorder" Color="{StaticResource Border.Subtle}"/>
-  <SolidColorBrush x:Key="ModernCardBorder" Color="{StaticResource Border.Subtle}"/>
+  <SolidColorBrush x:Key="ModernCardBorderBrush" Color="{StaticResource Border.Subtle}"/>
 
   <!-- Estados / progreso / bookmark -->
   <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource Danger}"/>

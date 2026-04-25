@@ -34,6 +34,8 @@
             <converters:NullToCollapsedConverter x:Key="NullToCollapsedConverter"/>
             <converters:NullToVisibleConverter x:Key="NullToVisibleConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
             <converters:IsComicViewVisibleConverter x:Key="IsComicViewVisibleConverter"/>
             <converters:StringToBrushConverter x:Key="StringToBrushConverter"/>
         </ResourceDictionary>
